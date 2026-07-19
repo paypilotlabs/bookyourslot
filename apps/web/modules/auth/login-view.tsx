@@ -37,13 +37,9 @@ interface LoginValues {
   csrfToken: string;
 }
 
-const MicrosoftIcon = () => (
-  <img className="size-4" src="/microsoft-logo.svg" alt="" />
-);
+const MicrosoftIcon = () => <img className="size-4" src="/microsoft-logo.svg" alt="" />;
 
-const GoogleIcon = () => (
-  <img className="size-4" src="/google-icon-colored.svg" alt="" />
-);
+const GoogleIcon = () => <img className="size-4" src="/google-icon-colored.svg" alt="" />;
 
 function BackgroundGrid() {
   const rows = 9;
@@ -176,7 +172,7 @@ export default function Login({
     process.env.NEXT_PUBLIC_DISABLE_SIGNUP !== "true" && searchParams?.get("register") !== "false";
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-default/80 px-4 py-10">
+    <div className="bg-mk-bg relative flex min-h-screen items-center justify-center px-4 py-10 [--cal-brand-emphasis:#bfe23e] [--cal-brand-text:#0E0E1B] [--cal-brand:#CDF34F] dark:[--cal-brand-emphasis:#bfe23e] dark:[--cal-brand-text:#0E0E1B] dark:[--cal-brand:#CDF34F]">
       <BackgroundGrid />
 
       <div className="relative z-10 flex w-full max-w-md flex-col items-center">
@@ -312,8 +308,7 @@ export default function Login({
               {/* Submit Button */}
               <Button
                 type="submit"
-                variant="outline"
-                className="mt-8 w-full"
+                className="mt-8 w-full justify-center border-transparent bg-[#CDF34F] text-[#0E0E1B] hover:bg-[#bfe23e] hover:text-[#0E0E1B]"
                 disabled={formState.isSubmitting}>
                 {twoFactorRequired ? t("submit") : t("continue")}
               </Button>

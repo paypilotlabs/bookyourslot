@@ -1,5 +1,6 @@
 "use client";
 
+import process from "node:process";
 import getStripe from "@calcom/app-store/stripepayment/lib/client";
 import { getPremiumPlanPriceValue } from "@calcom/app-store/stripepayment/lib/utils";
 import {
@@ -375,10 +376,10 @@ export default function Signup({
       ) : null}
       <div
         className={classNames(
-          "light flex min-h-screen w-full flex-col items-center justify-center bg-cal-muted [--cal-brand:#111827] 2xl:bg-default dark:[--cal-brand:#FFFFFF]",
+          "bg-mk-bg flex min-h-screen w-full flex-col items-center justify-center [--cal-brand:#CDF34F] dark:[--cal-brand:#CDF34F]",
           "[--cal-brand-subtle:#9CA3AF]",
-          "[--cal-brand-text:#FFFFFF] dark:[--cal-brand-text:#000000]",
-          "[--cal-brand-emphasis:#101010] dark:[--cal-brand-emphasis:#e1e1e1]"
+          "[--cal-brand-text:#0E0E1B] dark:[--cal-brand-text:#0E0E1B]",
+          "[--cal-brand-emphasis:#bfe23e] dark:[--cal-brand-emphasis:#bfe23e]"
         )}>
         <div className="grid w-full max-w-[1440px] grid-cols-1 grid-rows-1 overflow-hidden bg-cal-muted lg:grid-cols-2 2xl:rounded-[20px] 2xl:border 2xl:border-subtle 2xl:py-6">
           {/* Left side */}
@@ -511,15 +512,8 @@ export default function Signup({
                           setPremium={(value) => setPremiumUsername(value)}
                           addOnLeading={
                             orgSlug
-                              ? truncateDomain(
-                                  `${WEBAPP_URL.replace(
-                                    URL_PROTOCOL_REGEX,
-                                    ""
-                                  )}/`
-                                )
-                              : truncateDomain(
-                                  `${WEBSITE_URL.replace(URL_PROTOCOL_REGEX, "")}/`
-                                )
+                              ? truncateDomain(`${WEBAPP_URL.replace(URL_PROTOCOL_REGEX, "")}/`)
+                              : truncateDomain(`${WEBSITE_URL.replace(URL_PROTOCOL_REGEX, "")}/`)
                           }
                         />
                       ) : null}
@@ -577,7 +571,7 @@ export default function Signup({
                       <Button
                         type="submit"
                         data-testid="signup-submit-button"
-                        className="my-2 w-full justify-center"
+                        className="my-2 w-full justify-center border-transparent bg-[#CDF34F] text-[#0E0E1B] hover:bg-[#bfe23e] hover:text-[#0E0E1B]"
                         loading={loadingSubmitState}
                         disabled={
                           !!formMethods.formState.errors.username ||
@@ -717,7 +711,9 @@ export default function Signup({
                       <Button
                         color="secondary"
                         disabled={isGoogleLoading || isMicrosoftLoading}
-                        className={classNames("w-full justify-center rounded-md text-center")}
+                        className={classNames(
+                          "w-full justify-center rounded-md border-transparent bg-[#CDF34F] text-center text-[#0E0E1B] hover:bg-[#bfe23e] hover:text-[#0E0E1B]"
+                        )}
                         onClick={() => {
                           posthog.capture("signup_email_button_clicked", {
                             has_token: !!token,
@@ -828,7 +824,11 @@ export default function Signup({
               </>
             )}
             <div className="hidden rounded-tl-2xl rounded-br-none rounded-bl-2xl border border-default border-r-0 border-dashed bg-black/3 lg:block lg:py-[6px] lg:pl-[6px] dark:bg-white/5">
-              <img className="block dark:hidden" src="/mock-event-type-list.svg" alt="BookYourSlot Booking Page" />
+              <img
+                className="block dark:hidden"
+                src="/mock-event-type-list.svg"
+                alt="BookYourSlot Booking Page"
+              />
               {/* eslint-disable @next/next/no-img-element */}
               <img
                 className="hidden dark:block"
