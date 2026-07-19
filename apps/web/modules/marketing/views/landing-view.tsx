@@ -39,7 +39,7 @@ const FEATURES = [
       "Two-way sync keeps your availability true and prevents double-bookings, and new bookings land on your calendar.",
   },
   {
-    title: "Confirmations & reminders",
+    title: "Email confirmations",
     description:
       "Every booking, reschedule, and cancellation notifies everyone by email automatically. No follow-up needed.",
   },

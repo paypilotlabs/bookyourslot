@@ -6,15 +6,15 @@ sync, and automatic email confirmations — self-hosted on your own domain, at
 
 ## What it does
 
-- **Booking pages** — every person and team gets a clean public page; guests pick
+- **Booking pages** — every practitioner gets a clean public page; guests pick
   a time that works and book themselves.
 - **Availability & time zones** — working hours, date overrides, buffers, and
   automatic timezone conversion for every guest.
-- **Team scheduling** — round-robin and collective events across a team, with
-  per-member availability.
+- **Self-serve reschedules** — guests move or cancel their own booking from the
+  confirmation email, and the calendar stays current.
 - **Google Calendar sync** — two-way sync keeps availability true and prevents
   double-bookings.
-- **Email confirmations & reminders** — every booking, cancellation, and
+- **Email confirmations & updates** — every booking, cancellation, and
   reschedule notifies everyone automatically.
 - **Embeds, API & webhooks** — put booking flows in your own site and automate
   around them.

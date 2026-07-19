@@ -2,6 +2,7 @@ import { APP_NAME, SUPPORT_MAIL_ADDRESS } from "@calcom/lib/constants";
 import Link from "next/link";
 
 const FOOTER_LINKS = [
+  { href: "/how-it-works", label: "How it works" },
   { href: "/blog", label: "Blog" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },

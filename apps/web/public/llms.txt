@@ -12,7 +12,7 @@
 - Availability and time zones: working hours, date overrides, buffers; slots shown in the guest's
   time zone automatically.
 - Google Calendar sync: two-way. Busy times block the page, and new bookings are written to the calendar.
-- Email confirmations and reminders for bookings, reschedules, and cancellations.
+- Instant email confirmations for bookings, plus update emails for reschedules and cancellations.
 - Embeds, API and webhooks for integrating booking flows into other sites and automations.
 
 BookYourSlot does not currently offer built-in video conferencing, payment collection, or shared
@@ -29,6 +29,7 @@ shared team pages with round-robin assignment are on the roadmap and not live ye
 
 - Home: https://bookyourslot.online/
 - Sign up: https://bookyourslot.online/signup
+- How it works (full walkthrough with screenshots): https://bookyourslot.online/how-it-works
 - About the founder: https://bookyourslot.online/about
 - Blog: https://bookyourslot.online/blog
 - How to create a booking page: https://bookyourslot.online/blog/create-online-booking-page

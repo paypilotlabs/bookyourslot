@@ -61,7 +61,7 @@ export const BLOG_POSTS: BlogPost[] = [
             calendar without you touching anything.
           </li>
           <li>
-            <strong>Confirmations &amp; reminders</strong>: booking, reschedule, and cancellation emails go
+            <strong>Email confirmations</strong>: booking, reschedule, and cancellation emails go
             out to everyone, every time.
           </li>
           <li>
@@ -311,7 +311,7 @@ export const BLOG_POSTS: BlogPost[] = [
     slug: "online-booking-for-dentists",
     title: "Online booking for dentists: fill the chair without phone tag",
     description:
-      "How dental practices use online booking to cut front-desk phone time, reduce no-shows with reminders, and let patients book cleanings after hours.",
+      "How dental practices use online booking to cut front-desk phone time, reduce no-shows with instant confirmations, and let patients book cleanings after hours.",
     date: "2026-07-19",
     readingMinutes: 5,
     excerpt:
@@ -443,7 +443,7 @@ export const BLOG_POSTS: BlogPost[] = [
     slug: "salon-spa-booking-software",
     title: "Salon & spa booking: let clients book while you have your hands full",
     description:
-      "Why salons and spas move to online booking: 24/7 self-serve appointments, per-stylist pages, service menus as event types, and automatic reminders.",
+      "Why salons and spas move to online booking: 24/7 self-serve appointments, per-stylist pages, service menus as event types, and automatic confirmations.",
     date: "2026-07-19",
     readingMinutes: 5,
     excerpt:
@@ -480,7 +480,7 @@ export const BLOG_POSTS: BlogPost[] = [
         </ul>
         <h2>Fewer no-shows without lifting a finger</h2>
         <p>
-          Confirmations go out the moment a client books; reminders and any reschedule or cancellation emails
+          Confirmations go out the moment a client books; any reschedule or cancellation emails
           follow automatically. Clients who can't make it reschedule themselves, which turns a no-show into a
           filled slot later in the week.
         </p>

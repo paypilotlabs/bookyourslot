@@ -17,6 +17,11 @@ export function MarketingNav() {
         </Link>
         <nav className="flex items-center gap-1 sm:gap-2">
           <Link
+            href="/how-it-works"
+            className="text-brand-cream/70 hover:text-brand-cream hidden rounded-full px-3 py-2 text-sm font-medium transition sm:block">
+            How it works
+          </Link>
+          <Link
             href="/blog"
             className="text-brand-cream/70 hover:text-brand-cream rounded-full px-3 py-2 text-sm font-medium transition">
             Blog
