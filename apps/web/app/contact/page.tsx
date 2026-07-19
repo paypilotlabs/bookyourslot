@@ -2,9 +2,9 @@ import { APP_NAME, SUPPORT_MAIL_ADDRESS, WEBSITE_URL } from "@calcom/lib/constan
 import { MarketingShell } from "~/marketing/components/MarketingShell";
 
 export const metadata = {
-  title: `Contact — ${APP_NAME}`,
+  title: `Contact · ${APP_NAME}`,
   description:
-    "Get in touch with the BookYourSlot team — support, feedback, security reports, and partnership questions.",
+    "Get in touch with the BookYourSlot team: support, feedback, security reports, and partnership questions.",
   alternates: { canonical: `${WEBSITE_URL}/contact` },
 };
 
@@ -15,11 +15,11 @@ const REASONS = [
   },
   {
     title: "Feedback & feature requests",
-    description: "Tell us what's missing — early-access feedback directly shapes what we build next.",
+    description: "Tell us what's missing. Early-access feedback directly shapes what we build next.",
   },
   {
     title: "Security",
-    description: "Found a vulnerability? Please report it privately — we acknowledge within 72 hours.",
+    description: "Found a vulnerability? Please report it privately. We acknowledge within 72 hours.",
   },
 ];
 
@@ -29,7 +29,7 @@ export default function ContactPage() {
       <div className="mx-auto w-full max-w-3xl px-6 pb-24 pt-10">
         <h1 className="font-display text-5xl uppercase tracking-tight sm:text-6xl">Contact</h1>
         <p className="text-brand-navy/70 mt-4 max-w-xl">
-          One inbox, read by a human. Whatever it's about, write to us and we'll get back to you — usually
+          One inbox, read by a human. Whatever it's about, write to us and we'll get back to you, usually
           within one business day.
         </p>
         <a

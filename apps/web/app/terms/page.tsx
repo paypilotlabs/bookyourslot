@@ -3,7 +3,7 @@ import { MarketingShell } from "~/marketing/components/MarketingShell";
 import { Prose } from "~/marketing/components/Prose";
 
 export const metadata = {
-  title: `Terms of Service — ${APP_NAME}`,
+  title: `Terms of Service · ${APP_NAME}`,
   description: "The terms that apply when you create an account or book a meeting on BookYourSlot.",
   alternates: { canonical: `${WEBSITE_URL}/terms` },
 };
@@ -48,8 +48,8 @@ export default function TermsPage() {
           <p>
             We work to keep the service reliable, but it is provided "as is" without warranties of any kind,
             and during early access features may change. Our total liability for any claim related to the
-            service is limited to the amount you paid us in the twelve months before the claim — currently
-            zero during free early access.
+            service is limited to the amount you paid us in the twelve months before the claim, which is
+            currently zero during free early access.
           </p>
           <h2>Termination</h2>
           <p>

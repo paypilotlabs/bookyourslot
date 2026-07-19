@@ -1,7 +1,7 @@
 {
     "name": "BookYourSlot",
     "short_name": "BookYourSlot",
-    "description": "Self-hosted scheduling — booking pages, team scheduling, and calendar sync.",
+    "description": "Self-hosted scheduling: booking pages, team scheduling, and calendar sync.",
     "icons": [
         {
             "src": "/api/logo?type=android-chrome-192",
