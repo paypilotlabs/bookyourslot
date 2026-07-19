@@ -269,7 +269,11 @@ export function BookingListContainer(props: BookingListContainerProps) {
   );
 
   const query = trpc.viewer.bookings.get.useQuery(queryInput, {
-    staleTime: 5 * 60 * 1000, // 5 minutes - data is considered fresh
+    // Front-desk behavior: the list quietly stays current while the tab is
+    // open, so a booking made mid-appointment never goes unnoticed.
+    staleTime: 25 * 1000,
+    refetchInterval: 30 * 1000,
+    refetchOnWindowFocus: true,
     gcTime: 30 * 60 * 1000, // 30 minutes - cache retention time
     enabled: !isValidatorPending, // Wait for validator to be ready before fetching
   });

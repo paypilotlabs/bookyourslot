@@ -7,8 +7,9 @@ import { trpc } from "@calcom/trpc/react";
 import useMeQuery from "@calcom/trpc/react/hooks/useMeQuery";
 import classNames from "@calcom/ui/classNames";
 import { Button } from "@calcom/ui/components/button";
+import { showToast } from "@calcom/ui/components/toast";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type BookingItem = RouterOutputs["viewer"]["bookings"]["get"]["bookings"][number];
 
@@ -55,8 +56,41 @@ export default function CalendarView() {
         beforeEndDate: rangeEnd.toISOString(),
       },
     },
-    { enabled: Boolean(me) }
+    {
+      enabled: Boolean(me),
+      // Front-desk behavior: the grid stays current while the screen is on
+      staleTime: 25 * 1000,
+      refetchInterval: 30 * 1000,
+      refetchOnWindowFocus: true,
+    }
   );
+
+  // Announce bookings created after the page was opened, so nothing lands silently
+  const lastSeenCreatedAtRef = useRef<number | null>(null);
+  useEffect(() => {
+    const items = query.data?.bookings;
+    if (!items) return;
+    const maxCreated = items.reduce((max, item) => Math.max(max, dayjs(item.createdAt).valueOf()), 0);
+    if (lastSeenCreatedAtRef.current === null) {
+      lastSeenCreatedAtRef.current = Math.max(maxCreated, dayjs().valueOf());
+      return;
+    }
+    const fresh = items.filter(
+      (item) => dayjs(item.createdAt).valueOf() > (lastSeenCreatedAtRef.current ?? 0)
+    );
+    if (fresh.length === 0) return;
+    for (const item of fresh.slice(0, 3)) {
+      showToast(
+        t("new_booking_received", {
+          title: item.title,
+          time: dayjs(item.startTime).tz(timeZone).format("ddd D MMM, HH:mm"),
+        }),
+        "success",
+        { duration: 10000 }
+      );
+    }
+    lastSeenCreatedAtRef.current = maxCreated;
+  }, [query.data, t, timeZone]);
 
   const bookings = useMemo(
     () =>

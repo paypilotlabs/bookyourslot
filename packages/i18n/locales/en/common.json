@@ -4777,5 +4777,6 @@
   "day": "Day",
   "all_event_types": "All event types",
   "no_bookings_in_range": "No bookings in this range yet. Share your booking link and they will show up here.",
+  "new_booking_received": "New booking: {{title}}, {{time}}",
   "ADD_NEW_STRINGS_ABOVE_THIS_LINE_TO_PREVENT_MERGE_CONFLICTS": "↑↑↑↑↑↑↑↑↑↑↑↑↑ Add your new strings above here ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑"
 }
