@@ -32,6 +32,12 @@ Useful commands: `yarn type-check:ci --force`, `TZ=UTC yarn test`,
 `yarn biome check --write .`. See [CLAUDE.md](CLAUDE.md) and
 [agents/](agents/) for the engineering standards this repo follows.
 
+## Documentation
+
+- [docs/TESTING.md](docs/TESTING.md) — how to test locally and on the VPS
+- [docs/GITHUB.md](docs/GITHUB.md) — branching, PR flow, secrets policy
+- [deploy/production/CHECKLIST.md](deploy/production/CHECKLIST.md) — launch checklist and feature roadmap
+
 ## Production deployment
 
 The production setup (Docker Compose + Caddy HTTPS on a VPS) lives in

@@ -2,7 +2,10 @@
 
 Work through this top to bottom. Every unchecked box before "Go-live smoke
 test" blocks launch; everything under "After launch" can follow at its own
-pace. The [README](README.md) holds the detailed commands for each step.
+pace. The [README](README.md) holds the detailed commands for each step,
+[docs/TESTING.md](../../docs/TESTING.md) holds the test procedures for both
+local and VPS, and [docs/GITHUB.md](../../docs/GITHUB.md) holds the repository
+policies.
 
 ## 1. Infrastructure
 
@@ -52,6 +55,7 @@ pace. The [README](README.md) holds the detailed commands for each step.
 - [ ] `GOOGLE_LOGIN_ENABLED=true` in `.env`, then `docker compose up -d calcom`
 - [ ] Admin -> Settings -> Admin -> Apps -> **Google Calendar** enabled
 - [ ] Login page shows the Google button; a Google sign-in round-trips
+- [ ] Sign-up page's Google button also round-trips (both routes verified wired)
 - [ ] Settings -> Apps: connecting a Google Calendar works and a test booking lands on it
 
 ## 7. Apple Calendar (no API keys needed)
@@ -62,7 +66,9 @@ pace. The [README](README.md) holds the detailed commands for each step.
 
 ## 8. Go-live smoke test
 
-- [ ] Landing, `/blog`, `/about`, `/contact`, `/terms`, `/privacy` all load (light and dark)
+Full procedure: [docs/TESTING.md](../../docs/TESTING.md) Part B.
+
+- [ ] Landing, `/how-it-works`, `/blog`, `/about`, `/contact`, `/terms`, `/privacy` all load (light and dark)
 - [ ] `/demo/30min` books end to end from a private window
 - [ ] Reschedule + cancel emails behave
 - [ ] `/sitemap.xml`, `/robots.txt`, `/llms.txt`, `/og-image.png` respond
@@ -80,7 +86,7 @@ pace. The [README](README.md) holds the detailed commands for each step.
 
 | Feature | Status | What it needs |
 | --- | --- | --- |
-| Sign-in with Google | Ready, needs keys | Checklist section 6 |
+| Sign-in with Google | Wired + verified, needs keys | Checklist section 6 (both login and sign-up reach Google) |
 | Google Calendar sync | Ready, needs keys | Checklist section 6 |
 | Apple Calendar sync | Ready | Enable app (section 7) |
 | Outlook / Microsoft 365 calendar | Code exists, unconfigured | Azure app registration + admin enable |
@@ -91,3 +97,4 @@ pace. The [README](README.md) holds the detailed commands for each step.
 | Shared team pages / round-robin | Not in this edition | Team routes are stripped from the Cal.diy base (404); needs porting before any team claim |
 | Unique display font | Skipped for now | Drop unique.woff2 into fonts/brand if ever wanted |
 | Organizations / subdomains | Deliberately off | Do not enable on apex domain |
+| Admin impersonation | Not in this edition | Route 404s; the command-palette entry was removed |

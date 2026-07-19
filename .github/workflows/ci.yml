@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Types, lint, tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      # Build-time requirements. These are placeholders for CI only: no real
+      # secret belongs in this file, and none is needed to type-check.
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/calendso
+      DATABASE_DIRECT_URL: postgresql://postgres:postgres@localhost:5432/calendso
+      NEXTAUTH_SECRET: ci-placeholder-secret
+      CALENDSO_ENCRYPTION_KEY: ci-placeholder-encryption-key-32c
+      NEXT_PUBLIC_WEBAPP_URL: http://localhost:3000
+      NEXT_PUBLIC_WEBSITE_URL: http://localhost:3000
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Generate Prisma client
+        run: yarn prisma generate
+
+      - name: Type check
+        run: yarn type-check:ci --force
+
+      - name: Lint and format check
+        run: yarn biome ci .
+
+      - name: Unit tests
+        run: TZ=UTC yarn test
