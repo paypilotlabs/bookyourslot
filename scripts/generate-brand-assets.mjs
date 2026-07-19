@@ -1,14 +1,17 @@
 /**
- * Generates every BookYourSlot logo/favicon/email asset from font files,
+ * Generates every BookYourSlot logo/favicon/email/OG asset from font files,
  * writing over the legacy Cal.com asset filenames so no code changes are
  * needed when the brand changes.
  *
  * Run from the repo root:
  *   npx -y -p fontkit -p png-to-ico node scripts/generate-brand-assets.mjs
+ * (or with NODE_PATH pointing at a dir where those two packages are installed)
  *
- * Fonts: uses apps/web/fonts/brand/howells-script.(woff2|otf|ttf) for the
- * wordmark and monogram when present (licensed Envato file, supplied
- * manually), otherwise falls back to Cal Sans so the pipeline always works.
+ * Fonts (supplied manually, see apps/web/public/fonts/brand/README.md):
+ * - Manoyri  -> wordmark, logo, favicon monogram
+ * - Unique   -> OG-image display text
+ * Each falls back to Cal Sans so the pipeline always works; while Manoyri is
+ * absent the favicon renders as a letterless brand tile instead of a monogram.
  */
 
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
@@ -24,20 +27,31 @@ const sharp = require(path.resolve("node_modules/sharp"));
 const PUB = path.resolve("apps/web/public");
 const WORD = "BookYourSlot";
 const INK = "#292929";
-const TILE_BG = "#292929";
 
-const brandFontCandidates = [
-  "apps/web/fonts/brand/howells-script.woff2",
-  "apps/web/fonts/brand/howells-script.otf",
-  "apps/web/fonts/brand/howells-script.ttf",
-];
-const fallbackFont = "apps/web/fonts/CalSans-SemiBold.woff2";
-const fontPath = brandFontCandidates.find((p) => existsSync(p)) ?? fallbackFont;
-const font = fontkit.openSync(path.resolve(fontPath));
-console.log(`Using font: ${fontPath} (${font.fullName ?? font.postscriptName})`);
+// Editorial brand palette (matches the marketing surfaces)
+const NAVY = "#0E0E1B";
+const LIME = "#CDF34F";
+const PERIWINKLE = "#8B8BF7";
+const CREAM = "#F3EFE6";
 
-/** Outline `text` at `fontSize`, returning svg path data + tight bbox. */
-function outline(text, fontSize) {
+const FALLBACK_FONT = "apps/web/fonts/CalSans-SemiBold.woff2";
+const findFont = (base) =>
+  [
+    `apps/web/public/fonts/brand/${base}.woff2`,
+    `apps/web/public/fonts/brand/${base}.otf`,
+    `apps/web/public/fonts/brand/${base}.ttf`,
+  ].find((p) => existsSync(p));
+
+const scriptFontPath = findFont("manoyri");
+const displayFontPath = findFont("unique");
+const scriptFont = fontkit.openSync(path.resolve(scriptFontPath ?? FALLBACK_FONT));
+const displayFont = fontkit.openSync(path.resolve(displayFontPath ?? FALLBACK_FONT));
+const hasManoyri = Boolean(scriptFontPath);
+console.log(`wordmark font: ${scriptFontPath ?? `${FALLBACK_FONT} (fallback)`}`);
+console.log(`display font:  ${displayFontPath ?? `${FALLBACK_FONT} (fallback)`}`);
+
+/** Outline `text` in `font` at `fontSize`, returning svg path data + tight bbox. */
+function outline(font, text, fontSize) {
   const scale = fontSize / font.unitsPerEm;
   const run = font.layout(text);
   let penX = 0;
@@ -73,21 +87,29 @@ function outline(text, fontSize) {
 }
 
 function wordmarkSvg(fill, targetHeight = 26) {
-  const o = outline(WORD, 100);
+  const o = outline(scriptFont, WORD, 100);
   const k = targetHeight / o.height;
   const w = +(o.width * k).toFixed(2);
   return `<svg width="${w}" height="${targetHeight}" viewBox="0 0 ${w} ${targetHeight}" fill="none" xmlns="http://www.w3.org/2000/svg"><path transform="translate(${(-o.minX * k).toFixed(2)} ${(-o.minY * k).toFixed(2)}) scale(${k.toFixed(4)})" d="${o.d}" fill="${fill}"/></svg>`;
 }
 
-/** Monogram "B" tile. bg=null renders the glyph alone on transparency. */
-function tileSvg(size, { bg = TILE_BG, fg = "#FFFFFF", radiusRatio = 0.214, glyphRatio = 0.58 } = {}) {
-  const o = outline("B", 100);
-  const k = (size * glyphRatio) / o.height;
-  const tx = (size - o.width * k) / 2 - o.minX * k;
-  const ty = (size - o.height * k) / 2 - o.minY * k;
+/**
+ * Brand tile. With Manoyri present: a "B" monogram. Without it: a letterless
+ * navy tile with a lime dot (per branding decision — the old Cal-Sans "B" is
+ * retired). bg=null renders the glyph/dot alone on transparency.
+ */
+function tileSvg(size, { bg = NAVY, fg = LIME, radiusRatio = 0.214, glyphRatio = 0.58 } = {}) {
   const rect = bg
     ? `<rect width="${size}" height="${size}" rx="${(size * radiusRatio).toFixed(1)}" fill="${bg}"/>`
     : "";
+  if (!hasManoyri) {
+    const r = (size * 0.17).toFixed(1);
+    return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" fill="none" xmlns="http://www.w3.org/2000/svg">${rect}<circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="${fg}"/></svg>`;
+  }
+  const o = outline(scriptFont, "B", 100);
+  const k = (size * glyphRatio) / o.height;
+  const tx = (size - o.width * k) / 2 - o.minX * k;
+  const ty = (size - o.height * k) / 2 - o.minY * k;
   return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" fill="none" xmlns="http://www.w3.org/2000/svg">${rect}<path transform="translate(${tx.toFixed(2)} ${ty.toFixed(2)}) scale(${k.toFixed(4)})" d="${o.d}" fill="${fg}"/></svg>`;
 }
 
@@ -137,7 +159,7 @@ const mstiles = [
 const run = async () => {
   for (const [file, size] of tiles) await svgToPng(tileSvg(1024), file, { width: size });
   for (const [file, w, h] of mstiles)
-    await svgToPng(tileSvg(1024, { bg: null, glyphRatio: 0.5 }), file, { width: w, height: h });
+    await svgToPng(tileSvg(1024, { bg: null, fg: CREAM, glyphRatio: 0.5 }), file, { width: w, height: h });
 
   // email logo: fixed 123x38 (email tables are fixed-width)
   await svgToPng(wordmarkSvg(INK, 200), "emails/logo.png", { width: 123, height: 38 });
@@ -147,20 +169,17 @@ const run = async () => {
   writeFileSync(path.join(PUB, "favicon.ico"), ico);
   console.log("  favicon.ico");
 
-  // Social OG images (1200x630) — pastel gradient + outlined wordmark/tagline
+  // Social OG images (1200x630) — editorial navy + outlined wordmark/tagline
   const ogSvg = (() => {
-    const word = outline(WORD, 118);
-    const tag = outline("Scheduling that runs your business", 34);
-    const domain = outline("bookyourslot.online", 22);
+    const word = outline(scriptFont, WORD, 118);
+    const tag = outline(displayFont, "SCHEDULING THAT RUNS YOUR BUSINESS", 40);
+    const domain = outline(displayFont, "BOOKYOURSLOT.ONLINE", 24);
     const center = (o, k = 1) => ((1200 - o.width * k) / 2 - o.minX * k).toFixed(2);
     return `<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
-  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-    <stop offset="0" stop-color="#ffe4e6"/><stop offset="0.5" stop-color="#ddd6fe"/><stop offset="1" stop-color="#bae6fd"/>
-  </linearGradient></defs>
-  <rect width="1200" height="630" fill="url(#g)"/>
-  <path transform="translate(${center(word)} ${(275 - word.minY).toFixed(2)})" d="${word.d}" fill="#1A1A1A"/>
-  <path transform="translate(${center(tag)} ${(392 - tag.minY).toFixed(2)})" d="${tag.d}" fill="#525252"/>
-  <path transform="translate(${center(domain)} ${(540 - domain.minY).toFixed(2)})" d="${domain.d}" fill="#737373"/>
+  <rect width="1200" height="630" fill="${NAVY}"/>
+  <path transform="translate(${center(word)} ${(268 - word.minY).toFixed(2)})" d="${word.d}" fill="${LIME}"/>
+  <path transform="translate(${center(tag)} ${(390 - tag.minY).toFixed(2)})" d="${tag.d}" fill="${PERIWINKLE}"/>
+  <path transform="translate(${center(domain)} ${(540 - domain.minY).toFixed(2)})" d="${domain.d}" fill="${CREAM}"/>
 </svg>`;
   })();
   await sharp(Buffer.from(ogSvg), { density: 144 })

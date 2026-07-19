@@ -1,23 +1,26 @@
-# Brand fonts (supplied manually — licensed files, never in git)
+# Brand fonts (supplied manually — never in git)
 
-Download from your Envato Elements account and drop here:
+Download and drop here:
 
-| File to create          | Envato item                                  |
-| ----------------------- | -------------------------------------------- |
-| `howells-script.woff2`  | Howells Script Font (brand name / wordmark)  |
-| `willow.woff2`          | Willow Typeface — Bold Serif (display text)  |
+| File to create   | Font                                                        | Used for                                  |
+| ---------------- | ----------------------------------------------------------- | ----------------------------------------- |
+| `manoyri.woff2`  | Manoyri (graphicpear.com/manoyri-font)                      | BookYourSlot wordmark / logo / favicon    |
+| `unique.woff2`   | Unique — free variable condensed (Behance gallery 160832905) | Marketing display headlines (`font-display`) |
 
-If Envato only gives you `.otf`/`.ttf`, drop those and ask Claude to convert,
-or convert yourself (e.g. `npx -y ttf2woff2 < in.ttf > out.woff2`).
+If a download gives you `.otf`/`.ttf` instead of `.woff2`, drop those and ask
+Claude to convert, or convert yourself (`npx -y ttf2woff2 < in.ttf > out.woff2`).
+For Unique, prefer the **variable** file if the download offers one.
 
 After adding the files:
 
-1. The marketing pages pick them up automatically (`font-script` /
-   `font-display` utilities defined in `apps/web/styles/globals.css`).
-2. Regenerate the logo/favicon/email assets from Howells:
-   `npx -y -p fontkit -p png-to-ico node scripts/generate-brand-assets.mjs`
-   (or run it with NODE_PATH pointing at a dir where those two packages are
-   installed). Commit the regenerated files in `apps/web/public/`.
+1. Marketing pages pick them up automatically (`font-script` / `font-display`
+   utilities in `apps/web/styles/globals.css`).
+2. Regenerate the logo/favicon/OG assets so the wordmark and favicon render in
+   Manoyri (the script auto-detects the files):
+   run `scripts/generate-brand-assets.mjs` with `fontkit` + `png-to-ico`
+   available (see the script header), then commit the regenerated files in
+   `apps/web/public/`.
 
-The font binaries are gitignored on purpose — the Envato license does not
-permit redistributing the raw files in a public repo.
+Until the files exist the site falls back to Cal Sans and the favicon stays a
+letterless brand tile. Verify each font's license permits self-hosted web
+embedding before shipping; the raw files stay out of git either way.
