@@ -310,7 +310,7 @@ export default function Login({
                 type="submit"
                 className="mt-8 w-full justify-center border-transparent bg-[#CDF34F] text-[#0E0E1B] hover:bg-[#bfe23e] hover:text-[#0E0E1B]"
                 disabled={formState.isSubmitting}>
-                {twoFactorRequired ? t("submit") : t("continue")}
+                {twoFactorRequired ? t("submit") : t("sign_in")}
               </Button>
             </form>
 
