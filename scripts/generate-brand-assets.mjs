@@ -23,7 +23,7 @@ const sharp = require(path.resolve("node_modules/sharp"));
 const PUB = path.resolve("apps/web/public");
 const WORD = "BookYourSlot";
 const INK = "#292929";
-const TILE_BG = "#111111";
+const TILE_BG = "#292929";
 
 const brandFontCandidates = [
   "apps/web/fonts/brand/howells-script.woff2",
@@ -98,12 +98,15 @@ async function svgToPng(svg, file, { width, height } = {}) {
 }
 
 // --- word SVGs (same filenames the app already references) ---
-writeFileSync(path.join(PUB, "calcom-logo-white-word.svg"), wordmarkSvg("#FFFFFF"));
-writeFileSync(path.join(PUB, "cal-logo-word-dark.svg"), wordmarkSvg("#FFFFFF"));
-writeFileSync(path.join(PUB, "cal-logo-word-black.svg"), wordmarkSvg(INK));
+// Careful: the upstream filenames lie about color. The "white-word" and
+// "icon-white" assets are ink-colored (used on light UI, dark:invert flips
+// them); only cal-logo-word-dark.svg is actually light.
+writeFileSync(path.join(PUB, "calcom-logo-white-word.svg"), wordmarkSvg(INK));
+writeFileSync(path.join(PUB, "cal-logo-word-dark.svg"), wordmarkSvg("#fafafa"));
+writeFileSync(path.join(PUB, "cal-logo-word-black.svg"), wordmarkSvg("#000000"));
 writeFileSync(path.join(PUB, "cal-logo-word.svg"), wordmarkSvg(INK));
 writeFileSync(path.join(PUB, "cal-com-icon.svg"), tileSvg(56, { radiusRatio: 12 / 56 }));
-writeFileSync(path.join(PUB, "cal-com-icon-white.svg"), tileSvg(56, { bg: null }));
+writeFileSync(path.join(PUB, "cal-com-icon-white.svg"), tileSvg(56, { bg: null, fg: INK }));
 writeFileSync(path.join(PUB, "safari-pinned-tab.svg"), tileSvg(700, { bg: null, fg: "#000000", glyphRatio: 0.8 }));
 console.log("  word + monogram SVGs");
 
