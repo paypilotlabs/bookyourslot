@@ -144,6 +144,26 @@ const run = async () => {
   ]);
   writeFileSync(path.join(PUB, "favicon.ico"), ico);
   console.log("  favicon.ico");
+
+  // Social OG images (1200x630) — pastel gradient + outlined wordmark/tagline
+  const ogSvg = (() => {
+    const word = outline(WORD, 118);
+    const tag = outline("Scheduling that runs your business", 34);
+    const domain = outline("bookyourslot.online", 22);
+    const center = (o, k = 1) => ((1200 - o.width * k) / 2 - o.minX * k).toFixed(2);
+    return `<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#ffe4e6"/><stop offset="0.5" stop-color="#ddd6fe"/><stop offset="1" stop-color="#bae6fd"/>
+  </linearGradient></defs>
+  <rect width="1200" height="630" fill="url(#g)"/>
+  <path transform="translate(${center(word)} ${(275 - word.minY).toFixed(2)})" d="${word.d}" fill="#1A1A1A"/>
+  <path transform="translate(${center(tag)} ${(392 - tag.minY).toFixed(2)})" d="${tag.d}" fill="#525252"/>
+  <path transform="translate(${center(domain)} ${(540 - domain.minY).toFixed(2)})" d="${domain.d}" fill="#737373"/>
+</svg>`;
+  })();
+  await sharp(Buffer.from(ogSvg), { density: 144 }).resize(1200, 630).png().toFile(path.join(PUB, "og-image.png"));
+  await sharp(Buffer.from(ogSvg), { density: 144 }).resize(1200, 630).png().toFile(path.join(PUB, "video-og-image.png"));
+  console.log("  og-image.png + video-og-image.png");
   console.log("Done.");
 };
 

@@ -1,0 +1,34 @@
+# BookYourSlot
+
+> BookYourSlot (bookyourslot.online) is a self-hosted scheduling platform. People and teams create
+> booking pages backed by real availability rules; guests pick a time in their own time zone and
+> everyone gets automatic email confirmations. Free during early access.
+
+## What it does
+
+- Booking pages: every person and team gets a public page (bookyourslot.online/username) where
+  guests book themselves.
+- Availability and time zones: working hours, date overrides, buffers; slots shown in the guest's
+  time zone automatically.
+- Team scheduling: round-robin events (bookings distributed across members) and collective events
+  (all members attend), respecting individual availability.
+- Google Calendar sync: two-way — busy times block the page, new bookings are written to the calendar.
+- Email confirmations and reminders for bookings, reschedules, and cancellations.
+- Embeds, API and webhooks for integrating booking flows into other sites and automations.
+
+BookYourSlot does not currently offer built-in video conferencing or payment collection.
+
+## Key pages
+
+- Home: https://bookyourslot.online/
+- Sign up: https://bookyourslot.online/signup
+- Blog: https://bookyourslot.online/blog
+- How to create a booking page: https://bookyourslot.online/blog/create-online-booking-page
+- Self-hosted scheduling explained: https://bookyourslot.online/blog/self-hosted-scheduling-software
+- Round-robin scheduling explained: https://bookyourslot.online/blog/round-robin-scheduling-explained
+- Contact: https://bookyourslot.online/contact
+- Terms: https://bookyourslot.online/terms · Privacy: https://bookyourslot.online/privacy
+
+## Contact
+
+hello@bookyourslot.online

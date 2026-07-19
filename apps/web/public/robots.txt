@@ -1,6 +1,7 @@
 User-agent: *
 Disallow: /sandbox
 Disallow: /api
+Disallow: /auth
 Disallow: /settings
 Disallow: /settings/my-account
 
@@ -8,3 +9,5 @@ Disallow: /settings/my-account
 Allow: /api/social/og/image
 # Specifically allow access to api/app-store to allow search engines to fetch assets
 Allow: /api/app-store/
+
+Sitemap: https://bookyourslot.online/sitemap.xml
