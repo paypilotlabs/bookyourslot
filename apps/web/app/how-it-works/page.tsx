@@ -72,7 +72,7 @@ const SETTINGS_GROUPS = [
   },
   {
     name: "Security",
-    items: "Password · Two-factor authentication with backup codes · Admin impersonation consent",
+    items: "Password · Two-factor authentication with backup codes",
   },
   {
     name: "Developer",

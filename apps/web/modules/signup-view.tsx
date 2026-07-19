@@ -621,22 +621,15 @@ export default function Signup({
                               has_prepopulated_username: !!prepopulateFormValues?.username,
                             });
                             setIsGoogleLoading(true);
-                            const baseUrl = process.env.NEXT_PUBLIC_WEBAPP_URL;
-                            const GOOGLE_AUTH_URL = `${baseUrl}/auth/sso/google`;
-                            const searchQueryParams = new URLSearchParams();
+                            // This edition ships no /auth/sso/* routes, so sign-up goes through
+                            // the same NextAuth provider flow the login page uses. The chosen
+                            // username is handed to onboarding via localStorage.
                             if (prepopulateFormValues?.username) {
-                              // If username is present we save it in query params to check for premium
-                              searchQueryParams.set("username", prepopulateFormValues.username);
                               localStorage.setItem("username", prepopulateFormValues.username);
                             }
-                            if (token && prepopulateFormValues?.email) {
-                              searchQueryParams.set("email", prepopulateFormValues.email);
-                            }
-                            const url = searchQueryParams.toString()
-                              ? `${GOOGLE_AUTH_URL}?${searchQueryParams.toString()}`
-                              : GOOGLE_AUTH_URL;
-
-                            router.push(url);
+                            // "/" resolves to the right destination on its own: the onboarding
+                            // step still owed, or the dashboard once setup is done.
+                            await signIn("google", { callbackUrl: `${WEBAPP_URL}/` });
                           }}>
                           {t("continue_with_google")}
                         </Button>
