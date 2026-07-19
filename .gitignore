@@ -121,3 +121,10 @@ _pagefind/
 # Playwright artifacts
 playwright-report/
 blob-report/
+
+# Licensed brand font binaries (supplied manually, see apps/web/public/fonts/brand/README.md)
+apps/web/public/fonts/brand/*.woff2
+apps/web/public/fonts/brand/*.woff
+apps/web/public/fonts/brand/*.otf
+apps/web/public/fonts/brand/*.ttf
+apps/web/fonts/brand/

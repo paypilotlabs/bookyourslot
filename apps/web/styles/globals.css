@@ -4,6 +4,31 @@
 @import "../../../packages/coss-ui/src/styles/globals.css";
 @import "./raqb.css";
 
+/*
+  BookYourSlot brand fonts (marketing surfaces only).
+  Licensed Envato files are supplied out-of-band into public/fonts/brand/
+  (see the README there); until they exist the browser 404s the font file
+  and the stacks fall back to Cal Sans, so nothing breaks.
+*/
+@font-face {
+  font-family: "Howells Script";
+  src: url("/fonts/brand/howells-script.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Willow";
+  src: url("/fonts/brand/willow.woff2") format("woff2");
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: swap;
+}
+@theme inline {
+  --font-script: "Howells Script", var(--font-cal), "Brush Script MT", cursive;
+  --font-display: "Willow", var(--font-cal), Georgia, serif;
+}
+
 ::-moz-selection {
   color: var(--cal-brand-text);
   background: var(--cal-brand);
