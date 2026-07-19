@@ -11,7 +11,11 @@ import {
   PROFILE_READ,
   PROFILE_WRITE,
 } from "@calcom/platform-constants";
-import type { PLATFORM_PERMISSION } from "@calcom/platform-types";
+
+// Derived locally from PERMISSIONS instead of importing @calcom/platform-types,
+// which depends on this package — importing it back created a cyclic dependency
+// that broke turbo's post-install ordering.
+type PLATFORM_PERMISSION = (typeof PERMISSIONS)[number];
 
 export const hasPermission = (userPermissions: number, permission: PLATFORM_PERMISSION): boolean => {
   // use bitwise AND to check if user has the permission
