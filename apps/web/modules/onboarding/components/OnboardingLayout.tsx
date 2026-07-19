@@ -1,13 +1,12 @@
 "use client";
 
+import { useLocale } from "@calcom/lib/hooks/useLocale";
+import { Button } from "@calcom/ui/components/button";
+import { Logo } from "@calcom/ui/components/logo";
 import classNames from "classnames";
 import { signOut } from "next-auth/react";
 import { Children, type ReactNode } from "react";
 import { Toaster } from "sonner";
-
-import { useLocale } from "@calcom/lib/hooks/useLocale";
-import { Button } from "@calcom/ui/components/button";
-import { Logo } from "@calcom/ui/components/logo";
 
 type OnboardingLayoutProps = {
   userEmail: string;
@@ -68,9 +67,18 @@ export const OnboardingLayout = ({ userEmail, currentStep, totalSteps, children 
             <div className="h-[6px]" aria-hidden="true" />
           )}
         </div>
-        <Button onClick={handleSignOut} color="minimal" className="text-subtle h-7">
-          {t("sign_out")}
-        </Button>
+        <div className="flex items-center gap-4">
+          <a
+            href="/blog/create-online-booking-page"
+            target="_blank"
+            rel="noreferrer"
+            className="text-subtle hover:text-emphasis text-sm underline underline-offset-4 transition">
+            {t("onboarding_setup_guide_link")}
+          </a>
+          <Button onClick={handleSignOut} color="minimal" className="text-subtle h-7">
+            {t("sign_out")}
+          </Button>
+        </div>
       </div>
       <Toaster position="bottom-right" />
     </div>
