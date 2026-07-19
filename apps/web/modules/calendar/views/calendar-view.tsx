@@ -185,22 +185,29 @@ export default function CalendarView() {
           </Button>
           <span className="text-emphasis ml-2 text-sm font-semibold">{rangeLabel}</span>
         </div>
-        <div className="border-subtle flex rounded-lg border p-0.5">
-          {(["week", "day"] as const).map((value) => (
-            <button
-              key={value}
-              type="button"
-              onClick={() => {
-                setMode(value);
-                setOffset(0);
-              }}
-              className={classNames(
-                "rounded-md px-3 py-1 text-sm font-medium transition",
-                mode === value ? "bg-emphasis text-emphasis" : "text-subtle hover:text-emphasis"
-              )}>
-              {t(value)}
-            </button>
-          ))}
+        <div className="flex items-center gap-3">
+          <Link
+            href="/bookings/upcoming"
+            className="text-subtle hover:text-emphasis text-sm font-medium underline underline-offset-4 transition">
+            {t("bookings")}
+          </Link>
+          <div className="border-subtle flex rounded-lg border p-0.5">
+            {(["week", "day"] as const).map((value) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => {
+                  setMode(value);
+                  setOffset(0);
+                }}
+                className={classNames(
+                  "rounded-md px-3 py-1 text-sm font-medium transition",
+                  mode === value ? "bg-emphasis text-emphasis" : "text-subtle hover:text-emphasis"
+                )}>
+                {t(value)}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -333,7 +340,19 @@ export default function CalendarView() {
       {query.isPending ? (
         <div className="bg-subtle h-6 w-56 animate-pulse rounded-md" />
       ) : (
-        visibleBookings.length === 0 && <p className="text-subtle text-sm">{t("no_bookings_in_range")}</p>
+        visibleBookings.length === 0 && (
+          <p className="text-subtle text-sm">
+            {t("no_bookings_in_range")}{" "}
+            {me?.username && (
+              <Link
+                href={`/${me.username}`}
+                target="_blank"
+                className="text-emphasis underline underline-offset-4">
+                {t("view_public_page")}
+              </Link>
+            )}
+          </p>
+        )
       )}
     </div>
   );
