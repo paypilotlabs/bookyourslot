@@ -300,6 +300,322 @@ export const BLOG_POSTS: BlogPost[] = [
       </>
     ),
   },
+  {
+    slug: "online-booking-for-dentists",
+    title: "Online booking for dentists: fill the chair without phone tag",
+    description:
+      "How dental practices use online booking to cut front-desk phone time, reduce no-shows with reminders, and let patients book cleanings after hours.",
+    date: "2026-07-19",
+    readingMinutes: 5,
+    excerpt:
+      "Most dental appointments are still booked by phone during the exact hours patients are at work. An online booking page fixes the mismatch.",
+    body: (
+      <>
+        <p>
+          <strong>Online booking for a dental practice</strong> means a public page where patients pick a
+          cleaning, check-up, or consultation slot from your real availability — while your front desk stays
+          focused on the patients physically in front of them. Most booking calls happen during the exact
+          hours patients are at work; an online page removes that mismatch entirely.
+        </p>
+        <h2>What changes for the practice</h2>
+        <ul>
+          <li>
+            <strong>After-hours booking.</strong> A large share of appointment demand happens evenings and
+            weekends. Your page takes those bookings while the office is closed.
+          </li>
+          <li>
+            <strong>Fewer no-shows.</strong> Every booking triggers an automatic email confirmation, and
+            reschedules or cancellations notify both sides instantly — patients self-serve instead of simply
+            not showing up.
+          </li>
+          <li>
+            <strong>No double-bookings.</strong> Connect the practice Google Calendar and busy blocks
+            disappear from the page automatically.
+          </li>
+        </ul>
+        <h2>How to set it up in BookYourSlot</h2>
+        <ol>
+          <li>
+            Create one event type per visit kind — "New patient exam (60m)", "Cleaning (45m)", "Consultation
+            (30m)" — each with its own buffer time for room turnover.
+          </li>
+          <li>Set clinic hours as your availability schedule, with date overrides for holidays.</li>
+          <li>
+            For multiple practitioners, create a team: patients can book a specific dentist or "first
+            available" via a round-robin event.
+          </li>
+          <li>Put the link on your website, Google Business Profile, and appointment cards.</li>
+        </ol>
+        <p>
+          A note on records: BookYourSlot handles scheduling — names, emails, and chosen times. It is not a
+          medical-records system; keep clinical data in your practice-management software and check the
+          patient-data rules that apply in your region.
+        </p>
+        <h2>Common questions</h2>
+        <h3>Can patients choose their hygienist or dentist?</h3>
+        <p>
+          Yes — each practitioner has a personal booking page, and team events can offer "any available
+          practitioner" through round-robin assignment.
+        </p>
+        <h3>Can we keep some slots phone-only?</h3>
+        <p>
+          Yes. Your page only offers the hours you define — keep emergency or complex-procedure slots out of
+          the schedule and handle them by phone as today.
+        </p>
+        <p>
+          Ready to try it? <a href="/signup">Create your practice's booking page free</a> — it takes about
+          five minutes (<a href="/blog/create-online-booking-page">here's the walkthrough</a>).
+        </p>
+      </>
+    ),
+  },
+  {
+    slug: "online-booking-for-clinics",
+    title: "Online booking for doctors and clinics: fewer calls, fuller schedules",
+    description:
+      "A practical guide to appointment scheduling for clinics: per-visit event types, per-doctor availability, team round-robin, and automatic confirmations.",
+    date: "2026-07-19",
+    readingMinutes: 5,
+    excerpt:
+      "Clinics juggle multiple doctors, visit types, and a phone that never stops. Here's how an online scheduling page absorbs the routine bookings.",
+    body: (
+      <>
+        <p>
+          A clinic's scheduling problem is really three problems: multiple <strong>doctors</strong> with
+          different hours, multiple <strong>visit types</strong> with different lengths, and a phone line that
+          ties up staff all day. An online booking page absorbs the routine share of that load — patients book
+          follow-ups and consultations themselves, and the desk handles the genuinely complex cases.
+        </p>
+        <h2>Map your clinic onto booking primitives</h2>
+        <ul>
+          <li>
+            <strong>Visit types → event types.</strong> "New patient (45m)", "Follow-up (15m)", "Consultation
+            (30m)" — each with its own duration and buffer.
+          </li>
+          <li>
+            <strong>Doctors → team members.</strong> Each keeps an individual availability schedule; each gets
+            a personal page for direct bookings.
+          </li>
+          <li>
+            <strong>"Next available" → round-robin.</strong> One link that assigns the booking to whichever
+            doctor is free, spreading load fairly (
+            <a href="/blog/round-robin-scheduling-explained">how round-robin works</a>).
+          </li>
+        </ul>
+        <h2>The parts patients notice</h2>
+        <p>
+          Slots appear in the patient's own time zone (useful for telehealth follow-ups), confirmations arrive
+          by email immediately, and rescheduling is a link click instead of a phone queue. Every reschedule
+          updates the doctor's calendar automatically.
+        </p>
+        <h2>The parts staff notice</h2>
+        <p>
+          Google Calendar sync means leave, meetings, and blocked rooms instantly remove slots from the public
+          page. Buffers between visits are enforced by the system, not by the receptionist's memory. And
+          because BookYourSlot is self-hosted, booking data lives in the clinic's own database — it is a
+          scheduling layer, not a medical-records system, so clinical data stays in your EHR and regional
+          patient-data rules still apply.
+        </p>
+        <h2>Common questions</h2>
+        <h3>Can we require staff confirmation before a booking is final?</h3>
+        <p>
+          Yes — event types support opt-in confirmation, so requests wait for approval instead of booking
+          instantly.
+        </p>
+        <h3>Can patients book a specific doctor?</h3>
+        <p>Yes — every doctor keeps a personal booking page alongside any shared clinic events.</p>
+        <p>
+          <a href="/signup">Set up your clinic free</a>, or read the{" "}
+          <a href="/blog/create-online-booking-page">five-minute setup guide</a> first.
+        </p>
+      </>
+    ),
+  },
+  {
+    slug: "salon-spa-booking-software",
+    title: "Salon & spa booking: let clients book while you have your hands full",
+    description:
+      "Why salons and spas move to online booking: 24/7 self-serve appointments, per-stylist pages, service menus as event types, and automatic reminders.",
+    date: "2026-07-19",
+    readingMinutes: 5,
+    excerpt:
+      "Your hands are in foils or mid-massage when the phone rings. Online booking answers it for you — here's the salon-shaped way to set it up.",
+    body: (
+      <>
+        <p>
+          Salons and spas lose bookings for one simple reason: when clients want to book, your hands are busy.{" "}
+          <strong>Online booking</strong> turns your service menu into a page where clients pick a stylist, a
+          service, and a time — while you keep working. BookYourSlot gives every stylist a page and the whole
+          salon a shared one.
+        </p>
+        <h2>Turn your service menu into event types</h2>
+        <p>
+          Each service becomes an event type with its real duration and cleanup buffer: "Cut & finish (45m)",
+          "Color (2h)", "Deep-tissue massage (60m + 15m turnaround)". Clients see exactly what they're
+          booking; you never get a color squeezed into a cut-sized gap because buffers are enforced
+          automatically.
+        </p>
+        <h2>Per-stylist pages, one salon brand</h2>
+        <ul>
+          <li>
+            <strong>Regulars book their person.</strong> Every stylist or therapist has a personal link with
+            their own hours.
+          </li>
+          <li>
+            <strong>New clients book "first available."</strong> A round-robin event assigns walk-in style
+            bookings to whoever's free, fairly.
+          </li>
+          <li>
+            <strong>Everyone's calendar stays true.</strong> Google Calendar sync blocks personal appointments
+            out of the public page automatically.
+          </li>
+        </ul>
+        <h2>Fewer no-shows without lifting a finger</h2>
+        <p>
+          Confirmations go out the moment a client books; reminders and any reschedule or cancellation emails
+          follow automatically. Clients who can't make it reschedule themselves — which turns a no-show into a
+          filled slot later in the week.
+        </p>
+        <h2>Where the link lives</h2>
+        <p>
+          Instagram bio, Google Business Profile, WhatsApp auto-reply, and your site (the booking flow can be{" "}
+          <strong>embedded</strong> directly into your website so clients never leave your page).
+        </p>
+        <h2>Common questions</h2>
+        <h3>Can clients book multiple services at once?</h3>
+        <p>
+          Create combined event types for popular pairings — "Cut + color (2h30)" — so the time block is right
+          by construction.
+        </p>
+        <h3>What about deposits?</h3>
+        <p>
+          BookYourSlot doesn't take payments today — bookings are free to make, and you charge in person as
+          usual.
+        </p>
+        <p>
+          <a href="/signup">Create your salon's page free</a> — the{" "}
+          <a href="/blog/create-online-booking-page">setup guide</a> takes about five minutes.
+        </p>
+      </>
+    ),
+  },
+  {
+    slug: "appointment-scheduling-local-businesses",
+    title: "Appointment scheduling for local businesses: a practical guide",
+    description:
+      "Tutors, repair shops, studios, trainers — how local businesses replace phone-and-DM scheduling with a booking link that works around the clock.",
+    date: "2026-07-19",
+    readingMinutes: 5,
+    excerpt:
+      "If your business runs on appointments — tutoring, repairs, fittings, training sessions — a booking link replaces the DM back-and-forth entirely.",
+    body: (
+      <>
+        <p>
+          Tutors, repair shops, photographers, personal trainers, tailors, notaries — if your business runs on
+          appointments, you're probably scheduling them over calls and DMs.{" "}
+          <strong>A booking link replaces that entirely:</strong> customers see your open slots, pick one, and
+          both of you get a confirmation. No app for them to install, nothing for you to answer at 10pm.
+        </p>
+        <h2>The one-hour setup</h2>
+        <ol>
+          <li>
+            <a href="/signup">Create your account</a> — your username becomes your link, like
+            bookyourslot.online/yourshop.
+          </li>
+          <li>
+            Add an event type per service: "Consultation (30m)", "Fitting (45m)", "Session (60m)" — with
+            travel or reset buffers where you need them.
+          </li>
+          <li>Set your working hours once; add date overrides for days off.</li>
+          <li>Connect Google Calendar so personal commitments block business slots automatically.</li>
+          <li>
+            Put the link everywhere customers already find you: Google Business Profile, Instagram bio,
+            WhatsApp status, your site (or embed the whole flow into it).
+          </li>
+        </ol>
+        <h2>Why it beats DM scheduling</h2>
+        <ul>
+          <li>
+            <strong>Zero back-and-forth.</strong> The average DM-scheduled appointment takes seven messages. A
+            link takes zero.
+          </li>
+          <li>
+            <strong>Time-zone proof.</strong> Remote sessions show slots in the customer's zone automatically.
+          </li>
+          <li>
+            <strong>A calendar that defends itself.</strong> Double-bookings become structurally impossible
+            instead of embarrassing.
+          </li>
+          <li>
+            <strong>Reschedules handle themselves.</strong> Life happens; customers move their own booking and
+            everyone's notified.
+          </li>
+        </ul>
+        <h2>Common questions</h2>
+        <h3>Do customers need an account?</h3>
+        <p>No — guests book with just their name and email.</p>
+        <h3>Can I take bookings without a website?</h3>
+        <p>Yes. The booking page is itself a hosted page; the link works anywhere you can paste text.</p>
+        <h3>What does it cost?</h3>
+        <p>It's free during early access — no card required.</p>
+      </>
+    ),
+  },
+  {
+    slug: "scheduling-for-freelancers-consultants",
+    title: "Scheduling for consultants and freelancers: protect your deep work",
+    description:
+      "How consultants use booking links to batch client calls, guard focus time with buffers and limits, and stop negotiating time zones by email.",
+    date: "2026-07-19",
+    readingMinutes: 4,
+    excerpt:
+      "A booking link isn't just convenient — used well, it's how consultants ring-fence deep work while staying easy to reach.",
+    body: (
+      <>
+        <p>
+          For consultants and freelancers, scheduling isn't a convenience problem — it's a{" "}
+          <strong>focus</strong> problem. Every "when works for you?" email costs a context switch, and every
+          scattered call fragments a day that should have had four solid hours of real work in it. A booking
+          link, configured deliberately, fixes both.
+        </p>
+        <h2>Design your link around your energy</h2>
+        <ul>
+          <li>
+            <strong>Batch calls into windows.</strong> Offer intro calls only 2–5pm Tuesday–Thursday; mornings
+            stay untouchable deep-work time.
+          </li>
+          <li>
+            <strong>Buffers are thinking time.</strong> 15 minutes after every call for notes and follow-ups,
+            enforced automatically.
+          </li>
+          <li>
+            <strong>Different links for different relationships.</strong> A 20-minute intro call for
+            prospects, a 60-minute working session for clients — separate event types, separately shareable.
+          </li>
+        </ul>
+        <h2>The time-zone email, retired</h2>
+        <p>
+          International clients see your slots in their own time zone automatically. "3pm your time or mine?"
+          disappears from your vocabulary, along with the occasional 6am mistake.
+        </p>
+        <h2>Look bigger than one person</h2>
+        <p>
+          Your link lives at your own domain-backed page, confirmations go out instantly, reschedules
+          self-serve, and your Google Calendar stays the single source of truth. When you grow into a studio,
+          team events and <a href="/blog/round-robin-scheduling-explained">round-robin</a> are already there.
+        </p>
+        <h2>Common questions</h2>
+        <h3>Can I stop clients booking same-day?</h3>
+        <p>Yes — minimum-notice rules per event type keep surprise meetings off today's calendar.</p>
+        <h3>Can I embed booking into my portfolio site?</h3>
+        <p>Yes — embed the flow directly, or just link out; both work.</p>
+        <p>
+          <a href="/signup">Set up your booking link free</a> and take the scheduling email out of your inbox
+          for good.
+        </p>
+      </>
+    ),
+  },
 ];
 
 export function getPost(slug: string): BlogPost | undefined {

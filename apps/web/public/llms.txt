@@ -1,8 +1,9 @@
 # BookYourSlot
 
-> BookYourSlot (bookyourslot.online) is a self-hosted scheduling platform. People and teams create
-> booking pages backed by real availability rules; guests pick a time in their own time zone and
-> everyone gets automatic email confirmations. Free during early access.
+> BookYourSlot (bookyourslot.online) is a self-hosted scheduling platform built by Lohith Kumar
+> Nerukonda. People and teams create booking pages backed by real availability rules; guests pick a
+> time in their own time zone and everyone gets automatic email confirmations. Free during early
+> access.
 
 ## What it does
 
@@ -16,16 +17,29 @@
 - Email confirmations and reminders for bookings, reschedules, and cancellations.
 - Embeds, API and webhooks for integrating booking flows into other sites and automations.
 
-BookYourSlot does not currently offer built-in video conferencing or payment collection.
+BookYourSlot does not currently offer built-in video conferencing or payment collection, and it is a
+scheduling layer — not a medical-records system.
+
+## Who it's for
+
+Local appointment businesses and teams: dentists, doctors and clinics, salons and spas, tutors,
+studios, repair shops, trainers, consultants and freelancers — through to multi-member teams that
+need round-robin distribution.
 
 ## Key pages
 
 - Home: https://bookyourslot.online/
 - Sign up: https://bookyourslot.online/signup
+- About the founder: https://bookyourslot.online/about
 - Blog: https://bookyourslot.online/blog
 - How to create a booking page: https://bookyourslot.online/blog/create-online-booking-page
 - Self-hosted scheduling explained: https://bookyourslot.online/blog/self-hosted-scheduling-software
 - Round-robin scheduling explained: https://bookyourslot.online/blog/round-robin-scheduling-explained
+- For dentists: https://bookyourslot.online/blog/online-booking-for-dentists
+- For doctors & clinics: https://bookyourslot.online/blog/online-booking-for-clinics
+- For salons & spas: https://bookyourslot.online/blog/salon-spa-booking-software
+- For local businesses: https://bookyourslot.online/blog/appointment-scheduling-local-businesses
+- For consultants: https://bookyourslot.online/blog/scheduling-for-freelancers-consultants
 - Contact: https://bookyourslot.online/contact
 - Terms: https://bookyourslot.online/terms · Privacy: https://bookyourslot.online/privacy
 
