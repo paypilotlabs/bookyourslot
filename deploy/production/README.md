@@ -56,6 +56,14 @@ cp .env.production.example .env
 nano .env    # fill every <PLACEHOLDER> — secrets, DB password, SMTP password
 ```
 
+Licensed brand fonts are gitignored, so copy them from your machine before the
+first build (logo/favicon images work without this, but the web font needs it):
+
+```bash
+scp apps/web/public/fonts/brand/*.otf apps/web/public/fonts/brand/*.woff2 \
+  root@<VPS_IP>:/opt/bookyourslot/apps/web/public/fonts/brand/ 2>/dev/null || true
+```
+
 ## 4. First build + start
 
 ```bash
