@@ -25,6 +25,11 @@ const getNavigationItems = (): NavigationItemType[] => [
     isCurrent: ({ pathname }) => pathname?.startsWith("/bookings") ?? false,
   },
   {
+    name: "calendar",
+    href: "/calendar",
+    icon: "calendar-days",
+  },
+  {
     name: "availability",
     href: "/availability",
     icon: "clock",

@@ -4772,5 +4772,10 @@
   "error_updating_user": "There was an error updating this user.",
   "please_reschedule": "Please reschedule.",
   "onboarding_setup_guide_link": "Need a walkthrough? Read the 5-minute setup guide",
+  "calendar_page_description": "Your week at a glance: every booking, laid out on the calendar.",
+  "week": "Week",
+  "day": "Day",
+  "all_event_types": "All event types",
+  "no_bookings_in_range": "No bookings in this range yet. Share your booking link and they will show up here.",
   "ADD_NEW_STRINGS_ABOVE_THIS_LINE_TO_PREVENT_MERGE_CONFLICTS": "↑↑↑↑↑↑↑↑↑↑↑↑↑ Add your new strings above here ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑"
 }
