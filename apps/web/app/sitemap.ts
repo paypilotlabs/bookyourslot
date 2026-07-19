@@ -6,6 +6,7 @@ import { BLOG_POSTS } from "~/marketing/blog/posts";
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticPages: MetadataRoute.Sitemap = [
     { url: WEBSITE_URL, changeFrequency: "weekly", priority: 1 },
+    { url: `${WEBSITE_URL}/how-it-works`, changeFrequency: "monthly", priority: 0.9 },
     { url: `${WEBSITE_URL}/blog`, changeFrequency: "weekly", priority: 0.8 },
     { url: `${WEBSITE_URL}/about`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${WEBSITE_URL}/contact`, changeFrequency: "monthly", priority: 0.5 },
