@@ -21,7 +21,7 @@ const FEATURES = [
   {
     title: "Booking pages",
     description:
-      "Every person and team gets a clean public page. Share one link and guests pick a time that works, then book themselves.",
+      "Every practitioner gets a clean public page. Share one link and guests pick a time that works, then book themselves.",
   },
   {
     title: "Availability & time zones",
@@ -29,9 +29,9 @@ const FEATURES = [
       "Working hours, date overrides, and buffers, with every slot shown in the guest's own time zone automatically.",
   },
   {
-    title: "Team scheduling",
+    title: "Self-serve reschedules",
     description:
-      "Round-robin and collective events across your whole team, respecting each member's own availability.",
+      "Guests move or cancel their own booking from the confirmation email, and your calendar updates itself.",
   },
   {
     title: "Google Calendar sync",
@@ -123,9 +123,9 @@ export const LANDING_FAQ = [
       "Yes. Connect Google Calendar and BookYourSlot reads your busy times to prevent double-bookings, then writes new bookings straight to your calendar.",
   },
   {
-    question: "Can my whole team use it?",
+    question: "Can several practitioners use it?",
     answer:
-      "Yes. Teams get shared event types, including round-robin (bookings distributed across members) and collective events (everyone attends), each respecting individual availability.",
+      "Yes. Each practitioner gets their own account, booking page, and calendar on the same instance. Shared team pages with round-robin assignment are on the roadmap and not live yet.",
   },
   {
     question: "Where is my data stored?",
@@ -155,8 +155,8 @@ export default function LandingView() {
             <BlurText text="your business" delay={0.25} className="text-brand-periwinkle block" />
           </h1>
           <p className="text-brand-cream/70 mx-auto mt-7 max-w-xl text-lg leading-relaxed">
-            Give every person and team a booking page guests love: availability rules, Google Calendar sync,
-            and automatic confirmations, with your name on the door.
+            Give every practitioner a booking page guests love: availability rules, Google Calendar sync, and
+            automatic confirmations, with your name on the door.
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-4">
             <Link

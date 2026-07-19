@@ -22,10 +22,10 @@ const ServerPage = async () => {
     return redirect("/auth/login");
   }
 
-  // This instance has no billing, so the upstream plan selector (with its
-  // hosted "$15/user/mo" team plan) would advertise a purchase that doesn't
-  // exist here. Everyone goes straight to personal onboarding; teams can be
-  // created later from Settings → Teams at no charge.
+  // This instance has no billing and the Cal.diy edition ships no team
+  // routes, so the upstream plan selector (with its hosted "$15/user/mo"
+  // team plan) would advertise things that don't exist here. Everyone goes
+  // straight to personal onboarding.
   return redirect("/onboarding/personal/settings");
 };
 

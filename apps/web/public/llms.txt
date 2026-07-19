@@ -11,20 +11,19 @@
   guests book themselves.
 - Availability and time zones: working hours, date overrides, buffers; slots shown in the guest's
   time zone automatically.
-- Team scheduling: round-robin events (bookings distributed across members) and collective events
-  (all members attend), respecting individual availability.
 - Google Calendar sync: two-way. Busy times block the page, and new bookings are written to the calendar.
 - Email confirmations and reminders for bookings, reschedules, and cancellations.
 - Embeds, API and webhooks for integrating booking flows into other sites and automations.
 
-BookYourSlot does not currently offer built-in video conferencing or payment collection, and it is a
-scheduling layer, not a medical-records system.
+BookYourSlot does not currently offer built-in video conferencing, payment collection, or shared
+team booking pages (round-robin is on the roadmap), and it is a scheduling layer, not a
+medical-records system.
 
 ## Who it's for
 
-Local appointment businesses and teams: dentists, doctors and clinics, salons and spas, tutors,
-studios, repair shops, trainers, consultants and freelancers, right through to multi-member teams
-that need round-robin distribution.
+Local appointment businesses: dentists, doctors and clinics, salons and spas, tutors, studios,
+repair shops, trainers, consultants and freelancers. Each practitioner gets their own booking page;
+shared team pages with round-robin assignment are on the roadmap and not live yet.
 
 ## Key pages
 

@@ -22,7 +22,7 @@ const FOCUS_AREAS = [
   {
     title: "Enterprise-grade bones",
     description:
-      "Team scheduling, round-robin assignment, calendar sync, webhooks, and an API: the machinery that scales from one chair to a whole organization.",
+      "Calendar sync, webhooks, an API, and a roadmap that includes shared team scheduling: machinery designed to scale from one chair to a whole organization.",
   },
   {
     title: "Open to your stack",
@@ -84,8 +84,8 @@ export default function AboutPage() {
             </p>
             <p>
               {APP_NAME} is my answer: a self-hosted scheduling platform that gives local businesses
-              enterprise-level booking. Real availability rules, team scheduling, calendar sync, and automatic
-              confirmations, running on infrastructure we control at bookyourslot.online.
+              enterprise-level booking. Real availability rules, calendar sync, and automatic confirmations,
+              running on infrastructure we control at bookyourslot.online.
             </p>
             <p>
               My focus is narrow on purpose. Keep improving the product, and keep it compatible with the tools

@@ -19,17 +19,17 @@ export const BLOG_POSTS: BlogPost[] = [
     slug: "introducing-bookyourslot",
     title: "Introducing BookYourSlot: scheduling that runs your business",
     description:
-      "BookYourSlot is live: self-hosted booking pages with availability rules, Google Calendar sync, team scheduling, and automatic confirmations.",
+      "BookYourSlot is live: self-hosted booking pages with availability rules, Google Calendar sync, and automatic confirmations.",
     date: "2026-07-18",
     readingMinutes: 4,
     excerpt:
-      "Today we're opening up BookYourSlot: a self-hosted scheduling platform that gives every person and team a booking page guests actually enjoy using.",
+      "Today we're opening up BookYourSlot: a self-hosted scheduling platform that gives every practitioner a booking page guests actually enjoy using.",
     body: (
       <>
         <p>
           Today we're opening up <strong>BookYourSlot</strong>, a self-hosted scheduling platform that gives
-          every person and team a clean booking page, real availability rules, and automatic confirmations.
-          Share one link; guests pick a time that works. That's the whole pitch.
+          every practitioner a clean booking page, real availability rules, and automatic confirmations. Share
+          one link; guests pick a time that works. That's the whole pitch.
         </p>
         <h2>Why we built it</h2>
         <p>
@@ -45,7 +45,7 @@ export const BLOG_POSTS: BlogPost[] = [
         <h2>What you get today</h2>
         <ul>
           <li>
-            <strong>Booking pages</strong>: a public page for every person and team at a link like
+            <strong>Booking pages</strong>: a public page for every practitioner at a link like
             bookyourslot.online/yourname, showing exactly the slots you want to offer.
           </li>
           <li>
@@ -53,8 +53,8 @@ export const BLOG_POSTS: BlogPost[] = [
             every slot rendered in the guest's own time zone automatically.
           </li>
           <li>
-            <strong>Team scheduling</strong>: round-robin and collective events that respect each member's
-            individual availability.
+            <strong>Self-serve reschedules</strong>: guests move or cancel their own booking from the
+            confirmation email, and your calendar updates itself.
           </li>
           <li>
             <strong>Google Calendar sync</strong>: busy times block your page, and new bookings land on your
@@ -205,8 +205,8 @@ export const BLOG_POSTS: BlogPost[] = [
         <h2>What to look for in a self-hosted scheduler</h2>
         <p>
           Self-hosting shouldn't mean settling for less product. The bar to insist on: real availability rules
-          with time-zone handling, two-way calendar sync, team scheduling (round-robin and collective),
-          automatic email notifications, and an API so you can build around it.
+          with time-zone handling, two-way calendar sync, automatic email notifications, and an API so you can
+          build around it.
         </p>
         <h2>How BookYourSlot approaches it</h2>
         <p>
@@ -233,11 +233,11 @@ export const BLOG_POSTS: BlogPost[] = [
     slug: "round-robin-scheduling-explained",
     title: "Round-robin scheduling explained (and when to use collective events instead)",
     description:
-      "How round-robin scheduling distributes bookings across a team, how it differs from collective events, and how to set both up.",
+      "How round-robin scheduling distributes bookings across a team, how it differs from collective events, and where it sits on the BookYourSlot roadmap.",
     date: "2026-07-18",
     readingMinutes: 5,
     excerpt:
-      "Round-robin scheduling automatically distributes incoming bookings across your team members. Here's how it works and when to choose it.",
+      "Round-robin scheduling automatically distributes incoming bookings across a team. Here's how it works, and where it sits on our roadmap.",
     body: (
       <>
         <p>
@@ -248,7 +248,7 @@ export const BLOG_POSTS: BlogPost[] = [
         </p>
         <h2>How round-robin assignment works</h2>
         <p>
-          When a guest picks a slot on a round-robin event, BookYourSlot looks at which team members are
+          When a guest picks a slot on a round-robin event, the system looks at which team members are
           available at that time, respecting each person's own working hours and calendar conflicts, and
           assigns the booking to balance distribution across the team. The guest never has to know or choose
           who they'll meet.
@@ -283,20 +283,27 @@ export const BLOG_POSTS: BlogPost[] = [
           Use round-robin for volume and fairness (demos, consultations); use collective for meetings that
           genuinely need multiple people in the room (interviews, project kickoffs).
         </p>
-        <h2>Setting it up in BookYourSlot</h2>
-        <ol>
-          <li>Create a team and invite your members, each of whom keeps their own availability schedule.</li>
-          <li>Create a team event type and choose Round Robin or Collective.</li>
-          <li>Share the team link. Assignment and calendar updates happen automatically.</li>
-        </ol>
+        <h2>Where BookYourSlot stands today</h2>
+        <p>
+          Honest status: shared team pages with round-robin assignment are on the BookYourSlot roadmap and are
+          not live yet. Today, each practitioner gets their own account and booking page on the same instance,
+          which already covers the "book a specific person" case. When team pages ship, this post will become
+          the setup guide.
+        </p>
+        <p>
+          Want round-robin sooner? <a href="/contact">Tell us</a>. Demand directly shapes the build order.
+        </p>
         <h2>Common questions</h2>
         <h3>Does round-robin respect individual working hours?</h3>
         <p>
-          Yes. A member who isn't available at a time is never assigned a booking at that time, and their
-          calendar conflicts count too.
+          In a good implementation, yes: a member who isn't available at a time is never assigned a booking at
+          that time, and calendar conflicts count too. That's the standard we're building to.
         </p>
-        <h3>Can a guest still book a specific person?</h3>
-        <p>Yes. Every member keeps their personal booking page alongside any team events.</p>
+        <h3>What can I use on BookYourSlot today?</h3>
+        <p>
+          Personal booking pages per practitioner, each with its own availability, calendar sync, and
+          confirmations. Guests book a specific person directly.
+        </p>
       </>
     ),
   },
@@ -341,8 +348,8 @@ export const BLOG_POSTS: BlogPost[] = [
           </li>
           <li>Set clinic hours as your availability schedule, with date overrides for holidays.</li>
           <li>
-            For multiple practitioners, create a team: patients can book a specific dentist or "first
-            available" via a round-robin event.
+            For multiple practitioners, give each dentist their own account and page so patients book a
+            specific dentist directly. Shared "first available" pages are on the roadmap.
           </li>
           <li>Put the link on your website, Google Business Profile, and appointment cards.</li>
         </ol>
@@ -354,8 +361,8 @@ export const BLOG_POSTS: BlogPost[] = [
         <h2>Common questions</h2>
         <h3>Can patients choose their hygienist or dentist?</h3>
         <p>
-          Yes. Each practitioner has a personal booking page, and team events can offer "any available
-          practitioner" through round-robin assignment.
+          Yes. Each practitioner has a personal booking page with their own hours, so patients pick their
+          hygienist or dentist directly. A shared "any available practitioner" page is on the roadmap.
         </p>
         <h3>Can we keep some slots phone-only?</h3>
         <p>
@@ -373,7 +380,7 @@ export const BLOG_POSTS: BlogPost[] = [
     slug: "online-booking-for-clinics",
     title: "Online booking for doctors and clinics: fewer calls, fuller schedules",
     description:
-      "A practical guide to appointment scheduling for clinics: per-visit event types, per-doctor availability, team round-robin, and automatic confirmations.",
+      "A practical guide to appointment scheduling for clinics: per-visit event types, per-doctor availability and booking pages, and automatic confirmations.",
     date: "2026-07-19",
     readingMinutes: 5,
     excerpt:
@@ -393,13 +400,14 @@ export const BLOG_POSTS: BlogPost[] = [
             (30m)", each with its own duration and buffer.
           </li>
           <li>
-            <strong>Doctors → team members.</strong> Each keeps an individual availability schedule; each gets
-            a personal page for direct bookings.
+            <strong>Doctors → accounts.</strong> Each doctor keeps an individual availability schedule and
+            gets a personal page for direct bookings.
           </li>
           <li>
-            <strong>"Next available" → round-robin.</strong> One link that assigns the booking to whichever
-            doctor is free, spreading load fairly (
-            <a href="/blog/round-robin-scheduling-explained">how round-robin works</a>).
+            <strong>"Next available" → roadmap.</strong> A single link that assigns the booking to whichever
+            doctor is free is coming (
+            <a href="/blog/round-robin-scheduling-explained">how round-robin will work</a>); today patients
+            pick their doctor directly.
           </li>
         </ul>
         <h2>The parts patients notice</h2>
@@ -423,7 +431,7 @@ export const BLOG_POSTS: BlogPost[] = [
           instantly.
         </p>
         <h3>Can patients book a specific doctor?</h3>
-        <p>Yes. Every doctor keeps a personal booking page alongside any shared clinic events.</p>
+        <p>Yes. Every doctor has a personal booking page, and that is exactly how patients book them.</p>
         <p>
           <a href="/signup">Set up your clinic free</a>, or read the{" "}
           <a href="/blog/create-online-booking-page">five-minute setup guide</a> first.
@@ -462,8 +470,8 @@ export const BLOG_POSTS: BlogPost[] = [
             their own hours.
           </li>
           <li>
-            <strong>New clients book "first available."</strong> A round-robin event assigns walk-in style
-            bookings to whoever's free, fairly.
+            <strong>New clients pick from the team list.</strong> Each stylist's page shows their real
+            openings; a shared "first available" page is on the roadmap.
           </li>
           <li>
             <strong>Everyone's calendar stays true.</strong> Google Calendar sync blocks personal appointments
@@ -602,7 +610,8 @@ export const BLOG_POSTS: BlogPost[] = [
         <p>
           Your link lives at your own domain-backed page, confirmations go out instantly, reschedules
           self-serve, and your Google Calendar stays the single source of truth. When you grow into a studio,
-          team events and <a href="/blog/round-robin-scheduling-explained">round-robin</a> are already there.
+          shared team pages and <a href="/blog/round-robin-scheduling-explained">round-robin</a> are on the
+          roadmap, and your setup carries straight over.
         </p>
         <h2>Common questions</h2>
         <h3>Can I stop clients booking same-day?</h3>

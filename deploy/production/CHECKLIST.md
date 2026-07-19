@@ -87,6 +87,7 @@ pace. The [README](README.md) holds the detailed commands for each step.
 | Video meetings (built-in/Zoom/Meet) | Unconfigured | Provider keys + app enable; landing copy must be updated only after it works |
 | Payments (Stripe) | Unconfigured | Stripe account + keys; same truth rule |
 | Workflows (SMS reminders) | Email works; SMS needs Twilio | Twilio credentials |
-| Owner calendar dashboard | Proposal pending | Decision, then build |
+| Owner calendar dashboard | In progress | Personal week view first |
+| Shared team pages / round-robin | Not in this edition | Team routes are stripped from the Cal.diy base (404); needs porting before any team claim |
 | Unique display font | Skipped for now | Drop unique.woff2 into fonts/brand if ever wanted |
 | Organizations / subdomains | Deliberately off | Do not enable on apex domain |
