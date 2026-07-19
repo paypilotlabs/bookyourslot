@@ -3376,6 +3376,7 @@ __metadata:
     dotenv-cli: "npm:6.0.0"
     entities: "npm:4.5.0"
     env-cmd: "npm:10.1.0"
+    framer-motion: "npm:10.12.8"
     glob: "npm:10.4.5"
     google-auth-library: "npm:9.15.0"
     handlebars: "npm:4.7.9"
