@@ -13,8 +13,9 @@ export function MarketingFooter() {
   return (
     <footer className="bg-brand-navy">
       <div className="text-brand-cream/60 mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-6 px-6 py-12 text-sm sm:flex-row">
-        <div className="flex flex-col items-center gap-1.5 sm:items-start">
-          <span className="font-script text-brand-lime text-xl">{APP_NAME}</span>
+        <div className="flex flex-col items-center gap-2.5 sm:items-start">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/bys-wordmark-cream.svg" alt={APP_NAME} className="h-5 w-auto" />
           <span>
             © {new Date().getFullYear()} {APP_NAME}. Scheduling on your own terms.
           </span>

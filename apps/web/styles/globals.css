@@ -14,7 +14,9 @@
 */
 @font-face {
   font-family: "Manoyri";
-  src: url("/fonts/brand/manoyri.woff2") format("woff2");
+  src:
+    url("/fonts/brand/manoyri.woff2") format("woff2"),
+    url("/fonts/brand/manoyri.otf") format("opentype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -40,6 +42,67 @@
   --color-brand-cream: #f3efe6;
   --color-brand-forest: #234d3c;
   --color-brand-pink: #e88bb1;
+}
+
+/*
+  Marketing neutrals follow the visitor's color scheme; the navy, forest,
+  and lime brand blocks stay constant in both. Pre-login surfaces only.
+*/
+:root {
+  --mk-bg: #f6f3ec;
+  --mk-ink: #14141f;
+  --mk-surface: rgba(255, 255, 255, 0.66);
+  --mk-surface-strong: #ffffff;
+  --mk-border: rgba(20, 20, 31, 0.12);
+  --mk-muted: rgba(20, 20, 31, 0.62);
+  --mk-faint: rgba(20, 20, 31, 0.45);
+  --mk-forest: #1f5140;
+  --mk-pink: #c2497d;
+  --mk-rust: #b4530a;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --mk-bg: #0b0b14;
+    --mk-ink: #f3efe6;
+    --mk-surface: rgba(243, 239, 230, 0.05);
+    --mk-surface-strong: #16161f;
+    --mk-border: rgba(243, 239, 230, 0.14);
+    --mk-muted: rgba(243, 239, 230, 0.62);
+    --mk-faint: rgba(243, 239, 230, 0.45);
+    --mk-forest: #8ccbad;
+    --mk-pink: #ee9cc0;
+    --mk-rust: #e8935a;
+  }
+}
+@theme inline {
+  --color-mk-bg: var(--mk-bg);
+  --color-mk-ink: var(--mk-ink);
+  --color-mk-surface: var(--mk-surface);
+  --color-mk-surface-strong: var(--mk-surface-strong);
+  --color-mk-border: var(--mk-border);
+  --color-mk-muted: var(--mk-muted);
+  --color-mk-faint: var(--mk-faint);
+  --color-mk-forest: var(--mk-forest);
+  --color-mk-pink: var(--mk-pink);
+  --color-mk-rust: var(--mk-rust);
+}
+
+/* Editorial marquee band (marketing) */
+@keyframes mk-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.mk-marquee {
+  animation: mk-marquee 28s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mk-marquee {
+    animation: none;
+  }
 }
 
 ::-moz-selection {

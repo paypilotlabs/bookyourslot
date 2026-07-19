@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 export type BlogPost = {
   slug: string;
   title: string;
-  /** Meta description — keep under ~155 characters. */
+  /** Meta description: keep under ~155 characters. */
   description: string;
   date: string; // ISO date
   readingMinutes: number;
@@ -19,7 +19,7 @@ export const BLOG_POSTS: BlogPost[] = [
     slug: "introducing-bookyourslot",
     title: "Introducing BookYourSlot: scheduling that runs your business",
     description:
-      "BookYourSlot is live — self-hosted booking pages with availability rules, Google Calendar sync, team scheduling, and automatic confirmations.",
+      "BookYourSlot is live: self-hosted booking pages with availability rules, Google Calendar sync, team scheduling, and automatic confirmations.",
     date: "2026-07-18",
     readingMinutes: 4,
     excerpt:
@@ -27,15 +27,15 @@ export const BLOG_POSTS: BlogPost[] = [
     body: (
       <>
         <p>
-          Today we're opening up <strong>BookYourSlot</strong> — a self-hosted scheduling platform that gives
+          Today we're opening up <strong>BookYourSlot</strong>, a self-hosted scheduling platform that gives
           every person and team a clean booking page, real availability rules, and automatic confirmations.
           Share one link; guests pick a time that works. That's the whole pitch.
         </p>
         <h2>Why we built it</h2>
         <p>
           Booking a meeting still takes an average of seven messages when it happens over email or chat. "Does
-          Tuesday work?" — "No, how about Thursday?" — "Which time zone?" Every one of those messages is
-          friction between you and the person trying to give you their time — or their business.
+          Tuesday work?" "No, how about Thursday?" "Which time zone?" Every one of those messages is friction
+          between you and the person trying to give you their time, or their business.
         </p>
         <p>
           Scheduling tools solved this years ago, but most of them live on someone else's cloud, carry someone
@@ -45,38 +45,38 @@ export const BLOG_POSTS: BlogPost[] = [
         <h2>What you get today</h2>
         <ul>
           <li>
-            <strong>Booking pages</strong> — a public page for every person and team at a link like
+            <strong>Booking pages</strong>: a public page for every person and team at a link like
             bookyourslot.online/yourname, showing exactly the slots you want to offer.
           </li>
           <li>
-            <strong>Availability &amp; time zones</strong> — working hours, date overrides, and buffers, with
+            <strong>Availability &amp; time zones</strong>: working hours, date overrides, and buffers, with
             every slot rendered in the guest's own time zone automatically.
           </li>
           <li>
-            <strong>Team scheduling</strong> — round-robin and collective events that respect each member's
+            <strong>Team scheduling</strong>: round-robin and collective events that respect each member's
             individual availability.
           </li>
           <li>
-            <strong>Google Calendar sync</strong> — busy times block your page, and new bookings land on your
+            <strong>Google Calendar sync</strong>: busy times block your page, and new bookings land on your
             calendar without you touching anything.
           </li>
           <li>
-            <strong>Confirmations &amp; reminders</strong> — booking, reschedule, and cancellation emails go
+            <strong>Confirmations &amp; reminders</strong>: booking, reschedule, and cancellation emails go
             out to everyone, every time.
           </li>
           <li>
-            <strong>Embeds, API &amp; webhooks</strong> — put the booking flow inside your own site and
+            <strong>Embeds, API &amp; webhooks</strong>: put the booking flow inside your own site and
             automate what happens after someone books.
           </li>
         </ul>
         <h2>Free during early access</h2>
         <p>
-          Creating an account and taking bookings is free while we're in early access — no credit card, no
+          Creating an account and taking bookings is free while we're in early access: no credit card, no
           booking caps. We'd rather you stress-test the product and tell us what's missing.
         </p>
         <p>
           Ready to try it? <a href="/signup">Create your account</a>, set your availability, and share your
-          link. If you get stuck, email us at hello@bookyourslot.online — a human reads every message.
+          link. If you get stuck, email us at hello@bookyourslot.online. A human reads every message.
         </p>
       </>
     ),
@@ -85,7 +85,7 @@ export const BLOG_POSTS: BlogPost[] = [
     slug: "create-online-booking-page",
     title: "How to create an online booking page for your business (in about 5 minutes)",
     description:
-      "A step-by-step guide to setting up an online booking page: event types, availability, calendar sync, and sharing your link — no code required.",
+      "A step-by-step guide to setting up an online booking page: event types, availability, calendar sync, and sharing your link. No code required.",
     date: "2026-07-18",
     readingMinutes: 6,
     excerpt:
@@ -93,14 +93,14 @@ export const BLOG_POSTS: BlogPost[] = [
     body: (
       <>
         <p>
-          An online booking page is a public link where clients see your real availability and book themselves
-          — no back-and-forth, no double-bookings, confirmations sent automatically. Here's how to set one up
-          on BookYourSlot from scratch. The whole thing takes about five minutes.
+          An online booking page is a public link where clients see your real availability and book
+          themselves: no back-and-forth, no double-bookings, confirmations sent automatically. Here's how to
+          set one up on BookYourSlot from scratch. The whole thing takes about five minutes.
         </p>
         <h2>Step 1: Create your account</h2>
         <p>
-          <a href="/signup">Sign up</a> with your email, pick a username — it becomes your booking link (like{" "}
-          <em>bookyourslot.online/priya</em>) — and confirm your time zone. Your time zone matters: it's the
+          <a href="/signup">Sign up</a> with your email, pick a username that becomes your booking link (like{" "}
+          <em>bookyourslot.online/priya</em>), and confirm your time zone. Your time zone matters: it's the
           anchor all guest-side conversions are calculated from.
         </p>
         <h2>Step 2: Define an event type</h2>
@@ -110,14 +110,14 @@ export const BLOG_POSTS: BlogPost[] = [
         </p>
         <ul>
           <li>
-            <strong>Duration</strong> — how long the meeting runs.
+            <strong>Duration</strong>: how long the meeting runs.
           </li>
           <li>
-            <strong>Buffers</strong> — breathing room before or after, so back-to-back bookings don't crush
+            <strong>Buffers</strong>: breathing room before or after, so back-to-back bookings don't crush
             your day.
           </li>
           <li>
-            <strong>Location</strong> — in person, a phone call, or a link of your choice.
+            <strong>Location</strong>: in person, a phone call, or a link of your choice.
           </li>
         </ul>
         <p>
@@ -133,7 +133,7 @@ export const BLOG_POSTS: BlogPost[] = [
         />
         <h2>Step 3: Set your availability</h2>
         <p>
-          Under Availability, define your working hours per weekday — say, Monday to Friday, 10:00 to 18:00 —
+          Under Availability, define your working hours per weekday (say, Monday to Friday, 10:00 to 18:00)
           and add date overrides for holidays or one-off days. Your booking page will only ever offer slots
           inside these rules.
         </p>
@@ -145,14 +145,14 @@ export const BLOG_POSTS: BlogPost[] = [
         </p>
         <h2>Step 5: Share your link (or embed it)</h2>
         <p>
-          That's it — share your link in your email signature, social bio, or invoices. If you have a website,
+          That's it. Share your link in your email signature, social bio, or invoices. If you have a website,
           embed the booking flow directly so clients never leave your page.
         </p>
         <h2>Common questions</h2>
         <h3>Can I take bookings without having a website?</h3>
-        <p>Yes. Your booking page is itself a hosted page — the link works anywhere you can paste text.</p>
+        <p>Yes. Your booking page is itself a hosted page, so the link works anywhere you can paste text.</p>
         <h3>Can I offer multiple services with different lengths?</h3>
-        <p>Yes — create one event type per service, each with its own duration, buffers, and location.</p>
+        <p>Yes. Create one event type per service, each with its own duration, buffers, and location.</p>
         <h3>What stops two people from booking the same slot?</h3>
         <p>
           Slots are checked against your calendar and existing bookings at booking time, so a taken slot
@@ -174,14 +174,14 @@ export const BLOG_POSTS: BlogPost[] = [
       <>
         <p>
           <strong>Self-hosted scheduling software</strong> is booking software that runs on infrastructure you
-          (or your provider of choice) control — instead of renting a slice of a scheduling company's cloud.
+          (or your provider of choice) control, instead of renting a slice of a scheduling company's cloud.
           The booking pages, guest details, availability rules, and calendar connections all live in a
           database you own.
         </p>
         <h2>Hosted vs. self-hosted: the honest comparison</h2>
         <p>
           Hosted tools like Calendly are excellent at what they do, and for many people they're the right
-          choice — zero maintenance, instant setup. The trade-offs only start to matter as scheduling becomes
+          choice: zero maintenance, instant setup. The trade-offs only start to matter as scheduling becomes
           core to your business:
         </p>
         <ul>
@@ -210,7 +210,7 @@ export const BLOG_POSTS: BlogPost[] = [
         </p>
         <h2>How BookYourSlot approaches it</h2>
         <p>
-          BookYourSlot runs on our own infrastructure at bookyourslot.online — your bookings and guest data
+          BookYourSlot runs on our own infrastructure at bookyourslot.online, so your bookings and guest data
           stay in our own database, not on a third-party scheduling cloud. You get the hosted-tool experience
           (sign up, share a link, done) with the ownership model of self-hosting, and it's free during early
           access. <a href="/signup">Try it here</a>.
@@ -218,12 +218,12 @@ export const BLOG_POSTS: BlogPost[] = [
         <h2>Common questions</h2>
         <h3>Is self-hosted scheduling harder to use?</h3>
         <p>
-          Not for the person booking or the person being booked — the experience is identical to a hosted
-          tool. The difference is where the data lives.
+          Not for the person booking or the person being booked. The experience is identical to a hosted tool.
+          The difference is where the data lives.
         </p>
         <h3>Can I move from a hosted tool?</h3>
         <p>
-          Yes — recreate your event types and availability (usually minutes of work), connect your calendar,
+          Yes. Recreate your event types and availability (usually minutes of work), connect your calendar,
           and swap the link in your signature and site.
         </p>
       </>
@@ -242,28 +242,28 @@ export const BLOG_POSTS: BlogPost[] = [
       <>
         <p>
           <strong>Round-robin scheduling</strong> automatically distributes incoming bookings across a team. A
-          guest books one link — "Talk to our team" — and the system assigns the meeting to a team member
-          based on who's available, spreading the load fairly instead of piling every booking onto whoever's
+          guest books one link ("Talk to our team") and the system assigns the meeting to a team member based
+          on who's available, spreading the load fairly instead of piling every booking onto whoever's
           calendar looks emptiest.
         </p>
         <h2>How round-robin assignment works</h2>
         <p>
           When a guest picks a slot on a round-robin event, BookYourSlot looks at which team members are
-          available at that time — respecting each person's own working hours and calendar conflicts — and
+          available at that time, respecting each person's own working hours and calendar conflicts, and
           assigns the booking to balance distribution across the team. The guest never has to know or choose
           who they'll meet.
         </p>
         <h2>Where teams use it</h2>
         <ul>
           <li>
-            <strong>Sales teams</strong> — inbound demo requests get spread across reps automatically.
+            <strong>Sales teams</strong>: inbound demo requests get spread across reps automatically.
           </li>
           <li>
-            <strong>Support &amp; onboarding</strong> — customers book "an onboarding session", not a specific
+            <strong>Support &amp; onboarding</strong>: customers book "an onboarding session", not a specific
             person.
           </li>
           <li>
-            <strong>Service businesses</strong> — "first available practitioner" bookings without a
+            <strong>Service businesses</strong>: "first available practitioner" bookings without a
             receptionist doing the juggling.
           </li>
         </ul>
@@ -285,18 +285,18 @@ export const BLOG_POSTS: BlogPost[] = [
         </p>
         <h2>Setting it up in BookYourSlot</h2>
         <ol>
-          <li>Create a team and invite your members — each keeps their own availability schedule.</li>
+          <li>Create a team and invite your members, each of whom keeps their own availability schedule.</li>
           <li>Create a team event type and choose Round Robin or Collective.</li>
           <li>Share the team link. Assignment and calendar updates happen automatically.</li>
         </ol>
         <h2>Common questions</h2>
         <h3>Does round-robin respect individual working hours?</h3>
         <p>
-          Yes — a member who isn't available at a time is never assigned a booking at that time, and their
+          Yes. A member who isn't available at a time is never assigned a booking at that time, and their
           calendar conflicts count too.
         </p>
         <h3>Can a guest still book a specific person?</h3>
-        <p>Yes — every member keeps their personal booking page alongside any team events.</p>
+        <p>Yes. Every member keeps their personal booking page alongside any team events.</p>
       </>
     ),
   },
@@ -313,7 +313,7 @@ export const BLOG_POSTS: BlogPost[] = [
       <>
         <p>
           <strong>Online booking for a dental practice</strong> means a public page where patients pick a
-          cleaning, check-up, or consultation slot from your real availability — while your front desk stays
+          cleaning, check-up, or consultation slot from your real availability, while your front desk stays
           focused on the patients physically in front of them. Most booking calls happen during the exact
           hours patients are at work; an online page removes that mismatch entirely.
         </p>
@@ -325,7 +325,7 @@ export const BLOG_POSTS: BlogPost[] = [
           </li>
           <li>
             <strong>Fewer no-shows.</strong> Every booking triggers an automatic email confirmation, and
-            reschedules or cancellations notify both sides instantly — patients self-serve instead of simply
+            reschedules or cancellations notify both sides instantly, so patients self-serve instead of simply
             not showing up.
           </li>
           <li>
@@ -336,8 +336,8 @@ export const BLOG_POSTS: BlogPost[] = [
         <h2>How to set it up in BookYourSlot</h2>
         <ol>
           <li>
-            Create one event type per visit kind — "New patient exam (60m)", "Cleaning (45m)", "Consultation
-            (30m)" — each with its own buffer time for room turnover.
+            Create one event type per visit kind: "New patient exam (60m)", "Cleaning (45m)", "Consultation
+            (30m)", each with its own buffer time for room turnover.
           </li>
           <li>Set clinic hours as your availability schedule, with date overrides for holidays.</li>
           <li>
@@ -347,24 +347,24 @@ export const BLOG_POSTS: BlogPost[] = [
           <li>Put the link on your website, Google Business Profile, and appointment cards.</li>
         </ol>
         <p>
-          A note on records: BookYourSlot handles scheduling — names, emails, and chosen times. It is not a
-          medical-records system; keep clinical data in your practice-management software and check the
+          A note on records: BookYourSlot handles scheduling, meaning names, emails, and chosen times. It is
+          not a medical-records system; keep clinical data in your practice-management software and check the
           patient-data rules that apply in your region.
         </p>
         <h2>Common questions</h2>
         <h3>Can patients choose their hygienist or dentist?</h3>
         <p>
-          Yes — each practitioner has a personal booking page, and team events can offer "any available
+          Yes. Each practitioner has a personal booking page, and team events can offer "any available
           practitioner" through round-robin assignment.
         </p>
         <h3>Can we keep some slots phone-only?</h3>
         <p>
-          Yes. Your page only offers the hours you define — keep emergency or complex-procedure slots out of
+          Yes. Your page only offers the hours you define, so keep emergency or complex-procedure slots out of
           the schedule and handle them by phone as today.
         </p>
         <p>
-          Ready to try it? <a href="/signup">Create your practice's booking page free</a> — it takes about
-          five minutes (<a href="/blog/create-online-booking-page">here's the walkthrough</a>).
+          Ready to try it? <a href="/signup">Create your practice's booking page free</a>. It takes about five
+          minutes (<a href="/blog/create-online-booking-page">here's the walkthrough</a>).
         </p>
       </>
     ),
@@ -383,14 +383,14 @@ export const BLOG_POSTS: BlogPost[] = [
         <p>
           A clinic's scheduling problem is really three problems: multiple <strong>doctors</strong> with
           different hours, multiple <strong>visit types</strong> with different lengths, and a phone line that
-          ties up staff all day. An online booking page absorbs the routine share of that load — patients book
+          ties up staff all day. An online booking page absorbs the routine share of that load: patients book
           follow-ups and consultations themselves, and the desk handles the genuinely complex cases.
         </p>
         <h2>Map your clinic onto booking primitives</h2>
         <ul>
           <li>
             <strong>Visit types → event types.</strong> "New patient (45m)", "Follow-up (15m)", "Consultation
-            (30m)" — each with its own duration and buffer.
+            (30m)", each with its own duration and buffer.
           </li>
           <li>
             <strong>Doctors → team members.</strong> Each keeps an individual availability schedule; each gets
@@ -412,18 +412,18 @@ export const BLOG_POSTS: BlogPost[] = [
         <p>
           Google Calendar sync means leave, meetings, and blocked rooms instantly remove slots from the public
           page. Buffers between visits are enforced by the system, not by the receptionist's memory. And
-          because BookYourSlot is self-hosted, booking data lives in the clinic's own database — it is a
+          because BookYourSlot is self-hosted, booking data lives in the clinic's own database. It is a
           scheduling layer, not a medical-records system, so clinical data stays in your EHR and regional
           patient-data rules still apply.
         </p>
         <h2>Common questions</h2>
         <h3>Can we require staff confirmation before a booking is final?</h3>
         <p>
-          Yes — event types support opt-in confirmation, so requests wait for approval instead of booking
+          Yes. Event types support opt-in confirmation, so requests wait for approval instead of booking
           instantly.
         </p>
         <h3>Can patients book a specific doctor?</h3>
-        <p>Yes — every doctor keeps a personal booking page alongside any shared clinic events.</p>
+        <p>Yes. Every doctor keeps a personal booking page alongside any shared clinic events.</p>
         <p>
           <a href="/signup">Set up your clinic free</a>, or read the{" "}
           <a href="/blog/create-online-booking-page">five-minute setup guide</a> first.
@@ -439,14 +439,14 @@ export const BLOG_POSTS: BlogPost[] = [
     date: "2026-07-19",
     readingMinutes: 5,
     excerpt:
-      "Your hands are in foils or mid-massage when the phone rings. Online booking answers it for you — here's the salon-shaped way to set it up.",
+      "Your hands are in foils or mid-massage when the phone rings. Online booking answers it for you. Here's the salon-shaped way to set it up.",
     body: (
       <>
         <p>
           Salons and spas lose bookings for one simple reason: when clients want to book, your hands are busy.{" "}
           <strong>Online booking</strong> turns your service menu into a page where clients pick a stylist, a
-          service, and a time — while you keep working. BookYourSlot gives every stylist a page and the whole
-          salon a shared one.
+          service, and a time, all while you keep working. BookYourSlot gives every stylist a page and the
+          whole salon a shared one.
         </p>
         <h2>Turn your service menu into event types</h2>
         <p>
@@ -473,7 +473,7 @@ export const BLOG_POSTS: BlogPost[] = [
         <h2>Fewer no-shows without lifting a finger</h2>
         <p>
           Confirmations go out the moment a client books; reminders and any reschedule or cancellation emails
-          follow automatically. Clients who can't make it reschedule themselves — which turns a no-show into a
+          follow automatically. Clients who can't make it reschedule themselves, which turns a no-show into a
           filled slot later in the week.
         </p>
         <h2>Where the link lives</h2>
@@ -484,16 +484,16 @@ export const BLOG_POSTS: BlogPost[] = [
         <h2>Common questions</h2>
         <h3>Can clients book multiple services at once?</h3>
         <p>
-          Create combined event types for popular pairings — "Cut + color (2h30)" — so the time block is right
-          by construction.
+          Create combined event types for popular pairings, like "Cut + color (2h30)", so the time block is
+          right by construction.
         </p>
         <h3>What about deposits?</h3>
         <p>
-          BookYourSlot doesn't take payments today — bookings are free to make, and you charge in person as
+          BookYourSlot doesn't take payments today. Bookings are free to make, and you charge in person as
           usual.
         </p>
         <p>
-          <a href="/signup">Create your salon's page free</a> — the{" "}
+          <a href="/signup">Create your salon's page free</a>. The{" "}
           <a href="/blog/create-online-booking-page">setup guide</a> takes about five minutes.
         </p>
       </>
@@ -503,15 +503,15 @@ export const BLOG_POSTS: BlogPost[] = [
     slug: "appointment-scheduling-local-businesses",
     title: "Appointment scheduling for local businesses: a practical guide",
     description:
-      "Tutors, repair shops, studios, trainers — how local businesses replace phone-and-DM scheduling with a booking link that works around the clock.",
+      "Tutors, repair shops, studios, trainers: how local businesses replace phone-and-DM scheduling with a booking link that works around the clock.",
     date: "2026-07-19",
     readingMinutes: 5,
     excerpt:
-      "If your business runs on appointments — tutoring, repairs, fittings, training sessions — a booking link replaces the DM back-and-forth entirely.",
+      "If your business runs on appointments (tutoring, repairs, fittings, training sessions), a booking link replaces the DM back-and-forth entirely.",
     body: (
       <>
         <p>
-          Tutors, repair shops, photographers, personal trainers, tailors, notaries — if your business runs on
+          Tutors, repair shops, photographers, personal trainers, tailors, notaries: if your business runs on
           appointments, you're probably scheduling them over calls and DMs.{" "}
           <strong>A booking link replaces that entirely:</strong> customers see your open slots, pick one, and
           both of you get a confirmation. No app for them to install, nothing for you to answer at 10pm.
@@ -519,12 +519,12 @@ export const BLOG_POSTS: BlogPost[] = [
         <h2>The one-hour setup</h2>
         <ol>
           <li>
-            <a href="/signup">Create your account</a> — your username becomes your link, like
+            <a href="/signup">Create your account</a>. Your username becomes your link, like
             bookyourslot.online/yourshop.
           </li>
           <li>
-            Add an event type per service: "Consultation (30m)", "Fitting (45m)", "Session (60m)" — with
-            travel or reset buffers where you need them.
+            Add an event type per service: "Consultation (30m)", "Fitting (45m)", "Session (60m)", with travel
+            or reset buffers where you need them.
           </li>
           <li>Set your working hours once; add date overrides for days off.</li>
           <li>Connect Google Calendar so personal commitments block business slots automatically.</li>
@@ -553,11 +553,11 @@ export const BLOG_POSTS: BlogPost[] = [
         </ul>
         <h2>Common questions</h2>
         <h3>Do customers need an account?</h3>
-        <p>No — guests book with just their name and email.</p>
+        <p>No. Guests book with just their name and email.</p>
         <h3>Can I take bookings without a website?</h3>
         <p>Yes. The booking page is itself a hosted page; the link works anywhere you can paste text.</p>
         <h3>What does it cost?</h3>
-        <p>It's free during early access — no card required.</p>
+        <p>It's free during early access. No card required.</p>
       </>
     ),
   },
@@ -569,11 +569,11 @@ export const BLOG_POSTS: BlogPost[] = [
     date: "2026-07-19",
     readingMinutes: 4,
     excerpt:
-      "A booking link isn't just convenient — used well, it's how consultants ring-fence deep work while staying easy to reach.",
+      "A booking link isn't just convenient. Used well, it's how consultants ring-fence deep work while staying easy to reach.",
     body: (
       <>
         <p>
-          For consultants and freelancers, scheduling isn't a convenience problem — it's a{" "}
+          For consultants and freelancers, scheduling isn't a convenience problem. It's a{" "}
           <strong>focus</strong> problem. Every "when works for you?" email costs a context switch, and every
           scattered call fragments a day that should have had four solid hours of real work in it. A booking
           link, configured deliberately, fixes both.
@@ -581,16 +581,16 @@ export const BLOG_POSTS: BlogPost[] = [
         <h2>Design your link around your energy</h2>
         <ul>
           <li>
-            <strong>Batch calls into windows.</strong> Offer intro calls only 2–5pm Tuesday–Thursday; mornings
-            stay untouchable deep-work time.
+            <strong>Batch calls into windows.</strong> Offer intro calls only from 2 to 5pm, Tuesday to
+            Thursday, and mornings stay untouchable deep-work time.
           </li>
           <li>
             <strong>Buffers are thinking time.</strong> 15 minutes after every call for notes and follow-ups,
             enforced automatically.
           </li>
           <li>
-            <strong>Different links for different relationships.</strong> A 20-minute intro call for
-            prospects, a 60-minute working session for clients — separate event types, separately shareable.
+            <strong>Different links for different relationships.</strong> A 20-minute intro call for prospects
+            and a 60-minute working session for clients are separate event types, separately shareable.
           </li>
         </ul>
         <h2>The time-zone email, retired</h2>
@@ -606,9 +606,9 @@ export const BLOG_POSTS: BlogPost[] = [
         </p>
         <h2>Common questions</h2>
         <h3>Can I stop clients booking same-day?</h3>
-        <p>Yes — minimum-notice rules per event type keep surprise meetings off today's calendar.</p>
+        <p>Yes. Minimum-notice rules per event type keep surprise meetings off today's calendar.</p>
         <h3>Can I embed booking into my portfolio site?</h3>
-        <p>Yes — embed the flow directly, or just link out; both work.</p>
+        <p>Yes. Embed the flow directly, or just link out; both work.</p>
         <p>
           <a href="/signup">Set up your booking link free</a> and take the scheduling email out of your inbox
           for good.

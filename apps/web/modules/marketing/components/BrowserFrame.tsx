@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-/** Schedulo-style browser chrome around a product screenshot. Shapes only — no icons. */
+/** Schedulo-style browser chrome around a product screenshot. Shapes only, no icons. */
 export function BrowserFrame({
   children,
   url = "bookyourslot.online",

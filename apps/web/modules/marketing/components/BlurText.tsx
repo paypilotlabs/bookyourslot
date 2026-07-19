@@ -11,7 +11,7 @@ type BlurTextProps = {
 
 /**
  * Word-by-word blur/rise reveal, adapted from the reactbits BlurText pattern
- * for framer-motion v10 (the repo's pinned version — no `motion/react` import).
+ * for framer-motion v10, the repo's pinned version (no `motion/react` import).
  */
 export function BlurText({ text, delay = 0, stagger = 0.06, className }: BlurTextProps) {
   const prefersReducedMotion = useReducedMotion();

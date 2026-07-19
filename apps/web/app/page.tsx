@@ -7,9 +7,9 @@ import { redirect } from "next/navigation";
 import { JsonLd } from "~/marketing/components/JsonLd";
 import LandingView, { LANDING_FAQ } from "~/marketing/views/landing-view";
 
-const TITLE = `${APP_NAME} — Scheduling that runs your business`;
+const TITLE = `${APP_NAME} · Scheduling that runs your business`;
 const DESCRIPTION =
-  "Give every person and team a beautiful booking page: availability rules, Google Calendar sync, team scheduling, and automatic email confirmations — on your own domain.";
+  "Give every person and team a beautiful booking page with availability rules, Google Calendar sync, team scheduling, and automatic email confirmations, all on your own domain.";
 
 export const metadata = {
   title: TITLE,

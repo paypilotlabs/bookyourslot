@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const post = getPost(slug);
   if (!post) return {};
   return {
-    title: `${post.title} — ${APP_NAME}`,
+    title: `${post.title} · ${APP_NAME}`,
     description: post.description,
     alternates: { canonical: `${WEBSITE_URL}/blog/${post.slug}` },
     openGraph: {
@@ -69,12 +69,10 @@ export default async function BlogPostPage({ params }: PageProps) {
         }}
       />
       <article className="mx-auto w-full max-w-3xl px-6 pb-24 pt-10">
-        <Link
-          href="/blog"
-          className="text-brand-navy/60 hover:text-brand-navy text-sm font-medium transition">
+        <Link href="/blog" className="text-mk-muted hover:text-mk-ink text-sm font-medium transition">
           ← All posts
         </Link>
-        <p className="text-brand-navy/50 mt-8 text-xs">
+        <p className="text-mk-faint mt-8 text-xs">
           <time dateTime={post.date}>{dateFormatter.format(new Date(post.date))}</time> ·{" "}
           {post.readingMinutes} min read · {APP_NAME} Team
         </p>
@@ -83,16 +81,6 @@ export default async function BlogPostPage({ params }: PageProps) {
         </h1>
         <div className="mt-8">
           <Prose>{post.body}</Prose>
-        </div>
-        <div className="bg-brand-lime mt-14 rounded-3xl p-8 text-center">
-          <p className="font-display text-brand-navy text-2xl uppercase tracking-tight">
-            Put your scheduling on autopilot
-          </p>
-          <Link
-            href="/signup"
-            className="bg-brand-navy text-brand-cream mt-5 inline-block rounded-full px-7 py-3 text-sm font-semibold uppercase tracking-wide transition hover:opacity-90">
-            Get started free
-          </Link>
         </div>
       </article>
     </MarketingShell>
