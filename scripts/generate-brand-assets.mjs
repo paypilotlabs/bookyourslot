@@ -10,8 +10,9 @@
  * wordmark and monogram when present (licensed Envato file, supplied
  * manually), otherwise falls back to Cal Sans so the pipeline always works.
  */
-import { createRequire } from "node:module";
+
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import path from "node:path";
 
 const require = createRequire(import.meta.url);
@@ -92,7 +93,8 @@ function tileSvg(size, { bg = TILE_BG, fg = "#FFFFFF", radiusRatio = 0.214, glyp
 
 async function svgToPng(svg, file, { width, height } = {}) {
   let img = sharp(Buffer.from(svg), { density: 300 });
-  if (width) img = img.resize(width, height ?? width, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } });
+  if (width)
+    img = img.resize(width, height ?? width, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } });
   await img.png().toFile(path.join(PUB, file));
   console.log(`  ${file}`);
 }
@@ -107,7 +109,10 @@ writeFileSync(path.join(PUB, "cal-logo-word-black.svg"), wordmarkSvg("#000000"))
 writeFileSync(path.join(PUB, "cal-logo-word.svg"), wordmarkSvg(INK));
 writeFileSync(path.join(PUB, "cal-com-icon.svg"), tileSvg(56, { radiusRatio: 12 / 56 }));
 writeFileSync(path.join(PUB, "cal-com-icon-white.svg"), tileSvg(56, { bg: null, fg: INK }));
-writeFileSync(path.join(PUB, "safari-pinned-tab.svg"), tileSvg(700, { bg: null, fg: "#000000", glyphRatio: 0.8 }));
+writeFileSync(
+  path.join(PUB, "safari-pinned-tab.svg"),
+  tileSvg(700, { bg: null, fg: "#000000", glyphRatio: 0.8 })
+);
 console.log("  word + monogram SVGs");
 
 // --- raster tiles ---
@@ -138,10 +143,7 @@ const run = async () => {
   await svgToPng(wordmarkSvg(INK, 200), "emails/logo.png", { width: 123, height: 38 });
 
   // favicon.ico from the 16 + 32 pngs
-  const ico = await pngToIco([
-    path.join(PUB, "favicon-16x16.png"),
-    path.join(PUB, "favicon-32x32.png"),
-  ]);
+  const ico = await pngToIco([path.join(PUB, "favicon-16x16.png"), path.join(PUB, "favicon-32x32.png")]);
   writeFileSync(path.join(PUB, "favicon.ico"), ico);
   console.log("  favicon.ico");
 
@@ -161,8 +163,14 @@ const run = async () => {
   <path transform="translate(${center(domain)} ${(540 - domain.minY).toFixed(2)})" d="${domain.d}" fill="#737373"/>
 </svg>`;
   })();
-  await sharp(Buffer.from(ogSvg), { density: 144 }).resize(1200, 630).png().toFile(path.join(PUB, "og-image.png"));
-  await sharp(Buffer.from(ogSvg), { density: 144 }).resize(1200, 630).png().toFile(path.join(PUB, "video-og-image.png"));
+  await sharp(Buffer.from(ogSvg), { density: 144 })
+    .resize(1200, 630)
+    .png()
+    .toFile(path.join(PUB, "og-image.png"));
+  await sharp(Buffer.from(ogSvg), { density: 144 })
+    .resize(1200, 630)
+    .png()
+    .toFile(path.join(PUB, "video-og-image.png"));
   console.log("  og-image.png + video-og-image.png");
   console.log("Done.");
 };

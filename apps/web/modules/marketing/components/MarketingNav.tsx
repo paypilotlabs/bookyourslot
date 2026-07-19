@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import { APP_NAME } from "@calcom/lib/constants";
+import Link from "next/link";
 
 export function MarketingNav() {
   return (

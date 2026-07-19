@@ -1,8 +1,6 @@
+import { APP_NAME } from "@calcom/lib/constants";
 import Image from "next/image";
 import Link from "next/link";
-
-import { APP_NAME } from "@calcom/lib/constants";
-
 import { BlurText } from "../components/BlurText";
 import { BrowserFrame } from "../components/BrowserFrame";
 import { FadeIn } from "../components/FadeIn";
@@ -119,8 +117,8 @@ export default function LandingView() {
             <BlurText text="Scheduling that runs your business" />
           </h1>
           <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-neutral-600">
-            Give every person and team a beautiful booking page — availability rules, Google Calendar
-            sync, and automatic confirmations, with your name on the door.
+            Give every person and team a beautiful booking page — availability rules, Google Calendar sync,
+            and automatic confirmations, with your name on the door.
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
@@ -187,7 +185,9 @@ export default function LandingView() {
           {STEPS.map((step, i) => (
             <FadeIn key={step.number} delay={i * 0.08}>
               <div className="h-full rounded-3xl border border-neutral-200/80 bg-white p-7">
-                <span className="font-display block text-5xl leading-none text-neutral-300">{step.number}</span>
+                <span className="font-display block text-5xl leading-none text-neutral-300">
+                  {step.number}
+                </span>
                 <h3 className="font-display mt-5 text-lg">{step.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-neutral-600">{step.description}</p>
               </div>

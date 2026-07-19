@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import { APP_NAME, SUPPORT_MAIL_ADDRESS } from "@calcom/lib/constants";
+import Link from "next/link";
 
 const FOOTER_LINKS = [
   { href: "/blog", label: "Blog" },

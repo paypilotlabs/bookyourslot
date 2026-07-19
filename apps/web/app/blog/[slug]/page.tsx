@@ -1,13 +1,11 @@
+import { APP_NAME, WEBSITE_URL } from "@calcom/lib/constants";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-
-import { APP_NAME, WEBSITE_URL } from "@calcom/lib/constants";
-
+import { BLOG_POSTS, getPost } from "~/marketing/blog/posts";
 import { JsonLd } from "~/marketing/components/JsonLd";
 import { MarketingShell } from "~/marketing/components/MarketingShell";
 import { Prose } from "~/marketing/components/Prose";
-import { BLOG_POSTS, getPost } from "~/marketing/blog/posts";
 
 type PageProps = { params: Promise<{ slug: string }> };
 
@@ -71,9 +69,7 @@ export default async function BlogPostPage({ params }: PageProps) {
         }}
       />
       <article className="mx-auto w-full max-w-3xl px-6 pb-24 pt-10">
-        <Link
-          href="/blog"
-          className="text-sm font-medium text-neutral-500 transition hover:text-neutral-900">
+        <Link href="/blog" className="text-sm font-medium text-neutral-500 transition hover:text-neutral-900">
           ← All posts
         </Link>
         <p className="mt-8 text-xs text-neutral-500">

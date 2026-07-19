@@ -1,5 +1,4 @@
 import { APP_NAME, SUPPORT_MAIL_ADDRESS, WEBSITE_URL } from "@calcom/lib/constants";
-
 import { MarketingShell } from "~/marketing/components/MarketingShell";
 
 export const metadata = {
@@ -30,8 +29,8 @@ export default function ContactPage() {
       <div className="mx-auto w-full max-w-3xl px-6 pb-24 pt-10">
         <h1 className="font-display text-4xl tracking-tight sm:text-5xl">Contact</h1>
         <p className="mt-4 max-w-xl text-neutral-600">
-          One inbox, read by a human. Whatever it's about, write to us and we'll get back to you —
-          usually within one business day.
+          One inbox, read by a human. Whatever it's about, write to us and we'll get back to you — usually
+          within one business day.
         </p>
         <a
           href={`mailto:${SUPPORT_MAIL_ADDRESS}`}

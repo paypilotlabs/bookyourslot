@@ -1,9 +1,7 @@
-import Link from "next/link";
-
 import { APP_NAME, WEBSITE_URL } from "@calcom/lib/constants";
-
-import { MarketingShell } from "~/marketing/components/MarketingShell";
+import Link from "next/link";
 import { BLOG_POSTS } from "~/marketing/blog/posts";
+import { MarketingShell } from "~/marketing/components/MarketingShell";
 
 export const metadata = {
   title: `Blog — ${APP_NAME}`,
@@ -20,8 +18,8 @@ export default function BlogIndexPage() {
       <div className="mx-auto w-full max-w-3xl px-6 pb-24 pt-10">
         <h1 className="font-display text-4xl tracking-tight sm:text-5xl">Blog</h1>
         <p className="mt-3 max-w-xl text-neutral-600">
-          Guides and product news — booking pages, availability, team scheduling, and owning your
-          scheduling stack.
+          Guides and product news — booking pages, availability, team scheduling, and owning your scheduling
+          stack.
         </p>
         <div className="mt-12 space-y-5">
           {BLOG_POSTS.map((post) => (

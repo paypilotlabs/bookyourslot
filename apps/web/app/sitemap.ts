@@ -1,7 +1,5 @@
-import type { MetadataRoute } from "next";
-
 import { WEBSITE_URL } from "@calcom/lib/constants";
-
+import type { MetadataRoute } from "next";
 import { BLOG_POSTS } from "~/marketing/blog/posts";
 
 /** Marketing surfaces only — app and booking routes are intentionally excluded. */

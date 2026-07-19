@@ -1,12 +1,9 @@
+import { getServerSession } from "@calcom/features/auth/lib/getServerSession";
+import { checkOnboardingRedirect } from "@calcom/features/auth/lib/onboardingUtils";
+import { APP_NAME, SEO_IMG_DEFAULT, SUPPORT_MAIL_ADDRESS, WEBSITE_URL } from "@calcom/lib/constants";
+import { buildLegacyRequest } from "@lib/buildLegacyCtx";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
-
-import { checkOnboardingRedirect } from "@calcom/features/auth/lib/onboardingUtils";
-import { getServerSession } from "@calcom/features/auth/lib/getServerSession";
-import { APP_NAME, SEO_IMG_DEFAULT, SUPPORT_MAIL_ADDRESS, WEBSITE_URL } from "@calcom/lib/constants";
-
-import { buildLegacyRequest } from "@lib/buildLegacyCtx";
-
 import { JsonLd } from "~/marketing/components/JsonLd";
 import LandingView, { LANDING_FAQ } from "~/marketing/views/landing-view";
 
