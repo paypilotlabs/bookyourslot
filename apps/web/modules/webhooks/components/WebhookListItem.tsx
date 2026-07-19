@@ -1,6 +1,6 @@
 "use client";
 
-import { getWebhookVersionLabel } from "@calcom/features/webhooks/lib/constants";
+import { getWebhookVersionDocsUrl, getWebhookVersionLabel } from "@calcom/features/webhooks/lib/constants";
 import type { Webhook } from "@calcom/features/webhooks/lib/dto/types";
 import { useLocale } from "@calcom/lib/hooks/useLocale";
 import { trpc } from "@calcom/trpc/react";
@@ -138,7 +138,7 @@ export default function WebhookListItem(props: {
                       render={
                         <a
                           className="relative flex h-5 items-center justify-center px-2 sm:h-4.5"
-                          href={`https://cal.com/docs/developing/guides/automation/webhooks#${webhook.version}`}
+                          href={getWebhookVersionDocsUrl(webhook.version)}
                           rel="noopener noreferrer"
                           target="_blank"
                         />
