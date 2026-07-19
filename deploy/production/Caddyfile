@@ -1,0 +1,12 @@
+{
+	email hello@bookyourslot.online
+}
+
+www.bookyourslot.online {
+	redir https://bookyourslot.online{uri} permanent
+}
+
+bookyourslot.online {
+	encode zstd gzip
+	reverse_proxy calcom:3000
+}
