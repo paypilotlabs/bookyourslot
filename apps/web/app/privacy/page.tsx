@@ -13,8 +13,8 @@ export default function PrivacyPage() {
   return (
     <MarketingShell>
       <div className="mx-auto w-full max-w-3xl px-6 pb-24 pt-10">
-        <h1 className="font-display text-4xl tracking-tight sm:text-5xl">Privacy Policy</h1>
-        <p className="mt-3 text-sm text-neutral-500">Last updated: July 18, 2026</p>
+        <h1 className="font-display text-5xl uppercase tracking-tight sm:text-6xl">Privacy Policy</h1>
+        <p className="text-brand-navy/50 mt-3 text-sm">Last updated: July 18, 2026</p>
         <Prose>
           <p>
             This policy explains what data {APP_NAME} (bookyourslot.online) collects, why, and how it's

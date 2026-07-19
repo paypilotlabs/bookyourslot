@@ -3,12 +3,13 @@ import { MarketingFooter } from "./MarketingFooter";
 import { MarketingNav } from "./MarketingNav";
 
 /**
- * Light shell for all public marketing pages. Fixed light colors on purpose —
- * these pages ignore the app's dark theme.
+ * Shell for all public marketing pages: editorial palette, fixed colors on
+ * purpose — these pages ignore the app's dark theme. The logged-in app keeps
+ * its own clean look.
  */
 export function MarketingShell({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen bg-[#F7F7F8] font-sans text-[#1A1A1A] antialiased">
+    <div className="bg-brand-cream text-brand-navy min-h-screen font-sans antialiased">
       <MarketingNav />
       <main>{children}</main>
       <MarketingFooter />

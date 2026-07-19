@@ -3,6 +3,7 @@ import Link from "next/link";
 
 const FOOTER_LINKS = [
   { href: "/blog", label: "Blog" },
+  { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
   { href: "/terms", label: "Terms" },
   { href: "/privacy", label: "Privacy" },
@@ -10,23 +11,25 @@ const FOOTER_LINKS = [
 
 export function MarketingFooter() {
   return (
-    <footer className="border-t border-neutral-200/70">
-      <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-6 px-6 py-10 text-sm text-neutral-500 sm:flex-row">
-        <div className="flex flex-col items-center gap-1 sm:items-start">
-          <span className="font-script text-xl text-neutral-900">{APP_NAME}</span>
+    <footer className="bg-brand-navy">
+      <div className="text-brand-cream/60 mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-6 px-6 py-12 text-sm sm:flex-row">
+        <div className="flex flex-col items-center gap-1.5 sm:items-start">
+          <span className="font-script text-brand-lime text-xl">{APP_NAME}</span>
           <span>
             © {new Date().getFullYear()} {APP_NAME}. Scheduling on your own terms.
           </span>
         </div>
         <div className="flex flex-col items-center gap-2 sm:items-end">
-          <nav className="flex gap-5">
+          <nav className="flex flex-wrap justify-center gap-5">
             {FOOTER_LINKS.map((link) => (
-              <Link key={link.href} href={link.href} className="transition hover:text-neutral-900">
+              <Link key={link.href} href={link.href} className="hover:text-brand-cream transition">
                 {link.label}
               </Link>
             ))}
           </nav>
-          <a href={`mailto:${SUPPORT_MAIL_ADDRESS}`} className="transition hover:text-neutral-900">
+          <a
+            href={`mailto:${SUPPORT_MAIL_ADDRESS}`}
+            className="text-brand-lime/80 hover:text-brand-lime transition">
             {SUPPORT_MAIL_ADDRESS}
           </a>
         </div>

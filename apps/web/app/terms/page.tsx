@@ -12,8 +12,8 @@ export default function TermsPage() {
   return (
     <MarketingShell>
       <div className="mx-auto w-full max-w-3xl px-6 pb-24 pt-10">
-        <h1 className="font-display text-4xl tracking-tight sm:text-5xl">Terms of Service</h1>
-        <p className="mt-3 text-sm text-neutral-500">Last updated: July 18, 2026</p>
+        <h1 className="font-display text-5xl uppercase tracking-tight sm:text-6xl">Terms of Service</h1>
+        <p className="text-brand-navy/50 mt-3 text-sm">Last updated: July 18, 2026</p>
         <Prose>
           <p>
             These terms apply when you create an account on {APP_NAME} (bookyourslot.online) or book a meeting

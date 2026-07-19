@@ -69,24 +69,28 @@ export default async function BlogPostPage({ params }: PageProps) {
         }}
       />
       <article className="mx-auto w-full max-w-3xl px-6 pb-24 pt-10">
-        <Link href="/blog" className="text-sm font-medium text-neutral-500 transition hover:text-neutral-900">
+        <Link
+          href="/blog"
+          className="text-brand-navy/60 hover:text-brand-navy text-sm font-medium transition">
           ← All posts
         </Link>
-        <p className="mt-8 text-xs text-neutral-500">
+        <p className="text-brand-navy/50 mt-8 text-xs">
           <time dateTime={post.date}>{dateFormatter.format(new Date(post.date))}</time> ·{" "}
           {post.readingMinutes} min read · {APP_NAME} Team
         </p>
-        <h1 className="font-display mt-3 text-balance text-4xl leading-tight tracking-tight sm:text-5xl">
+        <h1 className="font-display mt-3 text-balance text-4xl uppercase leading-[0.95] tracking-tight sm:text-6xl">
           {post.title}
         </h1>
         <div className="mt-8">
           <Prose>{post.body}</Prose>
         </div>
-        <div className="mt-14 rounded-3xl bg-gradient-to-br from-rose-100 via-violet-200 to-sky-200 p-8 text-center">
-          <p className="font-display text-xl text-neutral-900">Put your scheduling on autopilot</p>
+        <div className="bg-brand-lime mt-14 rounded-3xl p-8 text-center">
+          <p className="font-display text-brand-navy text-2xl uppercase tracking-tight">
+            Put your scheduling on autopilot
+          </p>
           <Link
             href="/signup"
-            className="mt-5 inline-block rounded-full bg-neutral-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-neutral-700">
+            className="bg-brand-navy text-brand-cream mt-5 inline-block rounded-full px-7 py-3 text-sm font-semibold uppercase tracking-wide transition hover:opacity-90">
             Get started free
           </Link>
         </div>

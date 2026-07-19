@@ -16,8 +16,8 @@ export default function BlogIndexPage() {
   return (
     <MarketingShell>
       <div className="mx-auto w-full max-w-3xl px-6 pb-24 pt-10">
-        <h1 className="font-display text-4xl tracking-tight sm:text-5xl">Blog</h1>
-        <p className="mt-3 max-w-xl text-neutral-600">
+        <h1 className="font-display text-6xl uppercase tracking-tight sm:text-7xl">Blog</h1>
+        <p className="text-brand-navy/70 mt-4 max-w-xl">
           Guides and product news — booking pages, availability, team scheduling, and owning your scheduling
           stack.
         </p>
@@ -25,20 +25,20 @@ export default function BlogIndexPage() {
           {BLOG_POSTS.map((post) => (
             <article
               key={post.slug}
-              className="rounded-3xl border border-neutral-200/80 bg-white p-7 shadow-[0_1px_2px_rgba(16,16,16,0.04)] transition-shadow hover:shadow-[0_12px_32px_-16px_rgba(16,16,16,0.18)]">
-              <p className="text-xs text-neutral-500">
+              className="border-brand-navy/10 rounded-3xl border bg-white/60 p-7 transition hover:bg-white">
+              <p className="text-brand-navy/50 text-xs">
                 <time dateTime={post.date}>{dateFormatter.format(new Date(post.date))}</time> ·{" "}
                 {post.readingMinutes} min read
               </p>
-              <h2 className="font-display mt-2 text-xl tracking-tight">
-                <Link href={`/blog/${post.slug}`} className="transition hover:text-neutral-600">
+              <h2 className="font-display mt-2 text-2xl uppercase tracking-tight">
+                <Link href={`/blog/${post.slug}`} className="transition hover:opacity-70">
                   {post.title}
                 </Link>
               </h2>
-              <p className="mt-2 text-sm leading-relaxed text-neutral-600">{post.excerpt}</p>
+              <p className="text-brand-navy/70 mt-2 text-sm leading-relaxed">{post.excerpt}</p>
               <Link
                 href={`/blog/${post.slug}`}
-                className="mt-4 inline-block text-sm font-semibold text-neutral-900 underline underline-offset-4 transition hover:text-neutral-600">
+                className="text-brand-navy mt-4 inline-block text-sm font-semibold underline underline-offset-4 transition hover:opacity-70">
                 Read the post
               </Link>
             </article>

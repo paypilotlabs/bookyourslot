@@ -27,21 +27,21 @@ export default function ContactPage() {
   return (
     <MarketingShell>
       <div className="mx-auto w-full max-w-3xl px-6 pb-24 pt-10">
-        <h1 className="font-display text-4xl tracking-tight sm:text-5xl">Contact</h1>
-        <p className="mt-4 max-w-xl text-neutral-600">
+        <h1 className="font-display text-5xl uppercase tracking-tight sm:text-6xl">Contact</h1>
+        <p className="text-brand-navy/70 mt-4 max-w-xl">
           One inbox, read by a human. Whatever it's about, write to us and we'll get back to you — usually
           within one business day.
         </p>
         <a
           href={`mailto:${SUPPORT_MAIL_ADDRESS}`}
-          className="mt-8 inline-block rounded-full bg-neutral-900 px-7 py-3.5 text-sm font-semibold text-white transition hover:bg-neutral-700">
+          className="bg-brand-navy text-brand-cream mt-8 inline-block rounded-full px-7 py-3.5 text-sm font-semibold transition hover:opacity-90">
           {SUPPORT_MAIL_ADDRESS}
         </a>
         <div className="mt-14 grid gap-5 sm:grid-cols-3">
           {REASONS.map((reason) => (
-            <div key={reason.title} className="rounded-3xl border border-neutral-200/80 bg-white p-6">
-              <h2 className="font-display text-base">{reason.title}</h2>
-              <p className="mt-2 text-sm leading-relaxed text-neutral-600">{reason.description}</p>
+            <div key={reason.title} className="border-brand-navy/10 rounded-3xl border bg-white/60 p-6">
+              <h2 className="font-display text-lg uppercase tracking-tight">{reason.title}</h2>
+              <p className="text-brand-navy/70 mt-2 text-sm leading-relaxed">{reason.description}</p>
             </div>
           ))}
         </div>
