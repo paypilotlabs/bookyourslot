@@ -9,27 +9,25 @@ vi.mock("@calcom/lib/constants", async () => {
   return {
     ...actual,
     CALCOM_VERSION: "mockedVersion",
+    COMPANY_NAME: "BookYourSlot",
   };
 });
 
 describe("Tests for Credits component", () => {
-  test("Should render credits section with links", () => {
+  test("Should render the company name and version as plain text", () => {
     render(<Credits />);
 
-    const creditsLinkElement = screen.getByRole("link", { name: /Cal\.com, Inc\./i });
-    expect(creditsLinkElement).toBeInTheDocument();
-    expect(creditsLinkElement).toHaveAttribute("href", "https://go.cal.com/credits");
-
-    const versionLinkElement = screen.getByRole("link", { name: /mockedVersion/i });
-    expect(versionLinkElement).toBeInTheDocument();
-    expect(versionLinkElement).toHaveAttribute("href", "https://go.cal.com/releases");
+    // Deliberately not links: this build credits BookYourSlot and points
+    // nowhere, since the upstream go.cal.com destinations are not ours.
+    expect(screen.getByText(/BookYourSlot/)).toBeInTheDocument();
+    expect(screen.getByText(/mockedVersion/)).toBeInTheDocument();
+    expect(screen.queryByRole("link")).not.toBeInTheDocument();
   });
 
-  test("Should render credits section with correct text", () => {
+  test("Should render the current year in the copyright", () => {
     render(<Credits />);
 
     const currentYear = new Date().getFullYear();
-    const copyrightElement = screen.getByText(`© ${currentYear}`);
-    expect(copyrightElement).toHaveTextContent(`${currentYear}`);
+    expect(screen.getByText(new RegExp(`© ${currentYear}`))).toBeInTheDocument();
   });
 });

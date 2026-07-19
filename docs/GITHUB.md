@@ -99,10 +99,22 @@ later only with a staging target in front.
   [deploy/production/CHECKLIST.md](../deploy/production/CHECKLIST.md). Anything
   listed there needs porting work before it can be claimed anywhere.
 
+## What CI checks, and why it checks it that way
+
+1. **Type check** across the monorepo (`yarn type-check:ci --force`).
+2. **Lint, changed files only** (`biome ci --changed --since=<base>`). The
+   inherited Cal.diy tree carries thousands of pre-existing diagnostics, so a
+   whole-repo lint gate would be red forever and everyone would learn to ignore
+   it. New and modified code has to be clean; inherited debt does not block.
+3. **Unit tests** (`TZ=UTC yarn test`, ~4100 tests). The timezone prefix is
+   mandatory or date assertions drift.
+
 ## If CI fails
 
 - **Type check**: run `yarn type-check:ci --force` locally; run
   `yarn prisma generate` first if the errors mention missing Prisma types.
-- **Biome**: `yarn biome check --write .` fixes most of it, then commit.
-- **Tests**: `TZ=UTC yarn test` locally; the timezone prefix is required or
-  date assertions drift.
+- **Biome**: `yarn biome check --write .` on the files you touched, then commit.
+- **Tests**: `TZ=UTC yarn test` locally, or a single file with
+  `TZ=UTC yarn vitest run path/to/file.test.tsx`. If you changed a component's
+  markup, its test probably asserts on the old markup: fix the test to match
+  the intended new behavior rather than reverting the change.

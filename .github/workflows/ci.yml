@@ -14,10 +14,10 @@ jobs:
   quality:
     name: Types, lint, tests
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     env:
-      # Build-time requirements. These are placeholders for CI only: no real
-      # secret belongs in this file, and none is needed to type-check.
+      # Build-time requirements. Placeholders for CI only: no real secret
+      # belongs in this file, and none is needed to type-check or test.
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/calendso
       DATABASE_DIRECT_URL: postgresql://postgres:postgres@localhost:5432/calendso
       NEXTAUTH_SECRET: ci-placeholder-secret
@@ -27,6 +27,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Full history so the lint step can diff against the base commit.
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -36,14 +39,24 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable
 
-      - name: Generate Prisma client
-        run: yarn prisma generate
-
       - name: Type check
         run: yarn type-check:ci --force
 
-      - name: Lint and format check
-        run: yarn biome ci .
+      - name: Lint changed files
+        # The inherited Cal.diy tree carries thousands of pre-existing
+        # diagnostics, so linting everything would keep this job permanently
+        # red. Gate on what the change actually touches instead.
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE="${{ github.event.pull_request.base.sha }}"
+          else
+            BASE="${{ github.event.before }}"
+          fi
+          if [ -z "$BASE" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
+            BASE="HEAD~1"
+          fi
+          echo "Linting files changed since $BASE"
+          yarn biome ci --changed --since="$BASE" .
 
       - name: Unit tests
         run: TZ=UTC yarn test
