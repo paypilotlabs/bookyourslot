@@ -128,7 +128,6 @@ async function svgToPng(svg, file, { width, height } = {}) {
 writeFileSync(path.join(PUB, "calcom-logo-white-word.svg"), wordmarkSvg(INK));
 writeFileSync(path.join(PUB, "cal-logo-word-dark.svg"), wordmarkSvg("#fafafa"));
 writeFileSync(path.join(PUB, "cal-logo-word-black.svg"), wordmarkSvg("#000000"));
-writeFileSync(path.join(PUB, "cal-logo-word.svg"), wordmarkSvg(INK));
 // Committed wordmarks for the marketing nav/footer: outlined SVGs work in
 // production without shipping the licensed font file itself.
 writeFileSync(path.join(PUB, "bys-wordmark-lime.svg"), wordmarkSvg(LIME));
