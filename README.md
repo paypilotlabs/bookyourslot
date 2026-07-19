@@ -45,6 +45,7 @@ Questions, feedback, security reports: **hello@bookyourslot.online**
 
 ## License & attribution
 
-MIT — see [LICENSE](LICENSE). BookYourSlot is built on
+MIT — see [LICENSE](LICENSE). BookYourSlot is built and maintained by
+**Lohith Kumar Nerukonda** ([about](https://bookyourslot.online/about)) on top of
 [Cal.com](https://github.com/calcom/cal.com)'s open-source Cal.diy community
-edition; our thanks to the Cal.com team and contributors.
+edition; thanks to the Cal.com team and contributors.

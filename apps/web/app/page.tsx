@@ -43,6 +43,11 @@ const RedirectPage = async () => {
                 url: WEBSITE_URL,
                 email: SUPPORT_MAIL_ADDRESS,
                 logo: `${WEBSITE_URL}/android-chrome-512x512.png`,
+                founder: {
+                  "@type": "Person",
+                  name: "Lohith Kumar Nerukonda",
+                  url: `${WEBSITE_URL}/about`,
+                },
               },
               {
                 "@type": "WebSite",
