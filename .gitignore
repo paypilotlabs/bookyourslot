@@ -117,3 +117,7 @@ agents/devin-knowledge.json
 
 # pagefind
 _pagefind/
+
+# Playwright artifacts
+playwright-report/
+blob-report/
