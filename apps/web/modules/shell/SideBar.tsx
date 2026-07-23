@@ -64,6 +64,11 @@ export function SideBar({ bannersHeight, user }: SideBarProps) {
           "max-h-screen"
         )}>
         <div className="flex h-full flex-col justify-between py-3 lg:pt-4">
+          {/* Brand wordmark, desktop only. Keeps BookYourSlot present on every
+              in-app screen without touching the neutral tool UI. */}
+          <Link href="/event-types" className="mb-4 hidden px-1.5 lg:block">
+            <Logo small />
+          </Link>
           <header className="todesktop:-mt-3 todesktop:flex-col-reverse items-center justify-between todesktop:[-webkit-app-region:drag] md:hidden lg:flex">
             {user?.org ? (
               !ENABLE_PROFILE_SWITCHER ? (

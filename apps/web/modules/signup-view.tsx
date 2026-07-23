@@ -376,7 +376,7 @@ export default function Signup({
       ) : null}
       <div
         className={classNames(
-          "bg-mk-bg flex min-h-screen w-full flex-col items-center justify-center [--cal-brand:#CDF34F] dark:[--cal-brand:#CDF34F]",
+          "bg-brand-navy flex min-h-screen w-full flex-col items-center justify-center [--cal-brand:#CDF34F] dark:[--cal-brand:#CDF34F]",
           "[--cal-brand-subtle:#9CA3AF]",
           "[--cal-brand-text:#0E0E1B] dark:[--cal-brand-text:#0E0E1B]",
           "[--cal-brand-emphasis:#bfe23e] dark:[--cal-brand-emphasis:#bfe23e]"
