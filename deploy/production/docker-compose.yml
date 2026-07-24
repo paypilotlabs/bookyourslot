@@ -1,7 +1,7 @@
-# BookYourSlot production stack: Caddy (HTTPS) -> app (Next.js standalone) -> Postgres.
-# Run from this directory with a filled-in .env (see .env.production.example).
-# The app image is built ON the server from the repo checkout (needs ~4 GB free
-# RAM during builds — see README for the swapfile step).
+# BookYourSlot production stack: existing Traefik -> app (Next.js standalone) -> Postgres.
+# This VPS already runs Traefik (host network, letsencrypt resolver) in front of
+# other apps, so we register the app as a Traefik-labeled service instead of
+# running our own proxy. Run from this dir with a filled-in .env.
 
 services:
   database:
@@ -13,12 +13,13 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - database-data:/var/lib/postgresql/data
+    networks: [bys]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 10
-    # No published ports on purpose — only the app reaches Postgres.
+    # No published ports — only the app reaches Postgres.
 
   calcom:
     build:
@@ -39,27 +40,27 @@ services:
     environment:
       # start.sh waits for this host before running prisma migrate deploy
       DATABASE_HOST: database:5432
+      NEXT_PUBLIC_WEBAPP_URL: ${NEXT_PUBLIC_WEBAPP_URL}
     depends_on:
       database:
         condition: service_healthy
-    # No published ports — traffic comes in only through Caddy on the
-    # internal network (the image EXPOSEs 3000 and has its own healthcheck).
+    networks: [bys]
+    # No published ports — the existing Traefik reaches the app on the `bys`
+    # bridge and terminates TLS. Host-network Traefik needs the network label to
+    # pick which IP to route to.
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=bys"
+      - "traefik.http.routers.bys.rule=Host(`bookyourslot.online`) || Host(`www.bookyourslot.online`)"
+      - "traefik.http.routers.bys.entrypoints=websecure"
+      - "traefik.http.routers.bys.tls.certresolver=letsencrypt"
+      - "traefik.http.services.bys.loadbalancer.server.port=3000"
+    # ponytail: www and apex both serve the app; canonical tags handle SEO.
+    # Add a www->apex redirect middleware only if the duplicate host matters.
 
-  caddy:
-    image: caddy:2-alpine
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy-data:/data
-      - caddy-config:/config
-    depends_on:
-      - calcom
+networks:
+  bys:
+    name: bys
 
 volumes:
   database-data:
-  caddy-data:
-  caddy-config:
