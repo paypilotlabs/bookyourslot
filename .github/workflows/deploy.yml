@@ -52,6 +52,17 @@ jobs:
     outputs:
       image_tag: ${{ steps.meta.outputs.image_tag }}
     steps:
+      # Private GitHub-hosted runners only have ~14 GB free. This monorepo image
+      # needs most of that, so strip preinstalled SDKs we never use.
+      - name: Free disk space
+        run: |
+          set -euo pipefail
+          df -h /
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+            /opt/hostedtoolcache/CodeQL /usr/local/share/boost "$AGENT_TOOLSDIRECTORY"
+          sudo docker image prune --all --force
+          df -h /
+
       - uses: actions/checkout@v4
 
       - name: Compute image tag
@@ -87,8 +98,9 @@ jobs:
             CALCOM_TELEMETRY_DISABLED=1
             DATABASE_URL=postgresql://build:build@localhost:5432/build
             MAX_OLD_SPACE_SIZE=6144
+          # mode=min keeps the GHA cache smaller on disk-constrained runners.
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-to: type=gha,mode=min
           provenance: false
 
   deploy:
