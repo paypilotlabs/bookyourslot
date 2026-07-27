@@ -128,3 +128,15 @@ apps/web/public/fonts/brand/*.woff
 apps/web/public/fonts/brand/*.otf
 apps/web/public/fonts/brand/*.ttf
 apps/web/fonts/brand/
+
+# Local editor / agent tooling (never ship these)
+.cursor/
+.vscode/
+.opencode/
+.pnp.caches/
+.pnp.loader.mjs
+.pnp.loader.cjs
+.pnp.loader.js
+.pnp.loader.json
+.pnp.loader.yaml
+.pnp.loader.yml

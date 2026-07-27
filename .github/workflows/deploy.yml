@@ -1,0 +1,183 @@
+name: Deploy
+
+# Auto-deploy on merge to main. The build job produces a secret-free image and
+# pushes it to GHCR; the deploy job SSHes to the VPS (as a locked-down, non-root
+# user) and does a pull-only cutover with a health gate and automatic rollback.
+#
+# workflow_dispatch lets you redeploy or roll back to any prior image tag by
+# hand without a new build.
+#
+# SECURITY NOTES
+# - permissions default to nothing; each job opts into the minimum it needs.
+# - No real secret is ever passed to the build (the app reads NEXTAUTH_SECRET and
+#   CALENDSO_ENCRYPTION_KEY at runtime; the Dockerfile defaults them to "secret").
+# - The deploy key can only trigger `deploy`/`rollback` on the server — the
+#   server-side authorized_keys forces a single command and validates the tag.
+# - Pin the third-party actions below to full commit SHAs before you rely on
+#   this in anger; Dependabot (.github/dependabot.yml) keeps the pins current.
+#   See docs/DEPLOYMENT-AUTOMATION.md § "Supply-chain hardening".
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Existing tag to (re)deploy, e.g. sha-abc1234 for rollback. Leave blank to build current main."
+        required: false
+        default: ""
+
+# One production deploy at a time, and never cancel one mid-cutover.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+# Least privilege: nothing by default.
+permissions: {}
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }} # squid-beast/bookyourslot
+
+jobs:
+  build:
+    name: Build & push image
+    # Skip the build when a workflow_dispatch names an existing tag (rollback).
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.image_tag == '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      packages: write # push to GHCR with the ephemeral GITHUB_TOKEN
+    outputs:
+      image_tag: ${{ steps.meta.outputs.image_tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compute image tag
+        id: meta
+        run: echo "image_tag=sha-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.image_tag }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          # No real secrets here. NEXTAUTH_SECRET and CALENDSO_ENCRYPTION_KEY are
+          # runtime-only (Dockerfile defaults them to "secret"), and start.sh
+          # rewrites NEXT_PUBLIC_WEBAPP_URL at boot, so this image is portable
+          # and free of production secrets. DATABASE_URL here is a build-time
+          # dummy; the build never connects to a database.
+          build-args: |
+            NEXT_PUBLIC_WEBSITE_TERMS_URL=https://bookyourslot.online/terms
+            NEXT_PUBLIC_WEBSITE_PRIVACY_POLICY_URL=https://bookyourslot.online/privacy
+            CALCOM_TELEMETRY_DISABLED=1
+            DATABASE_URL=postgresql://build:build@localhost:5432/build
+            MAX_OLD_SPACE_SIZE=6144
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: false
+
+  deploy:
+    name: Deploy to VPS
+    needs: [build]
+    # Runs after a successful build, or straight away on a dispatch rollback
+    # (build skipped). Never runs if the build actually failed.
+    if: ${{ always() && needs.build.result != 'failure' && needs.build.result != 'cancelled' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    environment:
+      # Add required reviewers / a branch restriction on this environment in the
+      # GitHub UI to turn the auto-deploy into an approval-gated deploy — no
+      # workflow edit needed. See docs/DEPLOYMENT-AUTOMATION.md.
+      name: production
+      url: https://bookyourslot.online
+    steps:
+      - name: Resolve target tag
+        id: tag
+        # Inputs/outputs come through env — never interpolate ${{ }} into the
+        # script body (that would run before bash and allow shell injection via
+        # a crafted image_tag). The regex then validates the runtime variable.
+        env:
+          TAG_INPUT: ${{ inputs.image_tag }}
+          BUILT_TAG: ${{ needs.build.outputs.image_tag }}
+        run: |
+          set -euo pipefail
+          TAG="${TAG_INPUT:-}"
+          [ -n "$TAG" ] || TAG="${BUILT_TAG:-}"
+          # Defense in depth: only ever send a tag we recognise over SSH.
+          if ! printf '%s' "$TAG" | grep -qE '^(latest|sha-[0-9a-f]{7,40})$'; then
+            echo "Refusing to deploy unrecognised tag: '$TAG'" >&2
+            exit 1
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Configure SSH
+        # Secrets are read from env, never interpolated into the script body.
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          install -m 600 /dev/null ~/.ssh/id_ed25519
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Deploy
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+          HOST: ${{ secrets.DEPLOY_HOST }}
+          USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          set -euo pipefail
+          # The server forces a single command; "deploy <tag>" arrives as
+          # SSH_ORIGINAL_COMMAND and is re-validated there.
+          ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes \
+              -o StrictHostKeyChecking=yes -o BatchMode=yes \
+              "${USER}@${HOST}" "deploy ${TAG}"
+
+      - name: Shred SSH key
+        if: always()
+        run: rm -f ~/.ssh/id_ed25519
+
+  notify:
+    name: Notify
+    needs: [build, deploy]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Telegram deploy status
+        # Optional: skipped unless the two Telegram secrets are set.
+        env:
+          BOT: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+          RESULT: ${{ needs.deploy.result }}
+          SHA: ${{ github.sha }}
+          ACTOR: ${{ github.actor }}
+        run: |
+          set -euo pipefail
+          [ -n "${BOT:-}" ] && [ -n "${CHAT:-}" ] || { echo "Telegram not configured — skipping"; exit 0; }
+          ICON="✅"; [ "$RESULT" = "success" ] || ICON="❌"
+          TEXT="$(printf '%s BookYourSlot deploy: %s\ncommit %s by %s' "$ICON" "$RESULT" "${SHA:0:7}" "$ACTOR")"
+          curl -fsS --max-time 15 \
+            "https://api.telegram.org/bot${BOT}/sendMessage" \
+            --data-urlencode chat_id="${CHAT}" \
+            --data-urlencode text="${TEXT}" >/dev/null || echo "Telegram notify failed (non-fatal)"

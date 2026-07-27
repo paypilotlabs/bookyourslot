@@ -1,0 +1,18 @@
+# Registry overlay for the CI/CD pipeline.
+#
+# The base docker-compose.yml BUILDS the app on the server. This overlay makes
+# the stack RUN a pre-built image pulled from GHCR instead — no build, no source
+# tree needed, cutover in seconds. The CI/CD deploy always uses both files:
+#
+#   IMAGE_TAG=sha-abc1234 \
+#     docker compose -f docker-compose.yml -f docker-compose.registry.yml up -d
+#
+# remote-deploy.sh does exactly that (and pulls first). IMAGE_TAG is persisted in
+# .env by the deploy so restarts and reboots keep the pinned build.
+services:
+  calcom:
+    image: ghcr.io/squid-beast/bookyourslot:${IMAGE_TAG:-latest}
+    # Always fetch the pinned tag before starting so a re-tagged image can't go
+    # stale on the host. The base file's build: section is ignored on `up` once
+    # the image is present locally (remote-deploy.sh pulls it first).
+    pull_policy: always

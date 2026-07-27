@@ -1,0 +1,15 @@
+# Keeps GitHub Actions pins current. Once you pin the actions in the deploy/CI
+# workflows to full commit SHAs (the supply-chain hardening step), Dependabot
+# opens small PRs that bump those SHAs when a new release is verified — so
+# pinning stays safe without going stale.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "chore(ci)"
+    groups:
+      actions:
+        patterns: ["*"]
