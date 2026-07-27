@@ -85,7 +85,20 @@ export default function Login({
     [ErrorCode.IncorrectTwoFactorCode]: `${t("incorrect_2fa_code")} ${t("please_try_again")}`,
     [ErrorCode.InternalServerError]: `${t("something_went_wrong")} ${t("please_try_again_and_contact_us")}`,
     [ErrorCode.ThirdPartyIdentityProviderEnabled]: t("account_created_with_identity_provider"),
+    [ErrorCode.UserAccountLocked]: t("account_pending_approval"),
   };
+
+  // Surface auth errors that arrive as a redirect query param (magic-link and
+  // OAuth failures land on /auth/login?error=..., unlike the credentials flow
+  // which reads res.error inline). This is how a pending business sees the
+  // "awaiting approval" message after clicking a magic link or Google.
+  useEffect(() => {
+    const queryError = searchParams?.get("error");
+    if (queryError) {
+      setErrorMessage(errorMessages[queryError] || t("something_went_wrong"));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   let callbackUrl = searchParams?.get("callbackUrl") || "";
 

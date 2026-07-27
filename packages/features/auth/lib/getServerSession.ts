@@ -9,13 +9,21 @@ import type { AuthOptions, Session } from "next-auth";
 import { getToken } from "next-auth/jwt";
 
 class LicenseKeySingleton {
-  static async getInstance(..._args: unknown[]) { return new LicenseKeySingleton(); }
-  async checkLicense() { return true; }
-  async validateLicenseKey() { return true; }
+  static async getInstance(..._args: unknown[]) {
+    return new LicenseKeySingleton();
+  }
+  async checkLicense() {
+    return true;
+  }
+  async validateLicenseKey() {
+    return true;
+  }
 }
 class DeploymentRepository {
   constructor(_prisma?: unknown) {}
-  async findFirst(..._args: unknown[]) { return null; }
+  async findFirst(..._args: unknown[]) {
+    return null;
+  }
 }
 
 const log = logger.getSubLogger({ prefix: ["getServerSession"] });
@@ -74,6 +82,15 @@ export async function getServerSession(options: {
 
   if (!userFromDb) {
     log.warn("No user found for valid token", { userId });
+    return null;
+  }
+
+  // A locked (pending-approval or suspended) user must not resolve to a session,
+  // even with a still-valid JWT. This mirrors the tRPC path
+  // (findUnlockedUserForSession) so enforcement is uniform across every
+  // getServerSession-based route, not only token minting.
+  if (userFromDb.locked) {
+    log.warn("Locked user attempted to resume a session", { userId });
     return null;
   }
 

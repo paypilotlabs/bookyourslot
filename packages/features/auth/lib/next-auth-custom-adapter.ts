@@ -1,8 +1,7 @@
-import type { Adapter, AdapterUser, AdapterAccount } from "next-auth/adapters";
-
 import type { PrismaClient } from "@calcom/prisma";
 import type { Account, IdentityProvider, User } from "@calcom/prisma/client";
 import { Prisma } from "@calcom/prisma/client";
+import type { Adapter, AdapterAccount, AdapterUser } from "next-auth/adapters";
 
 const parseIntSafe = (id: string | number): number => {
   if (typeof id === "number") return id;
@@ -40,6 +39,12 @@ const createUserData = (data: Omit<AdapterUser, "id">): Prisma.UserCreateInput =
   email: data.email,
   emailVerified: data.emailVerified || null,
   avatarUrl: data.image || null,
+  // Approval gate: any account NextAuth's adapter creates on its own — e.g. an
+  // email magic-link for an address that never went through /api/auth/signup —
+  // starts pending. The only sanctioned unlock is an admin approval, so this
+  // closes the "magic-link mints an unlocked account" signup bypass regardless
+  // of whether createUser runs before or after the signIn guard.
+  locked: true,
 });
 
 const createAccountData = (account: AdapterAccount): Prisma.AccountCreateInput => ({

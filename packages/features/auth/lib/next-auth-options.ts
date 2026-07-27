@@ -801,6 +801,17 @@ export const getOptions = ({
       log.debug("callbacks:signin", safeStringify(params));
 
       if (account?.provider === "email") {
+        // Approval gate + login-only: magic link must never create a usable
+        // account (the only sanctioned signup is /api/auth/signup). Reject when
+        // the user does not already exist OR is still pending. Combined with the
+        // adapter creating pending accounts, this holds whether NextAuth runs
+        // createUser before or after this callback.
+        const dbUser = user.email
+          ? await prisma.user.findUnique({ where: { email: user.email }, select: { locked: true } })
+          : null;
+        if (!dbUser || dbUser.locked) {
+          return `/auth/login?error=${ErrorCode.UserAccountLocked}`;
+        }
         return true;
       }
       // In this case we've already verified the credentials in the authorize
@@ -923,6 +934,10 @@ export const getOptions = ({
         }
         /* --- END FIXES LEGACY ISSUE WHERE 'identityProviderId' was accidentally set to userId --- */
         if (existingUser) {
+          // Approval gate: pending (locked) businesses cannot sign in via OAuth.
+          if (existingUser.locked) {
+            return `/auth/login?error=${ErrorCode.UserAccountLocked}`;
+          }
           // In this case there's an existing user and their email address
           // hasn't changed since they last logged in.
           if (existingUser.email === user.email) {
@@ -988,6 +1003,10 @@ export const getOptions = ({
         });
 
         if (existingUserWithEmail) {
+          // Approval gate: pending (locked) businesses cannot sign in via OAuth.
+          if (existingUserWithEmail.locked) {
+            return `/auth/login?error=${ErrorCode.UserAccountLocked}`;
+          }
           // if self-hosted then we can allow auto-merge of identity providers if email is verified
           if (isVerified && existingUserWithEmail.identityProvider !== IdentityProvider.CAL) {
             if (existingUserWithEmail.twoFactorEnabled) {
@@ -1120,6 +1139,10 @@ export const getOptions = ({
               email: user.email,
               identityProvider: idP,
               identityProviderId: account.providerAccountId,
+              // Approval-gated: a brand-new business signing up via OAuth starts
+              // pending. Admin unlock = approve. The signIn guard below then
+              // bounces this first login to the pending-approval message.
+              locked: true,
               ...(orgId && {
                 verified: true,
                 organization: { connect: { id: orgId } },
@@ -1142,6 +1165,12 @@ export const getOptions = ({
             await updateProfilePhotoMicrosoft(account.access_token, newUser.id);
           }
 
+          // Approval gate: the account was just created pending (locked: true),
+          // so this very first OAuth login lands on the pending-approval message
+          // rather than an onboarding session, until an admin approves.
+          if (newUser.locked) {
+            return `/auth/login?error=${ErrorCode.UserAccountLocked}`;
+          }
           if (newUser.twoFactorEnabled) {
             return loginWithTotp(newUser.email);
           } else {
