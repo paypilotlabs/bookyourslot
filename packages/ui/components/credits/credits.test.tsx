@@ -7,19 +7,18 @@ vi.mock("@calcom/lib/constants", async () => {
   const actual = (await vi.importActual("@calcom/lib/constants")) as typeof import("@calcom/lib/constants");
   return {
     ...actual,
-    CALCOM_VERSION: "mockedVersion",
     COMPANY_NAME: "BookYourSlot",
   };
 });
 
 describe("Tests for Credits component", () => {
-  test("Should render the company name and version as plain text", () => {
+  test("Should render the company name as plain text with no version or link", () => {
     render(<Credits />);
 
-    // Deliberately not links: this build credits BookYourSlot and points
-    // nowhere, since the upstream go.cal.com destinations are not ours.
+    // Deliberately not links, and no version stamp: this build just credits
+    // BookYourSlot. The upstream go.cal.com destinations are not ours.
     expect(screen.getByText(/BookYourSlot/)).toBeInTheDocument();
-    expect(screen.getByText(/mockedVersion/)).toBeInTheDocument();
+    expect(screen.queryByText(/v\./)).not.toBeInTheDocument();
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
   });
 
