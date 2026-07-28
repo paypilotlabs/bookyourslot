@@ -48,6 +48,30 @@ export default function PrivacyPage() {
             confirmation and reminder emails, and keeping the platform secure. We do not sell personal data or
             use it for third-party advertising.
           </p>
+          {/* Google requires this affirmative Limited Use statement, with a link
+              to the policy, for apps using sensitive scopes such as Calendar.
+              Its absence is a common OAuth verification rejection. */}
+          <h2>Google user data</h2>
+          <p>
+            Connecting a Google account is optional. If you connect Google Calendar, {APP_NAME} requests only
+            the calendar access it needs to schedule: reading your busy times so it never offers a slot you are
+            already booked for, and creating or updating events for bookings made through your page. If you
+            sign in with Google, we receive your name, email address, and profile picture to identify your
+            account. We do not use Google user data for advertising, we do not sell it, and we do not use it to
+            train any model. You can disconnect Google Calendar at any time from your app settings, which stops
+            all further access.
+          </p>
+          <p>
+            {APP_NAME}'s use and transfer of information received from Google APIs to any other app will adhere
+            to the{" "}
+            <a
+              href="https://developers.google.com/terms/api-services-user-data-policy"
+              target="_blank"
+              rel="noopener noreferrer">
+              Google API Services User Data Policy
+            </a>
+            , including the Limited Use requirements.
+          </p>
           <h2>Where it lives</h2>
           <p>
             Data is stored in our own database on self-hosted infrastructure operated for bookyourslot.online.

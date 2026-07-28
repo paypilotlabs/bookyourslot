@@ -154,9 +154,14 @@ export default function LandingView() {
             <BlurText text="Scheduling that runs" className="text-brand-lime block" />
             <BlurText text="your business" delay={0.25} className="text-brand-periwinkle block" />
           </h1>
-          <p className="text-brand-cream/70 mx-auto mt-7 max-w-xl text-lg leading-relaxed">
-            Give every practitioner a booking page guests love: availability rules, Google Calendar sync, and
-            automatic confirmations, with your name on the door.
+          {/* Names the product and states its purpose in plain words. Google's
+              OAuth verification checks that the app name and purpose are visible
+              on the home page, and the wordmark above is an outlined SVG, so
+              this paragraph is where "BookYourSlot" exists as real text. */}
+          <p className="text-brand-cream/70 mx-auto mt-7 max-w-2xl text-lg leading-relaxed">
+            {APP_NAME} is online appointment booking software for small businesses and independent
+            professionals. Share one link, let clients pick a time that suits them, and keep your Google
+            Calendar in sync so you are never double booked.
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-4">
             <Link
@@ -193,6 +198,42 @@ export default function LandingView() {
             </BrowserFrame>
           </FadeIn>
         </div>
+      </section>
+
+      {/* Plain-language description of the product, always visible (the FAQ
+          below covers the same ground but sits inside collapsed accordions).
+          Google's OAuth review reads this to confirm what the app does and why
+          it asks for Google Calendar access. */}
+      <section className="mx-auto w-full max-w-6xl px-6 py-24" aria-labelledby="about-heading">
+        <FadeIn>
+          <p className="text-mk-faint text-xs font-medium uppercase tracking-[0.25em]">
+            What {APP_NAME} is
+          </p>
+          <h2
+            id="about-heading"
+            className="font-display mt-6 max-w-4xl text-4xl uppercase tracking-tight sm:text-6xl">
+            Booking software that runs on your own terms
+          </h2>
+          <div className="mt-8 grid gap-8 md:grid-cols-2">
+            <p className="text-mk-ink/70 text-lg leading-relaxed">
+              {APP_NAME} is a scheduling platform for dentists, clinics, salons, local services, and
+              consultants. You set the hours you work and the types of appointment you offer, then share your
+              personal booking page. Clients open the link, see only the times you are genuinely free, and book
+              themselves. Everyone gets an email confirmation, and clients can reschedule or cancel from that
+              email without messaging you.
+            </p>
+            <p className="text-mk-ink/70 text-lg leading-relaxed">
+              Connecting Google Calendar is optional. When you do connect it, {APP_NAME} reads your busy times
+              so it never offers a slot you are already booked for, and it writes each new appointment to your
+              calendar so your day stays in one place. Calendar access is used for that scheduling purpose
+              only. You can disconnect at any time from your settings, and our{" "}
+              <Link href="/privacy" className="underline underline-offset-4">
+                privacy policy
+              </Link>{" "}
+              explains exactly what is stored.
+            </p>
+          </div>
+        </FadeIn>
       </section>
 
       {/* Built for: editorial vertical index linking the industry guides */}
