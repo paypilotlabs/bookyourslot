@@ -6,7 +6,7 @@ import DisconnectIntegrationModal from "@calcom/features/apps/components/Disconn
 import type { BulkUpdatParams } from "@calcom/features/eventtypes/components/BulkEditDefaultForEventsModal";
 import SettingsHeader from "@calcom/features/settings/appDir/SettingsHeader";
 import { useLocale } from "@calcom/lib/hooks/useLocale";
-import { GOOGLE_MEET, OFFICE_365_VIDEO, ZOOM } from "@calcom/platform-constants";
+import { GOOGLE_MEET, type OFFICE_365_VIDEO, ZOOM } from "@calcom/platform-constants";
 import type { App } from "@calcom/types/App";
 import { Button } from "@calcom/ui/components/button";
 import {
@@ -112,7 +112,6 @@ export const ConferencingAppsViewPlatformWrapper = ({
       app: null,
     }
   );
-
 
   const handleModelClose = () => {
     updateModal({ isOpen: false, credentialId: null, app: null });
@@ -251,7 +250,6 @@ export const ConferencingAppsViewPlatformWrapper = ({
                 </DropdownItem>
               </DropdownMenuItem>
             )}
-
         </DropdownMenuContent>
       </Dropdown>
     );
@@ -331,7 +329,6 @@ export const ConferencingAppsViewPlatformWrapper = ({
             handleRemoveApp={handleRemoveApp}
             isPlatform={true}
           />
-
         </>
       </SettingsHeader>
     </AtomsWrapper>
