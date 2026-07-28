@@ -1,3 +1,13 @@
+import {
+  GOOGLE_CALENDAR,
+  GOOGLE_CALENDAR_ID,
+  GOOGLE_CALENDAR_TYPE,
+  OFFICE_365_CALENDAR,
+  OFFICE_365_CALENDAR_ID,
+  OFFICE_365_CALENDAR_TYPE,
+  SUCCESS_STATUS,
+} from "@calcom/platform-constants";
+import type { Credential, PlatformOAuthClient, Team, User } from "@calcom/prisma/client";
 import { INestApplication } from "@nestjs/common";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { Test } from "@nestjs/testing";
@@ -9,28 +19,16 @@ import { TokensRepositoryFixture } from "test/fixtures/repository/tokens.reposit
 import { UserRepositoryFixture } from "test/fixtures/repository/users.repository.fixture";
 import { CalendarsServiceMock } from "test/mocks/calendars-service-mock";
 import { randomString } from "test/utils/randomString";
-
-import {
-  GOOGLE_CALENDAR,
-  GOOGLE_CALENDAR_ID,
-  GOOGLE_CALENDAR_TYPE,
-  OFFICE_365_CALENDAR,
-  OFFICE_365_CALENDAR_ID,
-  OFFICE_365_CALENDAR_TYPE,
-  SUCCESS_STATUS,
-} from "@calcom/platform-constants";
-import type { Credential, PlatformOAuthClient, Team, User } from "@calcom/prisma/client";
-
 import { AppModule } from "@/app.module";
 import { bootstrap } from "@/bootstrap";
-import { ConnectedCalendarsData } from "@/platform/calendars/outputs/connected-calendars.output";
-import { DeletedCalendarCredentialsOutputResponseDto } from "@/platform/calendars/outputs/delete-calendar-credentials.output";
-import { CalendarsService } from "@/platform/calendars/services/calendars.service";
 import { HttpExceptionFilter } from "@/filters/http-exception.filter";
 import { PrismaExceptionFilter } from "@/filters/prisma-exception.filter";
 import { PermissionsGuard } from "@/modules/auth/guards/permissions/permissions.guard";
 import { TokensModule } from "@/modules/tokens/tokens.module";
 import { UsersModule } from "@/modules/users/users.module";
+import { ConnectedCalendarsData } from "@/platform/calendars/outputs/connected-calendars.output";
+import { DeletedCalendarCredentialsOutputResponseDto } from "@/platform/calendars/outputs/delete-calendar-credentials.output";
+import { CalendarsService } from "@/platform/calendars/services/calendars.service";
 
 const CLIENT_REDIRECT_URI = "http://localhost:5555";
 
