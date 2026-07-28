@@ -1,6 +1,5 @@
-import { Request } from "express";
-
 import { ApiResponse } from "@calcom/platform-types";
+import { Request } from "express";
 
 export interface CalendarApp {
   save(state: string, code: string, origin: string): Promise<{ url: string }>;
