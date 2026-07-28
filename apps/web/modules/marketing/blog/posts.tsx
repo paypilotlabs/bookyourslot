@@ -61,8 +61,8 @@ export const BLOG_POSTS: BlogPost[] = [
             calendar without you touching anything.
           </li>
           <li>
-            <strong>Email confirmations</strong>: booking, reschedule, and cancellation emails go
-            out to everyone, every time.
+            <strong>Email confirmations</strong>: booking, reschedule, and cancellation emails go out to
+            everyone, every time.
           </li>
           <li>
             <strong>Embeds, API &amp; webhooks</strong>: put the booking flow inside your own site and
@@ -480,9 +480,9 @@ export const BLOG_POSTS: BlogPost[] = [
         </ul>
         <h2>Fewer no-shows without lifting a finger</h2>
         <p>
-          Confirmations go out the moment a client books; any reschedule or cancellation emails
-          follow automatically. Clients who can't make it reschedule themselves, which turns a no-show into a
-          filled slot later in the week.
+          Confirmations go out the moment a client books; any reschedule or cancellation emails follow
+          automatically. Clients who can't make it reschedule themselves, which turns a no-show into a filled
+          slot later in the week.
         </p>
         <h2>Where the link lives</h2>
         <p>
@@ -621,6 +621,471 @@ export const BLOG_POSTS: BlogPost[] = [
         <p>
           <a href="/signup">Set up your booking link free</a> and take the scheduling email out of your inbox
           for good.
+        </p>
+      </>
+    ),
+  },
+  {
+    slug: "reduce-no-shows-appointments",
+    title: "How to reduce appointment no-shows (without nagging your clients)",
+    description:
+      "No-shows usually mean rescheduling was harder than not turning up. Here is how confirmations, easy reschedules and notice rules cut them down.",
+    date: "2026-07-28",
+    readingMinutes: 5,
+    excerpt:
+      "Most no-shows are not rudeness. They are friction. If changing an appointment means phoning during your busiest hour, some clients will just not come.",
+    body: (
+      <>
+        <p>
+          Most no-shows are not rudeness. They are friction. If changing an appointment means phoning you
+          during the exact hour you are busiest, a certain number of people will quietly not turn up instead.
+          The fastest way to cut no-shows is to make <strong>changing</strong> the appointment easier than
+          skipping it.
+        </p>
+        <h2>1. Let clients reschedule themselves</h2>
+        <p>
+          Every confirmation email from BookYourSlot carries reschedule and cancel links. A client whose day
+          falls apart moves the slot in two taps, at 11pm if that is when they remember. You get a freed slot
+          someone else can take, instead of an empty chair and no explanation.
+        </p>
+        <p>
+          This one change does more than any reminder system, because it converts a silent no-show into a
+          rescheduled booking.
+        </p>
+        <h2>2. Confirm in writing, immediately</h2>
+        <p>
+          Confirmation emails go out the moment a booking is made, and again whenever it is moved or
+          cancelled. The client has the date, the time in their own time zone, and the location in their
+          inbox. A surprising share of no-shows are simply people who wrote the wrong day down.
+        </p>
+        <h2>3. Use minimum notice to protect the edges</h2>
+        <p>
+          Set a minimum booking notice so nobody can grab a slot twenty minutes before it starts. Same-day
+          impulse bookings are the ones most likely to evaporate, and they are also the ones you are least
+          able to prepare for.
+        </p>
+        <h2>4. Add buffers so a late arrival does not cascade</h2>
+        <p>
+          Buffers before and after an appointment absorb overruns. Without them, one client arriving ten
+          minutes late pushes every following appointment, and the people at the end of the day are the ones
+          who give up and leave.
+        </p>
+        <h2>5. Require confirmation for the expensive slots</h2>
+        <p>
+          Any event type can be set to require your approval before it is confirmed. Use it for long or
+          high-value appointments: the client requests, you approve, and both of you get the email. It filters
+          out the speculative bookings without adding friction to your routine work.
+        </p>
+        <h2>Common questions</h2>
+        <h3>Does BookYourSlot send reminder messages before the appointment?</h3>
+        <p>
+          Not today. Confirmation, reschedule and cancellation emails are automatic, but scheduled reminders
+          before an appointment are not part of this edition. If reminders are essential to you, you can build
+          them yourself from booking webhooks (<a href="/blog/automate-bookings-with-n8n">here is how</a>).
+        </p>
+        <h3>Can I charge a deposit to stop no-shows?</h3>
+        <p>
+          Payments are not configured on this instance, so no. The levers above are the ones that work today,
+          and in practice easy self-serve rescheduling does most of the work a deposit would.
+        </p>
+        <h3>What if someone books and never replies?</h3>
+        <p>
+          Their booking still appears on your calendar with their email address, so you can reach them
+          directly. For repeat offenders, switch that event type to require confirmation.
+        </p>
+        <p>
+          <a href="/signup">Create your booking page free</a> and let clients move their own appointments
+          instead of skipping them.
+        </p>
+      </>
+    ),
+  },
+  {
+    slug: "calendly-alternative-small-business",
+    title: "Looking for a Calendly alternative? What to check before you switch",
+    description:
+      "An honest comparison for small businesses weighing up a Calendly alternative: what to check on data ownership, branding, cost and features.",
+    date: "2026-07-28",
+    readingMinutes: 6,
+    excerpt:
+      "Calendly is a good product. The reasons people leave it are rarely about features, and knowing which reason is yours saves a painful migration.",
+    body: (
+      <>
+        <p>
+          Calendly is a good product, and if it is working for you there is no prize for switching. The people
+          who move away from it usually do so for one of four reasons. Working out which one is yours matters,
+          because three of them are solved by a different tool and one is not.
+        </p>
+        <h2>Reason 1: you want to own the booking data</h2>
+        <p>
+          On a hosted scheduling service, your clients' names, email addresses and appointment history live on
+          someone else's infrastructure, under their retention policy. For a dental practice or a clinic, that
+          can be a genuine compliance conversation rather than a preference.
+        </p>
+        <p>
+          BookYourSlot is self-hosted. The database is ours to run and the data in it is yours. That is the
+          main thing it offers over a hosted competitor (
+          <a href="/blog/self-hosted-scheduling-software">the longer argument is here</a>).
+        </p>
+        <h2>Reason 2: the branding is not yours</h2>
+        <p>
+          Free tiers of hosted schedulers put their name on your booking page and in the emails your clients
+          receive. When the booking page is the first thing a new client sees, that matters more than it
+          sounds.
+        </p>
+        <h2>Reason 3: per-seat pricing does not fit</h2>
+        <p>
+          Per-user pricing is fine for a sales team and awkward for a salon with six chairs and a rotating
+          roster. Self-hosting moves the cost from per-seat to a fixed server bill that does not change when
+          you hire.
+        </p>
+        <h2>Reason 4: you need a specific feature</h2>
+        <p>
+          This is the one to be careful about. Be concrete about which feature, then check it actually exists
+          in the tool you are moving to. Here is where BookYourSlot honestly stands today.
+        </p>
+        <h3>What works now</h3>
+        <ul>
+          <li>Personal booking pages with a public link per practitioner</li>
+          <li>Working hours, date overrides, buffers and minimum notice</li>
+          <li>Guest time zone detection, so slots show in their local time</li>
+          <li>Google Calendar two-way sync, once connected</li>
+          <li>Automatic confirmation, reschedule and cancellation emails</li>
+          <li>Self-serve reschedule and cancel from the confirmation email</li>
+          <li>Recurring events, seats per slot, and require-confirmation event types</li>
+          <li>Embeds, webhooks and an API to automate around the booking</li>
+        </ul>
+        <h3>What is not here yet</h3>
+        <ul>
+          <li>Shared team pages with round-robin assignment. Each person has their own page today.</li>
+          <li>Scheduled reminder messages before an appointment.</li>
+          <li>Payments and deposits, which need a payment provider configured.</li>
+          <li>Built-in video meetings, which need a provider configured.</li>
+        </ul>
+        <p>
+          If something in that second list is load-bearing for your business, stay where you are for now. We
+          would rather tell you that than have you migrate and find out.
+        </p>
+        <h2>Common questions</h2>
+        <h3>Can I import my existing bookings?</h3>
+        <p>
+          There is no bulk importer. Most businesses switch by connecting Google Calendar, which means
+          existing commitments already block out your availability, then pointing new bookings at the new
+          link.
+        </p>
+        <h3>Do my clients need an account?</h3>
+        <p>
+          No. Guests book with a name and an email address. Accounts are only for the people taking bookings.
+        </p>
+        <h3>How long does switching take?</h3>
+        <p>
+          Setting up event types and availability takes about five minutes (
+          <a href="/blog/create-online-booking-page">walkthrough here</a>). The slow part is updating your
+          link everywhere it appears.
+        </p>
+        <p>
+          <a href="/signup">Try it free</a> alongside your current tool before you move anything.
+        </p>
+      </>
+    ),
+  },
+  {
+    slug: "take-bookings-from-instagram-whatsapp",
+    title: "How to take appointments from Instagram and WhatsApp",
+    description:
+      "Turn your Instagram bio and WhatsApp chats into a booking flow, so clients pick a slot themselves instead of DMing you back and forth.",
+    date: "2026-07-28",
+    readingMinutes: 5,
+    excerpt:
+      "If most of your enquiries arrive as DMs, your booking system is currently your thumbs. Here is how to move that to a link.",
+    body: (
+      <>
+        <p>
+          For a lot of salons, studios and local services, most enquiries arrive as DMs. That means your
+          booking system is currently your thumbs, and it only works while you are holding your phone. A
+          booking link fixes that without moving your audience off social.
+        </p>
+        <h2>Put the link in your Instagram bio</h2>
+        <p>
+          Your booking page lives at a link like <code>bookyourslot.online/yourname</code>. That goes straight
+          in the bio field. Someone who finds you at 11pm books a slot at 11pm, and you read about it in the
+          morning.
+        </p>
+        <p>
+          If you offer several services, make an event type for each one. Each gets its own link, so a Stories
+          post about one service can point directly at that booking page rather than a generic one.
+        </p>
+        <h2>Use it as your DM reply</h2>
+        <p>
+          Save the link as a quick reply. When someone asks "are you free Saturday?", the answer becomes one
+          message with a link instead of four messages comparing times. Your page already knows what you have
+          free, so you are not checking a calendar while typing.
+        </p>
+        <h2>Let the page do the time zone maths</h2>
+        <p>
+          If you take remote consultations, guests see slots in their own time zone automatically. That
+          removes the single most common booking mistake in international DMs.
+        </p>
+        <h2>Set WhatsApp as the meeting location</h2>
+        <p>
+          For consultations you run over chat, set the event type's location to your WhatsApp link. The
+          confirmation email carries it, so the client knows exactly where to be without asking.
+        </p>
+        <h2>Print it where phones already are</h2>
+        <p>
+          A QR code pointing at your booking page works on a reception card, a mirror, or a flyer. People
+          photograph it and book later, which is exactly the behaviour you want.
+        </p>
+        <h2>Common questions</h2>
+        <h3>Do I need to stop using DMs?</h3>
+        <p>
+          No, and you should not. DMs are where the relationship happens. The link just moves the mechanical
+          part, agreeing on a time, out of the conversation.
+        </p>
+        <h3>Can I hide certain slots?</h3>
+        <p>
+          Yes. Your page only ever offers hours you have defined, so keep walk-in or regular-client time out
+          of the schedule and handle it as you do today.
+        </p>
+        <h3>What if two people book the same slot?</h3>
+        <p>
+          They cannot. A slot disappears the moment it is taken, and connected Google Calendar events block
+          your availability too.
+        </p>
+        <p>
+          <a href="/signup">Create your booking link free</a> and paste it into your bio today.
+        </p>
+      </>
+    ),
+  },
+  {
+    slug: "online-booking-for-barbershops",
+    title: "Online booking for barbershops: fill the chair between walk-ins",
+    description:
+      "Set up barbershop booking that respects walk-ins: per-barber pages, per-cut durations, buffers between clients, and automatic confirmations.",
+    date: "2026-07-28",
+    readingMinutes: 5,
+    excerpt:
+      "Barbershops run on walk-ins and regulars, so booking software has to fit around that rather than replace it. Here is a setup that does.",
+    body: (
+      <>
+        <p>
+          Barbershops run on walk-ins and regulars. Booking software that assumes every minute is bookable
+          fights that, which is why a lot of shops try it once and go back to the notebook. The setup below
+          fits around how a shop already works.
+        </p>
+        <h2>Give each barber their own page</h2>
+        <p>
+          Regulars want <em>their</em> barber, not any barber. Each person gets a personal booking page with
+          their own hours and their own days off, so a client books the chair they actually want. Share the
+          individual links rather than one shop link.
+        </p>
+        <h2>One event type per cut</h2>
+        <ul>
+          <li>
+            <strong>Skin fade (45m)</strong>, <strong>Cut and beard (45m)</strong>,{" "}
+            <strong>Dry trim (20m)</strong>, <strong>Kids cut (20m)</strong>.
+          </li>
+          <li>
+            Real durations matter more here than anywhere. A twenty minute trim booked into a forty five
+            minute block is a third of a chair wasted.
+          </li>
+        </ul>
+        <h2>Reserve time for walk-ins by simply not offering it</h2>
+        <p>
+          Do not try to model walk-ins. Just leave them out. If Saturday mornings are walk-in only, do not put
+          Saturday morning in your availability. The page can only ever offer hours you defined, so unlisted
+          time stays yours.
+        </p>
+        <h2>Buffers between clients</h2>
+        <p>
+          Add a five minute buffer after each appointment to sweep up and reset. Without it, the schedule
+          assumes you teleport between clients, and by mid-afternoon you are running late through no fault of
+          anyone.
+        </p>
+        <h2>Let clients move their own appointment</h2>
+        <p>
+          Confirmation emails carry reschedule and cancel links. A client who cancels at 8am frees a slot
+          someone else can take that day, which is the difference between a gap and a booking (
+          <a href="/blog/reduce-no-shows-appointments">more on cutting no-shows</a>).
+        </p>
+        <h2>Common questions</h2>
+        <h3>Can the whole shop share one page?</h3>
+        <p>
+          Not yet. Each barber has their own page and link today. A shared shop page that assigns whoever is
+          free is on the roadmap, not live.
+        </p>
+        <h3>What about a barber's day off?</h3>
+        <p>
+          Date overrides handle one-off changes without touching the weekly pattern, and connected Google
+          Calendar events block availability automatically.
+        </p>
+        <h3>Does it work on a phone?</h3>
+        <p>Yes. Most clients will book from a phone, and the page is built for that first.</p>
+        <p>
+          <a href="/signup">Set up your shop's booking pages free</a>. Start with one barber, see how it
+          lands, then add the rest.
+        </p>
+      </>
+    ),
+  },
+  {
+    slug: "automate-bookings-with-n8n",
+    title: "Automate what happens after a booking with n8n",
+    description:
+      "Send every new booking into n8n with a webhook: post to a channel, log to a sheet, update a CRM, or trigger your own reminder message.",
+    date: "2026-07-28",
+    readingMinutes: 6,
+    excerpt:
+      "A booking is rarely the last step. Webhooks let you hand each one to n8n and automate whatever your business does next.",
+    body: (
+      <>
+        <p>
+          A booking is rarely the last step. Something usually happens next: a message to the team, a row in a
+          spreadsheet, a contact in a CRM, a task for the morning. BookYourSlot can hand every booking to{" "}
+          <a href="https://n8n.io/" target="_blank" rel="noopener noreferrer">
+            n8n
+          </a>{" "}
+          the moment it happens, and n8n does the rest.
+        </p>
+        <h2>How it fits together</h2>
+        <p>
+          You create a webhook in BookYourSlot pointing at an n8n <strong>Webhook</strong> node. When someone
+          books, reschedules or cancels, we POST the booking to that URL and your n8n workflow runs. No
+          polling, no plugin to install.
+        </p>
+        <p>
+          One thing to know up front: n8n ships an official <em>Cal Trigger</em> node, and it will not work
+          here. That node talks to an API version this edition does not include. Use the generic Webhook node
+          instead, which does the same job for booking events.
+        </p>
+        <h2>Set it up</h2>
+        <ol>
+          <li>
+            In n8n, add a <strong>Webhook</strong> node set to POST and copy its production URL.
+          </li>
+          <li>
+            In BookYourSlot, go to Settings, then Developer, then Webhooks, and add that URL as the
+            subscriber.
+          </li>
+          <li>
+            Subscribe to the events you care about. Most workflows want BOOKING_CREATED, BOOKING_RESCHEDULED
+            and BOOKING_CANCELLED.
+          </li>
+          <li>Set a secret so your workflow can verify the request really came from you.</li>
+          <li>Activate the n8n workflow, then make a test booking on your own page.</li>
+        </ol>
+        <p>
+          The full version of this, including the payload shape and a ready-made signature check, is in the{" "}
+          <a href="https://github.com/squid-beast/bookyourslot/blob/main/docs/N8N.md">
+            n8n guide in our docs
+          </a>
+          .
+        </p>
+        <h2>Things worth automating first</h2>
+        <ul>
+          <li>
+            <strong>Tell the team.</strong> Post new bookings to a shared channel so the front desk sees them
+            without opening the calendar.
+          </li>
+          <li>
+            <strong>Keep a log.</strong> Append each booking to a spreadsheet for the numbers your accountant
+            will ask for.
+          </li>
+          <li>
+            <strong>Update your CRM.</strong> Create or update the client record so booking history sits next
+            to everything else you know about them.
+          </li>
+          <li>
+            <strong>Build your own reminders.</strong> Scheduled reminders are not built in, but a workflow
+            can wait until the day before and send a message however you prefer to reach clients.
+          </li>
+        </ul>
+        <h2>Common questions</h2>
+        <h3>Can n8n create bookings in BookYourSlot?</h3>
+        <p>
+          Not on this instance. Events flow out to n8n, not back in, because the API service is not deployed
+          here. Everything above is about reacting to bookings rather than making them.
+        </p>
+        <h3>Do I need to self-host n8n?</h3>
+        <p>No. n8n Cloud works, as long as the webhook URL is reachable from our server, which it will be.</p>
+        <h3>Is the webhook secure?</h3>
+        <p>
+          Set a secret and every request is signed, so your workflow can reject anything that did not come
+          from us. The docs include the exact check to paste into an n8n Code node.
+        </p>
+        <p>
+          <a href="/signup">Create your account free</a>, then wire your first workflow in about ten minutes.
+        </p>
+      </>
+    ),
+  },
+  {
+    slug: "set-availability-that-protects-your-day",
+    title: "How to set availability that protects your day, not just fills it",
+    description:
+      "Availability settings decide what your week feels like. Here is how to use hours, buffers, notice and overrides to keep control of your day.",
+    date: "2026-07-28",
+    readingMinutes: 5,
+    excerpt:
+      "A booking page will happily fill every hour you give it. The settings below decide whether that is a good week or an exhausting one.",
+    body: (
+      <>
+        <p>
+          A booking page will happily fill every hour you hand it. That is the point, and also the risk. The
+          difference between a good week and an exhausting one is usually four settings, not willpower.
+        </p>
+        <h2>Publish the hours you want, not the hours you have</h2>
+        <p>
+          Your working hours are an offer, not a diary. If you technically could see clients at 8am but you
+          think badly before 10, publish 10. The page cannot offer time you never listed, which makes this the
+          strongest boundary you have.
+        </p>
+        <h2>Buffers are for you, not the client</h2>
+        <p>
+          A buffer after an appointment is the time you need to write notes, reset the room, or breathe. Set
+          them and back-to-back bookings stop being possible. Ten minutes after every appointment is roughly
+          an hour back in a busy day.
+        </p>
+        <h2>Minimum notice stops the ambush</h2>
+        <p>
+          Minimum booking notice sets how close to the start someone may book. Without it, a slot can be taken
+          while you are already on your way somewhere. A few hours is enough for most businesses. A day suits
+          anything that needs preparation.
+        </p>
+        <h2>Date overrides beat editing your weekly hours</h2>
+        <p>
+          For a one-off, a holiday, a course, a half day, use a date override rather than editing your weekly
+          pattern. You change one day and your normal week stays intact, so there is nothing to remember to
+          put back.
+        </p>
+        <h2>Let your calendar speak for itself</h2>
+        <p>
+          Connect Google Calendar and existing commitments block your booking page automatically. The school
+          run in your personal calendar quietly stops being bookable, without you maintaining the same
+          information twice.
+        </p>
+        <h2>Use different event types for different energy</h2>
+        <p>
+          A fifteen minute check-in and a ninety minute deep session should not be equally available. Give
+          each its own event type, with its own duration, buffer and notice, and share the link that matches
+          what you actually want more of.
+        </p>
+        <h2>Common questions</h2>
+        <h3>Can I block a single afternoon without changing my schedule?</h3>
+        <p>Yes, with a date override. Your weekly hours stay untouched and only that date changes.</p>
+        <h3>Do buffers show up to the person booking?</h3>
+        <p>
+          No. They only see the slots that remain once buffers are applied, so the page looks clean while your
+          day stays workable.
+        </p>
+        <h3>What if I need a break every day at the same time?</h3>
+        <p>
+          Split your working hours around it, for example 9 to 1 and 2 to 5. The gap is simply never offered.
+        </p>
+        <p>
+          <a href="/signup">Set your availability free</a> and shape the week you want to work (
+          <a href="/blog/create-online-booking-page">start with the setup walkthrough</a>).
         </p>
       </>
     ),
