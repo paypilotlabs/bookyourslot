@@ -1,18 +1,8 @@
 "use client";
 
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@radix-ui/react-collapsible";
-import classNames from "classnames";
-import { useSession } from "next-auth/react";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { Fragment, useEffect, useState } from "react";
-import { Toaster } from "sonner";
-import { z } from "zod";
-
 import BookingPageTagManager from "@calcom/app-store/BookingPageTagManager";
 import type { getEventLocationValue } from "@calcom/app-store/locations";
 import { getSuccessPageLocationMessage, guessEventLocationType } from "@calcom/app-store/locations";
-import { getEventTypeAppData } from "@calcom/app-store/utils";
 import { eventTypeMetaDataSchemaWithTypedApps } from "@calcom/app-store/zod-utils";
 import type { ConfigType } from "@calcom/dayjs";
 import dayjs from "@calcom/dayjs";
@@ -22,7 +12,7 @@ import {
   useIsEmbed,
 } from "@calcom/embed-core/embed-iframe";
 import { Price } from "@calcom/features/bookings/components/event-meta/Price";
-import { getCalendarLinks, CalendarLinkType } from "@calcom/features/bookings/lib/getCalendarLinks";
+import { CalendarLinkType, getCalendarLinks } from "@calcom/features/bookings/lib/getCalendarLinks";
 import { RATING_OPTIONS, validateRating } from "@calcom/features/bookings/lib/rating";
 import { isWithinMinimumRescheduleNotice as isWithinMinimumRescheduleNoticeUtil } from "@calcom/features/bookings/lib/reschedule/isWithinMinimumRescheduleNotice";
 import type { nameObjectSchema } from "@calcom/features/eventtypes/lib/eventNaming";
@@ -39,12 +29,10 @@ import isSmsCalEmail from "@calcom/lib/isSmsCalEmail";
 import { markdownToSafeHTML } from "@calcom/lib/markdownToSafeHTML";
 import { getEveryFreqFor } from "@calcom/lib/recurringStrings";
 import { getIs24hClockFromLocalStorage, isBrowserLocale24h } from "@calcom/lib/timeFormat";
-import { getTimeShiftFlags, getFirstShiftFlags } from "@calcom/lib/timeShift";
+import { getFirstShiftFlags, getTimeShiftFlags } from "@calcom/lib/timeShift";
 import { CURRENT_TIMEZONE } from "@calcom/lib/timezoneConstants";
 import { localStorage } from "@calcom/lib/webstorage";
-import { AssignmentReasonEnum, BookingStatus, SchedulingType } from "@calcom/prisma/enums";
-
-import assignmentReasonBadgeTitleMap from "@calcom/web/lib/booking/assignmentReasonBadgeTitleMap";
+import { type AssignmentReasonEnum, BookingStatus, SchedulingType } from "@calcom/prisma/enums";
 import { bookingMetadataSchema } from "@calcom/prisma/zod-utils";
 import { trpc } from "@calcom/trpc/react";
 import { Alert } from "@calcom/ui/components/alert";
@@ -54,19 +42,21 @@ import { Button } from "@calcom/ui/components/button";
 import { EmptyScreen } from "@calcom/ui/components/empty-screen";
 import { EmailInput, TextArea } from "@calcom/ui/components/form";
 import { Icon } from "@calcom/ui/components/icon";
-import {
-  CalendarIcon,
-  CheckIcon,
-  ChevronLeftIcon,
-  ExternalLinkIcon,
-  XIcon,
-} from "@coss/ui/icons";
 import { showToast } from "@calcom/ui/components/toast";
 import { useCalcomTheme } from "@calcom/ui/styles";
 import CancelBooking from "@calcom/web/components/booking/CancelBooking";
 import EventReservationSchema from "@calcom/web/components/schemas/EventReservationSchema";
+import assignmentReasonBadgeTitleMap from "@calcom/web/lib/booking/assignmentReasonBadgeTitleMap";
 import { timeZone } from "@calcom/web/lib/clock";
-
+import { CalendarIcon, CheckIcon, ChevronLeftIcon, ExternalLinkIcon, XIcon } from "@coss/ui/icons";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@radix-ui/react-collapsible";
+import classNames from "classnames";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { Fragment, useEffect, useState } from "react";
+import { Toaster } from "sonner";
+import { z } from "zod";
 import { usePaymentStatus } from "../hooks/usePaymentStatus";
 import type { PageProps } from "./bookings-single-view.getServerSideProps";
 
@@ -271,14 +261,6 @@ export default function Success(props: PageProps) {
     t,
   };
 
-  const giphyAppData = getEventTypeAppData(
-    {
-      ...eventType,
-      metadata: eventTypeMetaDataSchemaWithTypedApps.parse(eventType.metadata),
-    },
-    "giphy"
-  );
-  const giphyImage = giphyAppData?.thankYouPage;
   const isRoundRobin = eventType.schedulingType === SchedulingType.ROUND_ROBIN;
 
   const eventName = getEventName(eventNameObject, true);
@@ -523,24 +505,16 @@ export default function Success(props: PageProps) {
                           imageSrc={`${bookingInfo.user.avatarUrl}`}
                         />
                       )}
-                      {giphyImage && !needsConfirmation && isReschedulable && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={giphyImage} className="w-full rounded-lg" alt="Gif from Giphy" />
-                      )}
                       <div
                         className={classNames(
                           "mx-auto flex h-12 w-12 items-center justify-center rounded-full",
                           isRoundRobin &&
                             "border-cal-bg dark:border-cal-bg-muted absolute bottom-0 right-0 z-10 h-12 w-12 border-8",
-                          !giphyImage && isReschedulable && !needsConfirmation && !isAwaitingPayment
-                            ? "bg-cal-success"
-                            : "",
-                          !giphyImage && isReschedulable && (needsConfirmation || isAwaitingPayment)
-                            ? "bg-subtle"
-                            : "",
+                          isReschedulable && !needsConfirmation && !isAwaitingPayment ? "bg-cal-success" : "",
+                          isReschedulable && (needsConfirmation || isAwaitingPayment) ? "bg-subtle" : "",
                           isCancelled ? "bg-error" : ""
                         )}>
-                        {!giphyImage && !needsConfirmation && !isAwaitingPayment && isReschedulable && (
+                        {!needsConfirmation && !isAwaitingPayment && isReschedulable && (
                           <CheckIcon className="h-5 w-5 text-green-600 dark:text-green-400" />
                         )}
                         {(needsConfirmation || isAwaitingPayment) && isReschedulable && (
@@ -780,10 +754,7 @@ export default function Success(props: PageProps) {
                             <>
                               <div className="mt-9 font-medium">{t("assignment_reason")}</div>
                               <div className="col-span-2 mb-2 mt-9">
-                                <Badge
-                                  variant="gray"
-                                  className="mb-2 cursor-pointer hover:opacity-80"
->
+                                <Badge variant="gray" className="mb-2 cursor-pointer hover:opacity-80">
                                   {t(
                                     assignmentReasonBadgeTitleMap(
                                       bookingInfo.assignmentReason[0].reasonEnum as AssignmentReasonEnum
@@ -1038,9 +1009,7 @@ export default function Success(props: PageProps) {
                       <>
                         <hr className="border-subtle mt-8" />
                         <div className="text-default pt-8 text-center text-xs">
-                          <a href="/signup">
-                            {t("create_booking_link_with_calcom", { appName: APP_NAME })}
-                          </a>
+                          <a href="/signup">{t("create_booking_link_with_calcom", { appName: APP_NAME })}</a>
 
                           <form
                             onSubmit={(e) => {

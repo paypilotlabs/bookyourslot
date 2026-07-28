@@ -6,7 +6,6 @@ import { metadata as dailyvideo__metadata_ts } from "./dailyvideo/_metadata";
 import ga4_config_json from "./ga4/config.json";
 import { metadata as googlevideo__metadata_ts } from "./googlevideo/_metadata";
 import metapixel_config_json from "./metapixel/config.json";
-import office365video_config_json from "./office365video/config.json";
 import plausible_config_json from "./plausible/config.json";
 import signal_config_json from "./signal/config.json";
 import telegram_config_json from "./telegram/config.json";
@@ -19,7 +18,6 @@ export const appStoreMetadata = {
   ga4: ga4_config_json,
   googlevideo: googlevideo__metadata_ts,
   metapixel: metapixel_config_json,
-  office365video: office365video_config_json,
   plausible: plausible_config_json,
   signal: signal_config_json,
   telegram: telegram_config_json,

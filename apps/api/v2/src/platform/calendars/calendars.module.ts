@@ -6,7 +6,6 @@ import { AppleCalendarService } from "@/platform/calendars/services/apple-calend
 import { CalendarsCacheService } from "@/platform/calendars/services/calendars-cache.service";
 import { CalendarsService } from "@/platform/calendars/services/calendars.service";
 import { GoogleCalendarService } from "@/platform/calendars/services/gcal.service";
-import { IcsFeedService } from "@/platform/calendars/services/ics-feed.service";
 import { OutlookService } from "@/platform/calendars/services/outlook.service";
 import { AppsRepository } from "@/modules/apps/apps.repository";
 import { CredentialsRepository } from "@/modules/credentials/credentials.repository";
@@ -26,7 +25,6 @@ import { Module } from "@nestjs/common";
     OutlookService,
     GoogleCalendarService,
     AppleCalendarService,
-    IcsFeedService,
     SelectedCalendarsRepository,
     AppsRepository,
     CalendarsRepository,

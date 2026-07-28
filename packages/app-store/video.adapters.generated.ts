@@ -7,6 +7,5 @@ export const VideoApiAdapterMap =
     ? {}
     : {
         dailyvideo: import("./dailyvideo/lib/VideoApiAdapter"),
-        office365video: import("./office365video/lib/VideoApiAdapter"),
         zoomvideo: import("./zoomvideo/lib/VideoApiAdapter"),
       };

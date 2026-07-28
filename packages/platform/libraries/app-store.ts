@@ -4,7 +4,6 @@ import handleDeleteCredential from "@calcom/features/credentials/handleDeleteCre
 
 export type { TDependencyData } from "@calcom/app-store/_appRegistry";
 export { BuildCalendarService } from "@calcom/app-store/applecalendar/lib";
-export { BuildCalendarService as BuildIcsFeedCalendarService } from "@calcom/app-store/ics-feedcalendar/lib";
 export type { CredentialOwner } from "@calcom/app-store/types";
 export type { CredentialDataWithTeamName, LocationOption } from "@calcom/app-store/utils";
 export { getAppFromSlug } from "@calcom/app-store/utils";

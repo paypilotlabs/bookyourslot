@@ -8,7 +8,6 @@ import { TeamRepositoryFixture } from "test/fixtures/repository/team.repository.
 import { TokensRepositoryFixture } from "test/fixtures/repository/tokens.repository.fixture";
 import { UserRepositoryFixture } from "test/fixtures/repository/users.repository.fixture";
 import { CalendarsServiceMock } from "test/mocks/calendars-service-mock";
-import { IcsCalendarServiceMock } from "test/mocks/ics-calendar-service-mock";
 import { randomString } from "test/utils/randomString";
 
 import {
@@ -20,22 +19,10 @@ import {
   OFFICE_365_CALENDAR_TYPE,
   SUCCESS_STATUS,
 } from "@calcom/platform-constants";
-import { ICS_CALENDAR, ICS_CALENDAR_TYPE } from "@calcom/platform-constants/apps";
 import type { Credential, PlatformOAuthClient, Team, User } from "@calcom/prisma/client";
-
-// Mock the BuildIcsFeedCalendarService factory function
-const mockBuildIcsFeedCalendarService = jest.fn();
-jest.mock("@calcom/platform-libraries/app-store", () => {
-  const actual = jest.requireActual("@calcom/platform-libraries/app-store");
-  return {
-    ...actual,
-    BuildIcsFeedCalendarService: (...args: unknown[]) => mockBuildIcsFeedCalendarService(...args),
-  };
-});
 
 import { AppModule } from "@/app.module";
 import { bootstrap } from "@/bootstrap";
-import { CreateIcsFeedOutput, CreateIcsFeedOutputResponseDto } from "@/platform/calendars/input/create-ics.output";
 import { ConnectedCalendarsData } from "@/platform/calendars/outputs/connected-calendars.output";
 import { DeletedCalendarCredentialsOutputResponseDto } from "@/platform/calendars/outputs/delete-calendar-credentials.output";
 import { CalendarsService } from "@/platform/calendars/services/calendars.service";
@@ -65,7 +52,6 @@ describeCalendars("Platform Calendars Endpoints", () => {
   let googleCalendarCredentials: Credential;
   let accessTokenSecret: string;
   let refreshTokenSecret: string;
-  let icsCalendarCredentials: CreateIcsFeedOutput;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -216,56 +202,6 @@ describeCalendars("Platform Calendars Endpoints", () => {
       .expect(200);
   });
 
-  it(`/POST/v2/calendars/${ICS_CALENDAR}/save with access token should fail to create a new ics feed calendar credentials with invalid urls`, async () => {
-    const body = {
-      urls: ["https://cal.com/ics/feed.ics", "https://not-an-ics-feed.com"],
-      readOnly: false,
-    };
-    await request(app.getHttpServer())
-      .post(`/v2/calendars/${ICS_CALENDAR}/save`)
-      .set("Authorization", `Bearer ${accessTokenSecret}`)
-      .set("Origin", CLIENT_REDIRECT_URI)
-      .send(body)
-      .expect(400);
-  });
-
-  it(`/POST/v2/calendars/${ICS_CALENDAR}/save with access token should create a new ics feed calendar credentials`, async () => {
-    const body = {
-      urls: ["https://cal.com/ics/feed.ics"],
-      readOnly: false,
-    };
-    mockBuildIcsFeedCalendarService.mockReturnValue({
-      listCalendars: new IcsCalendarServiceMock().listCalendars,
-      createEvent: jest.fn(),
-      deleteEvent: jest.fn(),
-      updateEvent: jest.fn(),
-      getAvailability: jest.fn(),
-    });
-    await request(app.getHttpServer())
-      .post(`/v2/calendars/${ICS_CALENDAR}/save`)
-      .set("Authorization", `Bearer ${accessTokenSecret}`)
-      .set("Origin", CLIENT_REDIRECT_URI)
-      .send(body)
-      .expect(201)
-      .then(async (response) => {
-        const responseBody: CreateIcsFeedOutputResponseDto = response.body;
-        expect(responseBody.status).toEqual(SUCCESS_STATUS);
-        expect(responseBody.data).toBeDefined();
-        expect(responseBody.data.userId).toBeDefined();
-        expect(responseBody.data.userId).toEqual(user.id);
-        expect(responseBody.data.id).toBeDefined();
-        icsCalendarCredentials = responseBody.data;
-      });
-  });
-
-  it(`/GET/v2/calendars/${ICS_CALENDAR}/check with access token`, async () => {
-    await request(app.getHttpServer())
-      .get(`/v2/calendars/${ICS_CALENDAR}/check`)
-      .set("Authorization", `Bearer ${accessTokenSecret}`)
-      .set("Origin", CLIENT_REDIRECT_URI)
-      .expect(200);
-  });
-
   it(`/GET/v2/calendars with access token`, async () => {
     const response = await request(app.getHttpServer())
       .get(`/v2/calendars`)
@@ -283,13 +219,8 @@ describeCalendars("Platform Calendars Endpoints", () => {
     const office365ConnectedCalendar = data.connectedCalendars.find(
       (calendar) => calendar.integration.type === OFFICE_365_CALENDAR_TYPE
     );
-    const icsConnectedCalendar = data.connectedCalendars.find(
-      (calendar) => calendar.integration.type === ICS_CALENDAR_TYPE
-    );
-
     expect(googleConnectedCalendar).toBeDefined();
     expect(office365ConnectedCalendar).toBeDefined();
-    expect(icsConnectedCalendar).toBeDefined();
 
     expect(data.destinationCalendar).toBeDefined();
     expect(data.destinationCalendar.integration).toEqual(GOOGLE_CALENDAR_TYPE);
@@ -389,7 +320,6 @@ describeCalendars("Platform Calendars Endpoints", () => {
     await teamRepositoryFixture.delete(organization.id);
     await credentialsRepositoryFixture.delete(office365Credentials.id);
     await credentialsRepositoryFixture.delete(googleCalendarCredentials.id);
-    await credentialsRepositoryFixture.delete(icsCalendarCredentials.id);
     await userRepositoryFixture.deleteByEmail(user.email);
     await app.close();
   });

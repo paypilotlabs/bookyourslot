@@ -4,10 +4,6 @@
  */
 const APP_SLUG_TO_NAME: Record<string, string> = {
   stripe: "Stripe",
-  paypal: "Paypal",
-  alby: "Alby",
-  hitpay: "HitPay",
-  btcpayserver: "BTCPayServer",
 };
 
 export function getAppNameFromSlug({ appSlug }: { appSlug: string | null }): string {

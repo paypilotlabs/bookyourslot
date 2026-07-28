@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-
 import { shouldEnableApp } from "./validateAppKeys";
 
 describe("shouldEnableApp", () => {
@@ -99,63 +98,60 @@ describe("shouldEnableApp", () => {
 
   describe("Apps with multiple required fields", () => {
     it("should return false when any required field is missing", () => {
-      // vital requires mode, region, api_key, and webhook_secret
-      const result = shouldEnableApp("vital", {
-        mode: "sandbox",
-        region: "us",
-        api_key: "test-key",
-        // Missing webhook_secret
+      // googlecalendar requires client_id, client_secret and redirect_uris
+      const result = shouldEnableApp("googlecalendar", {
+        client_id: "test-client-id",
+        client_secret: "test-client-secret",
+        // Missing redirect_uris
       });
       expect(result).toBe(false);
     });
 
     it("should return true when all required fields are present", () => {
-      const result = shouldEnableApp("vital", {
-        mode: "sandbox",
-        region: "us",
-        api_key: "test-key",
-        webhook_secret: "test-secret",
+      const result = shouldEnableApp("googlecalendar", {
+        client_id: "test-client-id",
+        client_secret: "test-client-secret",
+        redirect_uris: ["https://example.com/api/integrations/googlecalendar/callback"],
       });
       expect(result).toBe(true);
     });
 
     it("should return false when any required field is empty", () => {
-      const result = shouldEnableApp("vital", {
-        mode: "",
-        region: "us",
-        api_key: "test-key",
-        webhook_secret: "test-secret",
+      const result = shouldEnableApp("googlecalendar", {
+        client_id: "",
+        client_secret: "test-client-secret",
+        redirect_uris: ["https://example.com/api/integrations/googlecalendar/callback"],
       });
       expect(result).toBe(false);
     });
   });
-  
-  describe("Apps with empty key schemas (user-configured apps like PayPal, GTM)", () => {
+
+  describe("Apps with empty key schemas (user-configured apps like Plausible, GA4)", () => {
     // These apps have `appKeysSchema = z.object({})` - they don't need server-side keys
     // Users configure them after installation, so they should always be enabled
 
-    it("should return true for PayPal when keys are null", () => {
-      const result = shouldEnableApp("paypal", null);
+    it("should return true for Plausible when keys are null", () => {
+      const result = shouldEnableApp("plausible", null);
       expect(result).toBe(true);
     });
 
-    it("should return true for PayPal when keys are undefined", () => {
-      const result = shouldEnableApp("paypal", undefined);
+    it("should return true for Plausible when keys are undefined", () => {
+      const result = shouldEnableApp("plausible", undefined);
       expect(result).toBe(true);
     });
 
-    it("should return true for PayPal when keys are empty object", () => {
-      const result = shouldEnableApp("paypal", {});
+    it("should return true for Plausible when keys are empty object", () => {
+      const result = shouldEnableApp("plausible", {});
       expect(result).toBe(true);
     });
 
-    it("should return true for GTM when keys are null", () => {
-      const result = shouldEnableApp("gtm", null);
+    it("should return true for Meta Pixel when keys are null", () => {
+      const result = shouldEnableApp("metapixel", null);
       expect(result).toBe(true);
     });
 
-    it("should return true for GTM when keys are undefined", () => {
-      const result = shouldEnableApp("gtm", undefined);
+    it("should return true for Meta Pixel when keys are undefined", () => {
+      const result = shouldEnableApp("metapixel", undefined);
       expect(result).toBe(true);
     });
 

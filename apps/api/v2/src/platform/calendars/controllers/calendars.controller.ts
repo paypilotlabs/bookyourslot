@@ -1,6 +1,4 @@
 import { CalendarsRepository } from "@/platform/calendars/calendars.repository";
-import { CreateIcsFeedInputDto } from "@/platform/calendars/input/create-ics.input";
-import { CreateIcsFeedOutputResponseDto } from "@/platform/calendars/input/create-ics.output";
 import { DeleteCalendarCredentialsInputBodyDto } from "@/platform/calendars/input/delete-calendar-credentials.input";
 import { GetBusyTimesOutput } from "@/platform/calendars/outputs/busy-times.output";
 import { ConnectedCalendarsOutput } from "@/platform/calendars/outputs/connected-calendars.output";
@@ -12,7 +10,6 @@ import { AppleCalendarService } from "@/platform/calendars/services/apple-calend
 import { CalendarsCacheService } from "@/platform/calendars/services/calendars-cache.service";
 import { CalendarsService } from "@/platform/calendars/services/calendars.service";
 import { GoogleCalendarService } from "@/platform/calendars/services/gcal.service";
-import { IcsFeedService } from "@/platform/calendars/services/ics-feed.service";
 import { OutlookService } from "@/platform/calendars/services/outlook.service";
 import { API_VERSIONS_VALUES } from "@/lib/api-versions";
 import { API_KEY_OR_ACCESS_TOKEN_HEADER } from "@/lib/docs/headers";
@@ -84,29 +81,8 @@ export class CalendarsController {
     private readonly outlookService: OutlookService,
     private readonly googleCalendarService: GoogleCalendarService,
     private readonly appleCalendarService: AppleCalendarService,
-    private readonly icsFeedService: IcsFeedService,
     private readonly calendarsRepository: CalendarsRepository
   ) {}
-
-  @Post("/ics-feed/save")
-  @UseGuards(ApiAuthGuard)
-  @ApiHeader(API_KEY_OR_ACCESS_TOKEN_HEADER)
-  @ApiOperation({ summary: "Save an ICS feed" })
-  async createIcsFeed(
-    @GetUser("id") userId: number,
-    @GetUser("email") userEmail: string,
-    @Body() body: CreateIcsFeedInputDto
-  ): Promise<CreateIcsFeedOutputResponseDto> {
-    return await this.icsFeedService.save(userId, userEmail, body.urls, body.readOnly);
-  }
-
-  @Get("/ics-feed/check")
-  @UseGuards(ApiAuthGuard)
-  @ApiHeader(API_KEY_OR_ACCESS_TOKEN_HEADER)
-  @ApiOperation({ summary: "Check an ICS feed" })
-  async checkIcsFeed(@GetUser("id") userId: number): Promise<ApiResponse> {
-    return await this.icsFeedService.check(userId);
-  }
 
   @UseGuards(ApiAuthGuard)
   @ApiHeader(API_KEY_OR_ACCESS_TOKEN_HEADER)
