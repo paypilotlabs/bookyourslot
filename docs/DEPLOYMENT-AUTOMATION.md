@@ -165,7 +165,7 @@ image exists (step 5), switch the server so manual restarts also use it:
 # on the VPS, in deploy/production/, after CI has pushed at least one image
 git pull --ff-only
 echo "IMAGE_TAG=latest" >> .env      # remote-deploy.sh manages this afterwards
-docker compose -f docker-compose.yml -f docker-compose.registry.yml pull calcom
+docker compose -f docker-compose.yml -f docker-compose.registry.yml pull bookyourslot
 docker compose -f docker-compose.yml -f docker-compose.registry.yml up -d
 ```
 
@@ -190,6 +190,20 @@ First build is ~30–40 min (cold cache); later builds are typically ~5–10 min
 
 ## 6. Operating it
 
+> **One-time step when you first deploy the service rename.** The compose
+> service was renamed from `calcom` to `bookyourslot`, so the old
+> `production-calcom-1` container is now an orphan that a plain `up -d` leaves
+> running. On the first deploy after this change only, run:
+>
+> ```bash
+> cd /opt/bookyourslot/deploy/production
+> docker compose down
+> docker compose -f docker-compose.yml -f docker-compose.registry.yml up -d
+> ```
+>
+> `docker compose down` stops and removes containers but **not** volumes, so the
+> `database-data` volume and all your bookings are untouched. Never add `-v`.
+
 **Ship a change** — merge to `main`. That's the whole workflow.
 
 **Roll back** — Actions → **Deploy** → Run workflow → set `image_tag` to a known
@@ -208,7 +222,7 @@ not the database — see [§8](#8-database-safety).
 history.
 
 **Read logs** — on the VPS:
-`docker compose -f docker-compose.yml -f docker-compose.registry.yml logs -f calcom`.
+`docker compose -f docker-compose.yml -f docker-compose.registry.yml logs -f bookyourslot`.
 
 **Restore a DB snapshot** — snapshots are in `/opt/bookyourslot/backups/`
 (`pre-deploy-*.sql.gz`, last 7 kept):
@@ -355,7 +369,7 @@ What makes this more than a deploy button:
 | Server: `invalid tag` / `unknown action` | Tag didn't match the allowlist | Expected safety behavior; use `sha-…` or `latest` |
 | `docker compose pull`: `denied` / `unauthorized` | VPS not logged in to GHCR, or token expired | Redo 4.3 with a fresh `read:packages` token |
 | Build OOM | `MAX_OLD_SPACE_SIZE` too low for the runner | Raise the build-arg, or use a larger runner |
-| Health check fails → auto-rollback | New image genuinely broken, or slow boot | Read `docker compose logs calcom`; raise `HEALTH_TIMEOUT` if it's just slow |
+| Health check fails → auto-rollback | New image genuinely broken, or slow boot | Read `docker compose logs bookyourslot`; raise `HEALTH_TIMEOUT` if it's just slow |
 | Deploy succeeded but site shows old build | Browser/Traefik cache, or `/api/logo` s-maxage | Hard refresh; the image itself is current |
 
 Related: [GITHUB.md](GITHUB.md) (branch protection, CI), [TESTING.md](TESTING.md)

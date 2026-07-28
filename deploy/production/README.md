@@ -11,7 +11,7 @@ flowchart LR
     G[GitHub<br/>squid-beast/bookyourslot] -- git pull + docker build --> V
 
     subgraph V[VPS - 8 GB, Docker Compose]
-        C[Caddy :80/:443<br/>auto HTTPS] --> A[calcom app :3000<br/>Next.js standalone]
+        C[Caddy :80/:443<br/>auto HTTPS] --> A[bookyourslot app :3000<br/>Next.js standalone]
         A --> D[(Postgres 16<br/>volume: database-data)]
     end
 
@@ -67,9 +67,9 @@ scp apps/web/public/fonts/brand/*.otf apps/web/public/fonts/brand/*.woff2 \
 ## 4. First build + start
 
 ```bash
-docker compose build calcom   # 20-40 min the first time
+docker compose build bookyourslot   # 20-40 min the first time
 docker compose up -d
-docker compose logs -f calcom # wait for "ready" + migration output
+docker compose logs -f bookyourslot # wait for "ready" + migration output
 ```
 
 Visit `https://bookyourslot.online` — the landing page should load with a valid
@@ -96,7 +96,7 @@ The landing hero links to **`/demo/30min`**. Make it real:
 
 Prove it end to end: book the demo event from a private window using an
 external address (Gmail etc.) and confirm both confirmation emails arrive.
-If nothing arrives, `docker compose logs calcom | grep -i mail` — the usual
+If nothing arrives, `docker compose logs bookyourslot | grep -i mail` — the usual
 cause is an unset/wrong `EMAIL_SERVER_PASSWORD`.
 
 ## 8. Google Calendar OAuth
@@ -109,7 +109,7 @@ cause is an unset/wrong `EMAIL_SERVER_PASSWORD`.
    redirect URI, exactly:
    `https://bookyourslot.online/api/integrations/googlecalendar/callback`
 4. Put the client JSON (one line) into `GOOGLE_API_CREDENTIALS` in `.env`,
-   then `docker compose up -d calcom` to restart.
+   then `docker compose up -d bookyourslot` to restart.
 5. Log in as admin → Settings → Admin → Apps → enable **Google Calendar**.
 6. Verify: connect your own Google account from Settings → Apps, book the
    demo event, and check it lands on the calendar.
@@ -148,7 +148,7 @@ cd /opt/bookyourslot/deploy/production && ./deploy.sh
 ```
 
 If a rebuild ever OOMs while the stack is running:
-`docker compose stop calcom && docker compose build calcom && docker compose up -d`.
+`docker compose stop bookyourslot && docker compose build bookyourslot && docker compose up -d`.
 
 ## Backups (recommended)
 
