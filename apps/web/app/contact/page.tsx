@@ -1,4 +1,4 @@
-import { APP_NAME, SUPPORT_MAIL_ADDRESS, WEBSITE_URL } from "@calcom/lib/constants";
+import { APP_NAME, SEO_IMG_DEFAULT, SUPPORT_MAIL_ADDRESS, WEBSITE_URL } from "@calcom/lib/constants";
 import { MarketingShell } from "~/marketing/components/MarketingShell";
 
 export const metadata = {
@@ -6,6 +6,21 @@ export const metadata = {
   description:
     "Get in touch with the BookYourSlot team: support, feedback, security reports, and partnership questions.",
   alternates: { canonical: `${WEBSITE_URL}/contact` },
+  openGraph: {
+    title: `Contact · ${APP_NAME}`,
+    description:
+      "Get in touch with the BookYourSlot team: support, feedback, security reports, and partnership questions.",
+    url: `${WEBSITE_URL}/contact`,
+    siteName: APP_NAME,
+    type: "website",
+    images: [{ url: SEO_IMG_DEFAULT, width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Contact · ${APP_NAME}`,
+    description:
+      "Get in touch with the BookYourSlot team: support, feedback, security reports, and partnership questions.",
+  },
 };
 
 const REASONS = [
