@@ -10,7 +10,7 @@ import { Button } from "@calcom/ui/components/button";
 import { ToggleGroup } from "@calcom/ui/components/form";
 import { getCoreRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBookingFilters } from "~/bookings/hooks/useBookingFilters";
 import { useBookingListColumns } from "~/bookings/hooks/useBookingListColumns";
 import { useBookingListData } from "~/bookings/hooks/useBookingListData";
@@ -153,8 +153,6 @@ function BookingListInner({
     getSortedRowModel: getSortedRowModel(),
     getFacetedUniqueValues,
   });
-
-  const isEmpty = !data?.bookings || data.bookings.length === 0;
 
   return (
     <>
