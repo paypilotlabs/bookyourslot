@@ -152,15 +152,15 @@ Run these against `https://bookyourslot.online` once `./deploy.sh` finishes.
 
 ```bash
 cd /opt/bookyourslot/deploy/production
-docker compose ps                 # database, calcom, caddy all Up
-docker compose logs --tail=40 calcom   # migrations ran, server ready, no errors
+docker compose ps                          # database + bookyourslot both Up
+docker compose logs --tail=40 bookyourslot   # migrations ran, server ready, no errors
 ```
 
 ### B2. TLS and routing
 
 ```bash
 curl -sI https://bookyourslot.online | head -3          # 200, valid cert
-curl -sI https://www.bookyourslot.online | head -3      # 301 to apex
+curl -sI https://www.bookyourslot.online | head -3      # 200, same app as apex
 ```
 
 Then open the site and confirm the landing page renders with fonts and images.
@@ -192,7 +192,7 @@ emails all arrive from `hello@bookyourslot.online`, and none land in spam.
 If nothing arrives:
 
 ```bash
-docker compose logs calcom | grep -i -E "mail|smtp" | tail -20
+docker compose logs bookyourslot | grep -i -E "mail|smtp" | tail -20
 ```
 
 Usual cause: a wrong `EMAIL_SERVER_PASSWORD`.
@@ -224,8 +224,8 @@ appleid.apple.com and syncs busy times.
 
 | Situation | Command |
 | --- | --- |
-| Restart the app only | `docker compose up -d calcom` |
-| Follow logs | `docker compose logs -f calcom` |
+| Restart the app only | `docker compose up -d bookyourslot` |
+| Follow logs | `docker compose logs -f bookyourslot` |
 | Deploy latest main | `cd /opt/bookyourslot/deploy/production && ./deploy.sh` |
 | Database shell | `docker compose exec database psql -U bookyourslot bookyourslot` |
 | Manual backup | `docker compose exec -T database pg_dump -U bookyourslot bookyourslot \| gzip > backup.sql.gz` |

@@ -11,7 +11,10 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
   const session = await getServerSession({ req });
 
-  if (session?.user.role && session?.user.role !== UserPermissionRole.ADMIN) {
+  // The wizard is reachable without a session only on a brand new instance, where
+  // it exists to create the very first admin. Once any user exists it is an admin
+  // tool, so anonymous visitors must not see it.
+  if (userCount > 0 && session?.user.role !== UserPermissionRole.ADMIN) {
     return {
       notFound: true,
     } as const;
