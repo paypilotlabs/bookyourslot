@@ -44,6 +44,15 @@ services:
     depends_on:
       database:
         condition: service_healthy
+    # Licensed brand fonts are gitignored, so they are absent from any image CI
+    # builds from the repo. That was invisible while the server built its own
+    # image (the scp'd files were sitting in the working tree); switching to the
+    # GHCR image dropped them and the headline face silently fell back.
+    # Mounting the host directory keeps the binaries off GitHub and needs no
+    # rebuild. If the directory is empty the CSS just 404s and falls back, which
+    # is the documented behaviour, so this is safe on a fresh clone.
+    volumes:
+      - ../../apps/web/public/fonts/brand:/calcom/apps/web/public/fonts/brand:ro
     networks: [bys]
     # No published ports — the existing Traefik reaches the app on the `bys`
     # bridge and terminates TLS. Host-network Traefik needs the network label to
