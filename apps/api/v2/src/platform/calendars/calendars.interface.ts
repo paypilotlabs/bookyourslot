@@ -1,7 +1,5 @@
-import { CreateIcsFeedOutputResponseDto } from "@/platform/calendars/input/create-ics.output";
-import { Request } from "express";
-
 import { ApiResponse } from "@calcom/platform-types";
+import { Request } from "express";
 
 export interface CalendarApp {
   save(state: string, code: string, origin: string): Promise<{ url: string }>;
@@ -10,16 +8,6 @@ export interface CalendarApp {
 
 export interface CredentialSyncCalendarApp {
   save(userId: number, userEmail: string, username: string, password: string): Promise<{ status: string }>;
-  check(userId: number): Promise<ApiResponse>;
-}
-
-export interface ICSFeedCalendarApp {
-  save(
-    userId: number,
-    userEmail: string,
-    urls: string[],
-    readonly?: boolean
-  ): Promise<CreateIcsFeedOutputResponseDto>;
   check(userId: number): Promise<ApiResponse>;
 }
 

@@ -3,33 +3,13 @@
     Don't modify this file manually.
 **/
 export const REDIRECT_APPS = [
-  "amie",
-  "autocheckin",
   "baa-for-hipaa",
-  "bolna",
-  "caretta",
   "chatbase",
-  "clic",
-  "cron",
-  "deel",
-  "elevenlabs",
-  "famulor",
-  "fonio-ai",
-  "framer",
   "granola",
-  "greetmate-ai",
-  "lindy",
   "linear",
-  "millis-ai",
-  "monobot",
   "n8n",
   "pipedream",
-  "raycast",
   "retell-ai",
-  "synthflow",
-  "telli",
-  "vimcal",
-  "wordpress",
   "zapier",
 ] as const;
 export type RedirectApp = (typeof REDIRECT_APPS)[number];

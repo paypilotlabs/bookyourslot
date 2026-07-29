@@ -1,8 +1,6 @@
-import type { z } from "zod";
-
 import type { eventTypeMetaDataSchemaWithTypedApps } from "@calcom/app-store/zod-utils";
 import type { BookerEventForAppData } from "@calcom/features/bookings/types.server";
-
+import type { z } from "zod";
 import type { CommonAppData } from "./commonAppDataType";
 
 export type EventTypeApps = NonNullable<
@@ -43,10 +41,6 @@ export const getEventTypeAppData = <T extends EventTypeAppsList>(
       // Currency default is "usd" in DB.So, it would also be available always
       currency: eventType.currency,
       paymentOption: "ON_BOOKING",
-    },
-    giphy: {
-      enabled: !!eventType.metadata?.giphyThankYouPage,
-      thankYouPage: eventType.metadata?.giphyThankYouPage || "",
     },
   } as const;
 
