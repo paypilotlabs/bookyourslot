@@ -60,7 +60,22 @@ jobs:
             BASE="HEAD~1"
           fi
           echo "Linting files changed since $BASE"
-          yarn biome ci --changed --since="$BASE" .
+          # biome exits 1 with "No files were processed in the specified paths"
+          # when every changed file is a type it does not handle (.md, .sh, .yml).
+          # That turns any docs-only or script-only PR red on a lint check that
+          # found nothing to lint. Treat that one message as a pass; every real
+          # diagnostic still fails the job. --files-ignore-unknown does not help,
+          # the exit code is the same.
+          set +e
+          OUTPUT="$(yarn biome ci --changed --since="$BASE" . 2>&1)"
+          STATUS=$?
+          set -e
+          printf '%s\n' "$OUTPUT"
+          if [ "$STATUS" -ne 0 ] && printf '%s' "$OUTPUT" | grep -q "No files were processed"; then
+            echo "No biome-lintable files in this change; nothing to lint."
+            exit 0
+          fi
+          exit "$STATUS"
 
       - name: Unit tests
         run: TZ=UTC yarn test

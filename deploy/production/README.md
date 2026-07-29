@@ -193,10 +193,36 @@ volume. **Never add `-v`.** It deletes the database.
 
 ## Backups (recommended)
 
+Create the directory once, before adding the job:
+
+```bash
+mkdir -p /root/backups
+```
+
 ```bash
 # Nightly dump, keep 14 days — add via `crontab -e`:
-0 3 * * * cd /opt/bookyourslot/deploy/production && docker compose exec -T database pg_dump -U bookyourslot bookyourslot | gzip > /root/backups/bys-$(date +\%F).sql.gz && find /root/backups -mtime +14 -delete
+0 3 * * * cd /opt/bookyourslot/deploy/production && bash -o pipefail -c 'docker compose exec -T database pg_dump --clean --if-exists -U bookyourslot bookyourslot | gzip > /root/backups/bys-$(date +\%F).sql.gz.part' && mv /root/backups/bys-$(date +\%F).sql.gz.part /root/backups/bys-$(date +\%F).sql.gz && find /root/backups -name 'bys-*.sql.gz' -mtime +14 -delete
 ```
+
+Three details that matter, each of which cost a working backup in the previous
+version of this line:
+
+- **`mkdir -p` first.** The redirection cannot create `/root/backups`. Without it
+  the job fails every night, and cron's only complaint goes to root's local mail
+  on a box with no mail reader.
+- **`bash -o pipefail`.** cron runs `/bin/sh`, where a pipeline's exit status is
+  gzip's, not `pg_dump`'s. A failed dump still produces a valid, empty `.gz`, and
+  the `&&` still fires.
+- **`.part` then `mv`.** The dated filename only appears once the dump finished,
+  so a half-written file can never be mistaken for a good one, and the `find`
+  prune cannot delete real history and leave you with empties.
+
+`/root` is the same disk as the Postgres volume, so this survives a bad deploy but
+not a dead disk. Copying the newest file offsite (`scp`, `rclone`) is the next
+step.
+
+Test the restore before you need it, on a scratch database. An untested backup is
+a guess.
 
 ## Troubleshooting
 

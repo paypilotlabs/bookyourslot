@@ -228,10 +228,26 @@ history.
 (`pre-deploy-*.sql.gz`, last 7 kept):
 
 ```bash
+cd /opt/bookyourslot/deploy/production
+COMPOSE="docker compose -f docker-compose.yml -f docker-compose.registry.yml"
+
+# Stop the app first: open connections block the DROPs, and you do not want
+# writes landing mid-restore.
+$COMPOSE stop bookyourslot
+
 gunzip -c backups/pre-deploy-<ts>.sql.gz | \
-  docker compose -f docker-compose.yml -f docker-compose.registry.yml \
-  exec -T database psql -U bookyourslot -d bookyourslot
+  $COMPOSE exec -T database \
+  psql -v ON_ERROR_STOP=1 --single-transaction -U bookyourslot -d bookyourslot
+
+$COMPOSE up -d bookyourslot
 ```
+
+`ON_ERROR_STOP=1` and `--single-transaction` are not optional. Without them psql
+reports success no matter what happened: every `CREATE` fails with "already
+exists", every `COPY` fails on the primary key, and the exit code is still 0. You
+would read that as a successful restore. Snapshots are taken with
+`pg_dump --clean --if-exists`, so the `DROP` statements are safe against an empty
+database too.
 
 ---
 
