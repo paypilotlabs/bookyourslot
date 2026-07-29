@@ -72,14 +72,32 @@ Licensed brand fonts are gitignored, so they are in no image CI builds. The
 compose file bind-mounts this directory into the container read-only, so the
 files just need to exist on the host; no rebuild is needed after adding one.
 
+Copy each file you actually have, by name. **Do not use a glob and do not
+swallow the error.** The previous version of this command was
+`scp .../*.otf .../*.woff2 ... 2>/dev/null || true`, and in zsh a glob matching
+nothing aborts the whole command before scp runs — so it silently copied
+nothing, including the files that did exist, and still reported success.
+
 ```bash
-scp apps/web/public/fonts/brand/*.otf apps/web/public/fonts/brand/*.woff2 \
-  root@<VPS_IP>:/opt/bookyourslot/apps/web/public/fonts/brand/ 2>/dev/null || true
+scp apps/web/public/fonts/brand/unique.woff2 \
+  root@<VPS_IP>:/opt/bookyourslot/apps/web/public/fonts/brand/
 ```
 
-Then `docker compose up -d bookyourslot` to pick the mount up. Verify with
-`curl -I https://bookyourslot.online/fonts/brand/unique.woff2` — a 404 means the
-file is missing on the host and the page is falling back to Cal Sans.
+Then confirm the bytes are actually there, rather than trusting the copy:
+
+```bash
+ssh root@<VPS_IP> 'ls -l /opt/bookyourslot/apps/web/public/fonts/brand/'
+```
+
+Then `docker compose up -d bookyourslot` to pick the mount up, and verify from
+outside:
+
+```bash
+curl -sI https://bookyourslot.online/fonts/brand/unique.woff2 | head -1
+```
+
+A 404 means the file is still missing on the host and headlines are falling
+back to Cal Sans.
 
 Which files matter, from `apps/web/public/fonts/brand/README.md`:
 
