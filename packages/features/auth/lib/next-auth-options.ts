@@ -898,6 +898,10 @@ export const getOptions = ({
               equals: account.providerAccountId,
               mode: "insensitive",
             },
+            // Naming `locked` opts out of excludeLockedUsersExtension so a pending
+            // account is found here and hits the approval-gate check below, instead
+            // of falling through to user.create and failing the email unique index.
+            OR: [{ locked: false }, { locked: true }],
           },
         });
 
@@ -992,6 +996,10 @@ export const getOptions = ({
               equals: user.email,
               mode: "insensitive",
             },
+            // See the note on the identityProvider lookup above: without this a
+            // pending account is invisible here and we would try to create a
+            // duplicate row for an email that already exists.
+            OR: [{ locked: false }, { locked: true }],
           },
           include: {
             password: {

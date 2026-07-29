@@ -1,3 +1,4 @@
+export { AccountApprovedEmail } from "./AccountApprovedEmail";
 export { AdminOAuthClientNotificationEmail } from "./AdminOAuthClientNotificationEmail";
 export { AdminOrganizationNotificationEmail } from "./AdminOrganizationNotificationEmail";
 export { AttendeeAddGuestsEmail } from "./AttendeeAddGuestsEmail";

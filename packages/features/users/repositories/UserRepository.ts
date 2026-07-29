@@ -336,6 +336,11 @@ export class UserRepository {
     const user = await this.prismaClient.user.findUnique({
       where: {
         email: email.toLowerCase(),
+        // Naming `locked` in the where opts out of excludeLockedUsersExtension, which
+        // would otherwise return null for a pending account and make the caller's
+        // "account is pending approval" branch unreachable. The sole caller
+        // (authorizeCredentials) rejects locked users on the next line.
+        OR: [{ locked: false }, { locked: true }],
       },
       select: {
         locked: true,
@@ -1509,13 +1514,18 @@ export class UserRepository {
   }: {
     username: string;
     organizationId: number | null;
-    excludeEmail: string;
+    excludeEmail?: string;
   }) {
     return this.prismaClient.user.findFirst({
       where: {
         username,
         organizationId,
-        NOT: { email: excludeEmail },
+        ...(excludeEmail ? { NOT: { email: excludeEmail } } : {}),
+        // A pending (locked) signup still holds its username. Without naming
+        // `locked` here, excludeLockedUsersExtension hides it and the next
+        // business is told the name is free, only to be rejected by the unique
+        // index after it has filled in the whole form.
+        OR: [{ locked: false }, { locked: true }],
       },
       select: {
         id: true,

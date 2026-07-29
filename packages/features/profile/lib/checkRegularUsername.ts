@@ -1,3 +1,5 @@
+import process from "node:process";
+import { getUserRepository } from "@calcom/features/di/containers/UserRepository";
 import { ProfileRepository } from "@calcom/features/profile/repositories/ProfileRepository";
 import { isUsernameReservedDueToMigration } from "@calcom/lib/server/username";
 import slugify from "@calcom/lib/slugify";
@@ -15,7 +17,13 @@ export async function checkRegularUsername(_username: string, currentOrgDomain?:
       })
     : null;
 
-  const user = profiles?.length ? profiles[0].user : null;
+  // Outside an organization there are no profiles to consult, so the global
+  // namespace has to be checked against the users themselves. Without this the
+  // endpoint reported every username as available and the collision only
+  // surfaced when the unique index rejected the finished signup form.
+  const user = isCheckingUsernameInGlobalNamespace
+    ? await getUserRepository().findByUsernameAndOrganizationId({ username, organizationId: null })
+    : (profiles?.[0]?.user ?? null);
 
   if (user) {
     return {

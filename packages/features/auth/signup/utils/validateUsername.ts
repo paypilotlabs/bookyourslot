@@ -45,6 +45,12 @@ export const validateAndGetCorrectedUsernameAndEmail = async ({
   const existingUser = await prisma.user.findFirst({
     where: {
       ...(organizationId ? { organizationId } : {}),
+      // A pending (locked) signup already owns its username and email. Naming
+      // `locked` opts out of excludeLockedUsersExtension, which would otherwise
+      // hide that row here and let the signup through, only for the unique index
+      // to reject it after the form was submitted. Nested in AND because the
+      // top-level OR below is already taken.
+      AND: [{ OR: [{ locked: false }, { locked: true }] }],
       OR: [
         // When inviting to org, invited user gets created with username now, so in an org context we
         // can't check for username as it will exist on signup
