@@ -1,19 +1,19 @@
 # BookYourSlot
 
 > BookYourSlot (bookyourslot.online) is a self-hosted scheduling platform built by Lohith Kumar
-> Nerukonda. People and teams create booking pages backed by real availability rules; guests pick a
+> Nerukonda. Each business creates a booking page backed by real availability rules; guests pick a
 > time in their own time zone and everyone gets automatic email confirmations. Free during early
 > access.
 
 ## What it does
 
-- Booking pages: every person and team gets a public page (bookyourslot.online/username) where
+- Booking pages: every account gets a public page (bookyourslot.online/username) where
   guests book themselves.
 - Availability and time zones: working hours, date overrides, buffers; slots shown in the guest's
   time zone automatically.
 - Google Calendar sync: two-way. Busy times block the page, and new bookings are written to the calendar.
 - Instant email confirmations for bookings, plus update emails for reschedules and cancellations.
-- Embeds, API and webhooks for integrating booking flows into other sites and automations.
+- Embeds and webhooks for putting the booking flow into other sites and automating what happens after a booking.
 
 BookYourSlot does not currently offer built-in video conferencing, payment collection, or shared
 team booking pages (round-robin is on the roadmap), and it is a scheduling layer, not a

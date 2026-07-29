@@ -65,8 +65,8 @@ export const BLOG_POSTS: BlogPost[] = [
             everyone, every time.
           </li>
           <li>
-            <strong>Embeds, API &amp; webhooks</strong>: put the booking flow inside your own site and
-            automate what happens after someone books.
+            <strong>Embeds &amp; webhooks</strong>: put the booking flow inside your own site and automate
+            what happens after someone books.
           </li>
         </ul>
         <h2>Free during early access</h2>
@@ -205,8 +205,8 @@ export const BLOG_POSTS: BlogPost[] = [
         <h2>What to look for in a self-hosted scheduler</h2>
         <p>
           Self-hosting shouldn't mean settling for less product. The bar to insist on: real availability rules
-          with time-zone handling, two-way calendar sync, automatic email notifications, and an API so you can
-          build around it.
+          with time-zone handling, two-way calendar sync, automatic email notifications, and webhooks so you
+          can build around it.
         </p>
         <h2>How BookYourSlot approaches it</h2>
         <p>
@@ -753,7 +753,7 @@ export const BLOG_POSTS: BlogPost[] = [
           <li>Automatic confirmation, reschedule and cancellation emails</li>
           <li>Self-serve reschedule and cancel from the confirmation email</li>
           <li>Recurring events, seats per slot, and require-confirmation event types</li>
-          <li>Embeds, webhooks and an API to automate around the booking</li>
+          <li>Embeds and webhooks to automate around the booking</li>
         </ul>
         <h3>What is not here yet</h3>
         <ul>

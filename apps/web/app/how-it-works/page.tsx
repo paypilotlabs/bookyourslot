@@ -83,7 +83,7 @@ const SETTINGS_GROUPS = [
   {
     name: "My account",
     items:
-      "Profile (photo, name, your booking link) · General (language, time zone, time format, week start) · Calendars (Google or Apple connection, destination calendar, conflict checks) · Appearance (dashboard theme, booking-page theme, layouts, brand color) · Out of office · Push notifications",
+      "Profile (photo, name, your booking link) · General (language, time zone, time format, week start) · Calendars (Google or Apple connection, destination calendar, conflict checks) · Appearance (dashboard theme, booking-page theme, layouts, brand color) · Out of office",
   },
   {
     name: "Security",

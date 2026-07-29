@@ -44,9 +44,9 @@ const FEATURES = [
       "Every booking, reschedule, and cancellation notifies everyone by email automatically. No follow-up needed.",
   },
   {
-    title: "Embeds, API & webhooks",
+    title: "Embeds & webhooks",
     description:
-      "Put your booking flow inside your own site, then automate around it with webhooks and a full API.",
+      "Put your booking flow inside your own site, then automate what happens after a booking with webhooks.",
   },
 ];
 
@@ -115,7 +115,7 @@ export const LANDING_FAQ = [
   {
     question: `Is ${APP_NAME} free?`,
     answer:
-      "Yes. Creating an account and taking bookings is free during early access, and no credit card is required to sign up.",
+      "Yes. Creating an account and taking bookings is free during early access, and no credit card is required to sign up. New sign-ups are reviewed by an administrator before activation, so there is a short wait before your first sign-in.",
   },
   {
     question: "Does it sync with Google Calendar?",
@@ -176,7 +176,7 @@ export default function LandingView() {
             </Link>
           </div>
           <p className="text-brand-cream/50 mt-5 text-xs">
-            Free during early access. No credit card required.
+            Free during early access. No credit card required. New accounts are reviewed before activation.
           </p>
 
           {/* Professionals book across the world; the clocks are live */}
@@ -206,9 +206,7 @@ export default function LandingView() {
           it asks for Google Calendar access. */}
       <section className="mx-auto w-full max-w-6xl px-6 py-24" aria-labelledby="about-heading">
         <FadeIn>
-          <p className="text-mk-faint text-xs font-medium uppercase tracking-[0.25em]">
-            What {APP_NAME} is
-          </p>
+          <p className="text-mk-faint text-xs font-medium uppercase tracking-[0.25em]">What {APP_NAME} is</p>
           <h2
             id="about-heading"
             className="font-display mt-6 max-w-4xl text-4xl uppercase tracking-tight sm:text-6xl">
@@ -218,9 +216,9 @@ export default function LandingView() {
             <p className="text-mk-ink/70 text-lg leading-relaxed">
               {APP_NAME} is a scheduling platform for dentists, clinics, salons, local services, and
               consultants. You set the hours you work and the types of appointment you offer, then share your
-              personal booking page. Clients open the link, see only the times you are genuinely free, and book
-              themselves. Everyone gets an email confirmation, and clients can reschedule or cancel from that
-              email without messaging you.
+              personal booking page. Clients open the link, see only the times you are genuinely free, and
+              book themselves. Everyone gets an email confirmation, and clients can reschedule or cancel from
+              that email without messaging you.
             </p>
             <p className="text-mk-ink/70 text-lg leading-relaxed">
               Connecting Google Calendar is optional. When you do connect it, {APP_NAME} reads your busy times

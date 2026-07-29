@@ -37,7 +37,7 @@ const FOCUS_AREAS = [
   {
     title: "Enterprise-grade bones",
     description:
-      "Calendar sync, webhooks, an API, and a roadmap that includes shared team scheduling: machinery designed to scale from one chair to a whole organization.",
+      "Calendar sync, webhooks, and a roadmap that includes shared team scheduling: machinery designed to scale from one chair to a whole organization.",
   },
   {
     title: "Open to your stack",
