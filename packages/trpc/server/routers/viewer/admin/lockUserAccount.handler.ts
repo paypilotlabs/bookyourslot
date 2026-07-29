@@ -26,6 +26,7 @@ const lockUserAccountHandler = async ({ input }: GetOptions) => {
       id: true,
       email: true,
       username: true,
+      emailVerified: true,
     },
   });
 
@@ -41,10 +42,17 @@ const lockUserAccountHandler = async ({ input }: GetOptions) => {
       await globalWatchlistRepo.deleteEntry(watchlistEntry.id);
     }
 
-    await sendEmailVerification({
-      email: user.email,
-      username: user.username || "",
-    });
+    // Unlocking is the approval step, and this is the only mail the applicant
+    // receives: signup deliberately sends nothing, because a verification link
+    // issued while the account is still pending leads nowhere. Sent here, the
+    // link works and doubles as "you are approved". Skip it when the address is
+    // already verified (OAuth signups), since there is nothing left to confirm.
+    if (!user.emailVerified) {
+      await sendEmailVerification({
+        email: user.email,
+        username: user.username || "",
+      });
+    }
   }
 
   return {

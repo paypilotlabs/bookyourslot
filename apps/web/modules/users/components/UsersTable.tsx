@@ -12,7 +12,7 @@ import { TextField } from "@calcom/ui/components/form";
 import { DropdownActions, Table } from "@calcom/ui/components/table";
 import { showToast } from "@calcom/ui/components/toast";
 import { keepPreviousData } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const { Cell, ColumnTitle, Header, Row } = Table;
@@ -26,6 +26,10 @@ export function UsersTable() {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const router = useRouter();
+  // The pending-approvals badge links here with ?pending=1, so the admin lands
+  // straight on the accounts that need a decision.
+  const searchParams = useSearchParams();
+  const [showPendingOnly, setShowPendingOnly] = useState<boolean>(searchParams?.get("pending") === "1");
 
   const [userToDelete, setUserToDelete] = useState<number | null>(null);
 
@@ -61,6 +65,7 @@ export function UsersTable() {
     {
       limit: FETCH_LIMIT,
       searchTerm: debouncedSearchTerm,
+      locked: showPendingOnly ? true : undefined,
     },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
@@ -115,6 +120,14 @@ export function UsersTable() {
         label={t("search")}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
+      <div className="mb-2 flex items-center gap-2">
+        <Button
+          color={showPendingOnly ? "primary" : "secondary"}
+          size="sm"
+          onClick={() => setShowPendingOnly((v) => !v)}>
+          {t("pending_approval_filter")}
+        </Button>
+      </div>
       <p className="text-subtle text-sm">
         {isFetching && totalFetched === 0
           ? t("loading")

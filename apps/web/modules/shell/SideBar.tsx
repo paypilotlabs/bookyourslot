@@ -10,6 +10,7 @@ import { Icon } from "@calcom/ui/components/icon";
 import { Logo } from "@calcom/ui/components/logo";
 import { SkeletonText } from "@calcom/ui/components/skeleton";
 import { Tooltip } from "@calcom/ui/components/tooltip";
+import PendingApprovalsBadge from "@calcom/web/modules/users/components/PendingApprovalsBadge";
 import { ArrowLeftIcon, ArrowRightIcon } from "@coss/ui/icons";
 import Link from "next/link";
 import type { User as UserAuth } from "next-auth";
@@ -115,6 +116,8 @@ export function SideBar({ bannersHeight, user }: SideBarProps) {
                   <UserDropdown small />
                 </div>
               )}
+              {/* Renders only for admins, and only when something is pending. */}
+              <PendingApprovalsBadge />
               <KBarTrigger />
             </div>
           </header>
