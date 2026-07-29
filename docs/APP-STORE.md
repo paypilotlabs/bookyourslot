@@ -1,20 +1,28 @@
 # BookYourSlot App Store — reference & pruning guide
 
 What every integration in this codebase is for, the business problem it solves,
-who actually profits from it, and whether it is safe to delete. Use this to
-decide what to keep for a **lean, small-business** BookYourSlot and what to cut.
+who actually profits from it, and whether it is safe to delete.
 
-There are **105 real apps** in `packages/app-store/`. Most are inert — they do
-nothing until a user installs them and pastes API keys — but they clutter your
-store and carry the upstream "Cal.diy / cal.com" branding. This guide tells you
-exactly which ones are wired into the running product (**never delete**) and
-which are free to remove.
+> **Status: the prune described in this guide has been carried out.** As of
+> 3.0.0 there are **26 apps** in `packages/app-store/`, down from the 105 that
+> came from upstream. The 79 removed are listed in the tables below with a
+> Delete verdict; they are gone from the codebase, from the 12 generated import
+> maps, and from `scripts/seed-app-store.ts`.
+>
+> The 26 that remain are: `applecalendar`, `baa-for-hipaa`, `caldavcalendar`,
+> `chatbase`, `dailyvideo`, `ga4`, `googlecalendar`, `googlevideo`, `granola`,
+> `hubspot`, `linear`, `make`, `metapixel`, `n8n`, `office365calendar`,
+> `pipedream`, `plausible`, `qr_code`, `retell-ai`, `salesforce`, `signal`,
+> `stripepayment`, `telegram`, `whatsapp`, `zapier`, `zoomvideo`.
 
-> How to use this: read the category tables, then fill in the
-> [Deletion worksheet](#deletion-worksheet) at the bottom with the slugs you
-> want gone. I verify each one (and its related wiring) before deleting.
+The guide is kept because the mechanics in section 1 still apply to anything you
+add or remove next, and because the per-app notes explain what the survivors do
+and what they cost. Read section 1 before touching an app folder: deleting one
+by hand without regenerating the import maps breaks the build.
 
 ---
+
+
 
 ## 1. How the app store actually works
 
@@ -22,20 +30,20 @@ Four moving parts. Understanding them tells you why deletion is riskier than
 hiding, and why some apps show up on their own.
 
 1. **The app folder** — `packages/app-store/<dirName>/`. Self-contained: config,
-   logo, API adapter, setup UI.
+  logo, API adapter, setup UI.
 2. **12 generated import maps** — `packages/app-store/*.generated.ts(x)`
-   (`apps.metadata.generated.ts`, `video.adapters.generated.ts`,
+  (`apps.metadata.generated.ts`, `video.adapters.generated.ts`,
    `calendar.services.generated.ts`, `payment.services.generated.ts`, etc.).
    **Every app is listed in these.** They are built by the app-store CLI. If you
    delete an app folder by hand *without* regenerating these, the build breaks
    because a generated file still imports the folder you removed. This is the
    whole reason you use the CLI to delete, never `rm` alone.
 3. **The seed** — `scripts/seed-app-store.ts` runs on every boot
-   (`scripts/start.sh`). It writes one row per app into the DB `App` table and
+  (`scripts/start.sh`). It writes one row per app into the DB `App` table and
    sets `enabled`. An app with a **key schema but no keys** is seeded
    `enabled: false`; an app that **needs no keys** is seeded `enabled: true`.
 4. **The store query** — `_appRegistry.ts` lists only apps where
-   `enabled = true`. That is why Apple Calendar and Paypal appear in your setup
+  `enabled = true`. That is why Apple Calendar and Paypal appear in your setup
    wizard on their own (no keys required → auto-enabled), while Zoom and Stripe
    stay hidden until you add keys.
 
@@ -47,42 +55,55 @@ This guide is written for deletion, with the safe procedure in
 
 ---
 
+
+
 ## 2. Load-bearing apps — NEVER delete
 
 These are wired into core booking, calendar, email, or payment flows. Removing
 any of them breaks a working feature, not just a store card.
 
-| App | dir | Why it is load-bearing |
-| --- | --- | --- |
-| Cal Video | `dailyvideo` | The **default meeting location**. Referenced in booking, confirmation emails, and recording flows. Delete it and "Cal Video" location + its emails break. |
-| Google Calendar | `googlecalendar` | Two-way calendar sync you are shipping. Your keep-set. |
-| Apple Calendar | `applecalendar` | CalDAV/iCloud sync, no API keys needed. Your keep-set. |
-| CalDAV | `caldavcalendar` | Generic CalDAV — Fastmail, Nextcloud, etc. Backs Apple + others. |
-| Outlook / Microsoft 365 | `office365calendar` | Microsoft calendar sync. Your keep-set. |
-| Google Meet | `googlevideo` | Meeting location option you are keeping. Depends on Google Calendar. |
-| Zoom | `zoomvideo` | Meeting location option. Your keep-set. |
-| Stripe | `stripepayment` | Payments/deposits. Your keep-set. The only payment app you keep. |
+
+| App                     | dir                 | Why it is load-bearing                                                                                                                                    |
+| ----------------------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Cal Video               | `dailyvideo`        | The **default meeting location**. Referenced in booking, confirmation emails, and recording flows. Delete it and "Cal Video" location + its emails break. |
+| Google Calendar         | `googlecalendar`    | Two-way calendar sync you are shipping. Your keep-set.                                                                                                    |
+| Apple Calendar          | `applecalendar`     | CalDAV/iCloud sync, no API keys needed. Your keep-set.                                                                                                    |
+| CalDAV                  | `caldavcalendar`    | Generic CalDAV — Fastmail, Nextcloud, etc. Backs Apple + others.                                                                                          |
+| Outlook / Microsoft 365 | `office365calendar` | Microsoft calendar sync. Your keep-set.                                                                                                                   |
+| Google Meet             | `googlevideo`       | Meeting location option you are keeping. Depends on Google Calendar.                                                                                      |
+| Zoom                    | `zoomvideo`         | Meeting location option. Your keep-set.                                                                                                                   |
+| Stripe                  | `stripepayment`     | Payments/deposits. Your keep-set. The only payment app you keep.                                                                                          |
+
 
 Also do not touch the non-app folders: `_utils`, `_components`, `templates`,
 `tests`, `repositories`, `routing-forms`.
 
 ---
 
-## 3. Your lean keep-set (decided)
 
-Everything you keep, in one place. This is a tidy store for a dentist, salon, or
-consultant — no AI call-centers, no enterprise CRM.
 
-- **Calendars:** Google, Apple, CalDAV, Outlook
-- **Video:** Cal Video (built-in), Google Meet, Zoom
-- **Payments:** Stripe
-- **Analytics:** kept per your choice (trim recommended — see
-  [section 8](#8-analytics-12-apps))
+## 3. The keep-set (26 apps, shipped)
 
-Everything in sections 4–10 that is not above is a **delete candidate** for your
-confirmation.
+Everything that survived the prune, in one place. A tidy store for a dentist,
+salon, or consultant — no AI call-centers, no enterprise CRM.
+
+| Category | Apps |
+| --- | --- |
+| Calendars | Google, Apple, CalDAV, Outlook / Microsoft 365 |
+| Video | Cal Video (`dailyvideo`), Google Meet, Zoom |
+| Payments | Stripe |
+| CRM | HubSpot, Salesforce |
+| Automation | n8n, Zapier, Make, Pipedream, Retell AI |
+| Messaging | Signal, Telegram, WhatsApp (these add a link to the booking, they do not send messages) |
+| Analytics | GA4, Plausible, Meta Pixel |
+| Other | QR code, BAA for HIPAA, Chatbase, Granola, Linear |
+
+Everything in sections 4 to 10 that is not above has been **deleted**. Those
+tables are kept as the record of what each one was and why it went.
 
 ---
+
+
 
 ## 4. Calendars (14 apps)
 
@@ -90,26 +111,30 @@ confirmation.
 writing new bookings back to it. **Who profits:** every owner — this is the core
 value. You only need the calendar systems your users actually run.
 
-| App | dir | Solves for / who profits | Verdict |
-| --- | --- | --- | --- |
-| Google Calendar | `googlecalendar` | Gmail/Workspace users — the majority | **KEEP** (load-bearing) |
-| Apple Calendar | `applecalendar` | iCloud users, Mac/iPhone owners | **KEEP** (load-bearing) |
-| CalDAV | `caldavcalendar` | Fastmail, Nextcloud, generic CalDAV | **KEEP** (load-bearing) |
-| Outlook / 365 | `office365calendar` | Microsoft users | **KEEP** (load-bearing) |
-| Microsoft Exchange (EWS) | `exchangecalendar` | On-prem corporate Exchange | DELETE candidate — enterprise IT, not SMB |
-| Exchange 2013 | `exchange2013calendar` | Legacy on-prem Exchange | DELETE candidate — obsolete |
-| Exchange 2016 | `exchange2016calendar` | Legacy on-prem Exchange | DELETE candidate — obsolete |
-| Lark Calendar | `larkcalendar` | ByteDance/Lark users (mostly Asia) | DELETE candidate |
-| Feishu Calendar | `feishucalendar` | Feishu users (China) | DELETE candidate |
-| Zoho Calendar | `zohocalendar` | Zoho suite users | DELETE candidate |
-| Notion Calendar (Cron) | `cron` | Notion Calendar users | DELETE candidate — nice-to-have |
-| Amie | `amie` | Amie productivity-app users | DELETE candidate — niche |
-| Vimcal | `vimcal` | Power users of Vimcal | DELETE candidate — niche |
-| ICS Feed | `ics-feedcalendar` | Read-only import of any ICS feed | DELETE candidate (keep only if you want feed import) |
+
+| App                      | dir                    | Solves for / who profits             | Verdict                                              |
+| ------------------------ | ---------------------- | ------------------------------------ | ---------------------------------------------------- |
+| Google Calendar          | `googlecalendar`       | Gmail/Workspace users — the majority | **KEEP** (load-bearing)                              |
+| Apple Calendar           | `applecalendar`        | iCloud users, Mac/iPhone owners      | **KEEP** (load-bearing)                              |
+| CalDAV                   | `caldavcalendar`       | Fastmail, Nextcloud, generic CalDAV  | **KEEP** (load-bearing)                              |
+| Outlook / 365            | `office365calendar`    | Microsoft users                      | **KEEP** (load-bearing)                              |
+| Microsoft Exchange (EWS) | `exchangecalendar`     | On-prem corporate Exchange           | DELETE candidate — enterprise IT, not SMB            |
+| Exchange 2013            | `exchange2013calendar` | Legacy on-prem Exchange              | DELETE candidate — obsolete                          |
+| Exchange 2016            | `exchange2016calendar` | Legacy on-prem Exchange              | DELETE candidate — obsolete                          |
+| Lark Calendar            | `larkcalendar`         | ByteDance/Lark users (mostly Asia)   | DELETE candidate                                     |
+| Feishu Calendar          | `feishucalendar`       | Feishu users (China)                 | DELETE candidate                                     |
+| Zoho Calendar            | `zohocalendar`         | Zoho suite users                     | DELETE candidate                                     |
+| Notion Calendar (Cron)   | `cron`                 | Notion Calendar users                | DELETE candidate — nice-to-have                      |
+| Amie                     | `amie`                 | Amie productivity-app users          | DELETE candidate — niche                             |
+| Vimcal                   | `vimcal`               | Power users of Vimcal                | DELETE candidate — niche                             |
+| ICS Feed                 | `ics-feedcalendar`     | Read-only import of any ICS feed     | DELETE candidate (keep only if you want feed import) |
+
 
 Keeping the four mainstream ones covers ~99% of small businesses.
 
 ---
+
+
 
 ## 5. Conferencing / video (29 apps)
 
@@ -136,21 +161,27 @@ duplicate "jump on a call" apps:
 
 ---
 
+
+
 ## 6. Payments (6 apps)
 
 **Problem solved:** take a deposit or full payment at booking to kill no-shows.
 **Who profits:** salons, spas, clinics, paid consultants — your exact verticals.
 
-| App | dir | Notes | Verdict |
-| --- | --- | --- | --- |
-| Stripe | `stripepayment` | Cards, mainstream, load-bearing for paid events | **KEEP** |
-| Paypal | `paypal` | PayPal balance/cards | DELETE candidate |
-| HitPay | `hitpay` | SE-Asia local payments | DELETE candidate |
-| Alby | `alby` | Bitcoin/Lightning | DELETE candidate — crypto |
-| BTCPayServer | `btcpayserver` | Self-hosted Bitcoin | DELETE candidate — crypto |
-| Mock Payment | `mock-payment-app` | Test fixture only | DELETE candidate — used by payment E2E tests you don't run |
+
+| App          | dir                | Notes                                           | Verdict                                                    |
+| ------------ | ------------------ | ----------------------------------------------- | ---------------------------------------------------------- |
+| Stripe       | `stripepayment`    | Cards, mainstream, load-bearing for paid events | **KEEP**                                                   |
+| Paypal       | `paypal`           | PayPal balance/cards                            | DELETE candidate                                           |
+| HitPay       | `hitpay`           | SE-Asia local payments                          | DELETE candidate                                           |
+| Alby         | `alby`             | Bitcoin/Lightning                               | DELETE candidate — crypto                                  |
+| BTCPayServer | `btcpayserver`     | Self-hosted Bitcoin                             | DELETE candidate — crypto                                  |
+| Mock Payment | `mock-payment-app` | Test fixture only                               | DELETE candidate — used by payment E2E tests you don't run |
+
 
 ---
+
+
 
 ## 7. CRM (7 apps)
 
@@ -164,6 +195,8 @@ or salon. This whole category is enterprise weight you can drop.
 Keep one only if you personally run that CRM and want bookings pushed into it.
 
 ---
+
+
 
 ## 8. Analytics (12 apps)
 
@@ -183,6 +216,8 @@ list is a cleaner store. Your call on how hard to trim.
 
 ---
 
+
+
 ## 9. Automation (22 apps)
 
 Two very different groups live here.
@@ -199,47 +234,57 @@ These are AI call-center agents that answer phones and book by voice. Great for 
 booking is created/cancelled. Genuinely useful *if* you'll wire automations —
 otherwise cut them too.
 
-| App | dir | Verdict |
-| --- | --- | --- |
-| Zapier | `zapier` | OPTIONAL — keep only if you'll use Zapier |
-| Make | `make` | OPTIONAL — keep only if you'll use Make |
-| n8n | `n8n` | OPTIONAL — keep only if you self-host n8n |
-| Pipedream | `pipedream` | OPTIONAL — developer automation |
-| Intercom | `intercom` | DELETE candidate — support chat, enterprise |
+
+| App       | dir         | Verdict                                     |
+| --------- | ----------- | ------------------------------------------- |
+| Zapier    | `zapier`    | OPTIONAL — keep only if you'll use Zapier   |
+| Make      | `make`      | OPTIONAL — keep only if you'll use Make     |
+| n8n       | `n8n`       | OPTIONAL — keep only if you self-host n8n   |
+| Pipedream | `pipedream` | OPTIONAL — developer automation             |
+| Intercom  | `intercom`  | DELETE candidate — support chat, enterprise |
+
 
 For a small-business launch, deleting all of 9a and 9b is a clean default. Keep a
 webhook bridge later only when you have a concrete automation to build.
 
 ---
 
+
+
 ## 10. Messaging & Other (15 apps)
 
 **Messaging (3)** — meet over a chat app instead of video. Marginal.
 
-| App | dir | Verdict |
-| --- | --- | --- |
+
+| App      | dir        | Verdict                                                    |
+| -------- | ---------- | ---------------------------------------------------------- |
 | WhatsApp | `whatsapp` | OPTIONAL — relevant for salons/local/international clients |
-| Telegram | `telegram` | DELETE candidate |
-| Signal | `signal` | DELETE candidate |
+| Telegram | `telegram` | DELETE candidate                                           |
+| Signal   | `signal`   | DELETE candidate                                           |
+
 
 **Other (12)** — grab bag. A few are genuinely useful for your verticals:
 
-| App | dir | Solves for / who profits | Verdict |
-| --- | --- | --- | --- |
-| BAA for HIPAA | `baa-for-hipaa` | US healthcare compliance — dentists/clinics | OPTIONAL — keep if targeting US healthcare |
-| QR Code | `qr_code` | Print booking link on flyers/reception desk — local shops | OPTIONAL — cheap win for local businesses |
-| WordPress | `wordpress` | Embed booking into a WordPress site — small-biz sites | OPTIONAL — keep if your users run WordPress |
-| Framer | `framer` | Embed into Framer sites | DELETE candidate |
-| Granola | `granola` | **AI meeting notes (macOS)** — the "AI notes" you want gone | DELETE candidate |
-| Chatbase | `chatbase` | AI chatbot booking | DELETE candidate |
-| Sendgrid | `sendgrid` | Transactional email — you already use Hostinger SMTP | DELETE candidate |
-| Basecamp3 | `basecamp3` | PM tool status | DELETE candidate |
-| Linear | `linear` | Engineering PM | DELETE candidate |
-| Deel | `deel` | HR/payroll calendar | DELETE candidate |
-| Weather in your Calendar | `weather_in_your_calendar` | Novelty | DELETE candidate |
-| Giphy | `giphy` | GIFs in confirmations — novelty | DELETE candidate |
+
+| App                      | dir                        | Solves for / who profits                                    | Verdict                                     |
+| ------------------------ | -------------------------- | ----------------------------------------------------------- | ------------------------------------------- |
+| BAA for HIPAA            | `baa-for-hipaa`            | US healthcare compliance — dentists/clinics                 | OPTIONAL — keep if targeting US healthcare  |
+| QR Code                  | `qr_code`                  | Print booking link on flyers/reception desk — local shops   | OPTIONAL — cheap win for local businesses   |
+| WordPress                | `wordpress`                | Embed booking into a WordPress site — small-biz sites       | OPTIONAL — keep if your users run WordPress |
+| Framer                   | `framer`                   | Embed into Framer sites                                     | DELETE candidate                            |
+| Granola                  | `granola`                  | **AI meeting notes (macOS)** — the "AI notes" you want gone | DELETE candidate                            |
+| Chatbase                 | `chatbase`                 | AI chatbot booking                                          | DELETE candidate                            |
+| Sendgrid                 | `sendgrid`                 | Transactional email — you already use Hostinger SMTP        | DELETE candidate                            |
+| Basecamp3                | `basecamp3`                | PM tool status                                              | DELETE candidate                            |
+| Linear                   | `linear`                   | Engineering PM                                              | DELETE candidate                            |
+| Deel                     | `deel`                     | HR/payroll calendar                                         | DELETE candidate                            |
+| Weather in your Calendar | `weather_in_your_calendar` | Novelty                                                     | DELETE candidate                            |
+| Giphy                    | `giphy`                    | GIFs in confirmations — novelty                             | DELETE candidate                            |
+
 
 ---
+
+
 
 ## 11. How to delete an app safely
 
@@ -273,6 +318,8 @@ your list before running anything.
 
 ---
 
+
+
 ## 12. How to build a new app
 
 When you want to add an integration later (say a new payment provider or a
@@ -293,13 +340,13 @@ enable.
 **What makes a good app to build** — frame it as a business, not a feature:
 
 - **Problem** — what booking pain does it remove? (e.g. "clients pay a deposit so
-  they show up.")
+they show up.")
 - **Who profits** — which of your verticals asks for it? (dentists want reminders
-  + deposits; salons want deposits + WhatsApp; consultants want payments + video.)
+  - deposits; salons want deposits + WhatsApp; consultants want payments + video.)
 - **Willingness to pay** — an integration people will switch or upgrade for is
-  worth building; a novelty is not.
+worth building; a novelty is not.
 - **Maintenance cost** — every app is a credential flow and an external API that
-  can break. Keep the store small on purpose.
+can break. Keep the store small on purpose.
 
 Publisher/description on any app you create or keep should read **BookYourSlot**,
 not Cal.diy — the leftover upstream branding is cleaned as part of the pruning
@@ -307,22 +354,50 @@ pass.
 
 ---
 
-## Deletion worksheet
 
-List the slugs you want removed (copy from the tables above). I'll verify each is
-safe, find any related wiring, delete + regenerate, type-check, and commit.
 
+## What was actually removed, and how
+
+The prune ran in two passes, because most apps were self-contained but a
+minority were referenced from core code.
+
+1. **65 unreferenced apps.** Nothing outside their own directory imported them,
+   so `yarn app-store delete --slug <slug>` followed by `yarn app-store:build`
+   was enough.
+2. **14 referenced apps**, each needing its call sites patched first. The ones
+   worth remembering, because they are the trap for next time:
+   - The **payment apps** and the **Exchange calendars** were mocked in
+     `packages/testing/src/setupVitest.ts`, the *global* vitest setup. Deleting
+     them without removing the `vi.mock` lines breaks **every** unit test in the
+     repo, not just their own.
+   - **office365video** (Teams) shares `MSTeamsLocationType` with the kept
+     Outlook calendar service. The constant stays; the Teams branch is simply
+     unreachable now.
+   - **dub** declared a dependency (`dub-package`) that core auth code imports.
+     Removing the app orphaned the import, so the dependency moved to
+     `@calcom/features`.
+   - **gtm** was the only app exercising `pushEventScript`, so its test had to be
+     repointed rather than deleted.
+
+Afterwards, `scripts/seed-app-store.ts` still carried explicit `createApp` calls
+for eleven deleted apps and recreated inert `App` rows on every container boot.
+Those were removed too. If you delete more apps, check that file.
+
+## Pruning further
+
+Same procedure, and the order matters:
+
+```bash
+rg -l "<slug>" --glob '!packages/app-store/<slug>/**' --glob '!node_modules'
+yarn app-store delete --slug <slug>
+yarn app-store:build
+yarn type-check:ci --force
+TZ=UTC yarn test
 ```
-# Calendars to delete:
-# Conferencing to delete:
-# Payments to delete:
-# CRM to delete:
-# Analytics to delete:
-# Automation to delete:
-# Messaging to delete:
-# Other to delete:
-```
 
-**Do not list:** anything in [section 2](#2-load-bearing-apps--never-delete)
-(Cal Video, the four calendars, Google Meet, Zoom, Stripe) — those are wired into
-the product.
+The `rg` comes first: it tells you whether the app is in the easy group or the
+careful one. Then check `scripts/seed-app-store.ts` for a leftover `createApp`.
+
+**Do not delete** anything in [section 2](#2-load-bearing-apps--never-delete):
+Cal Video, the four calendars, Google Meet, Zoom, and Stripe are wired into the
+running product.

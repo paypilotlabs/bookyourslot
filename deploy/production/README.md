@@ -1,31 +1,43 @@
 # BookYourSlot — production runbook
 
 Everything needed to run bookyourslot.online on a single 8 GB VPS with Docker
-Compose and Caddy (automatic HTTPS). GitHub is the source of truth; the server
-builds the image itself.
+Compose, behind the **Traefik** that already runs on the box and terminates TLS.
+GitHub is the source of truth.
+
+There are two ways the image gets onto the server:
+
+- **Automatic (normal).** Merging to `main` builds the image in GitHub Actions,
+  pushes it to GHCR, and deploys it over SSH. See
+  [docs/DEPLOYMENT-AUTOMATION.md](../../docs/DEPLOYMENT-AUTOMATION.md).
+- **Manual (first boot, or when CI is unavailable).** The server builds from the
+  source tree with `./deploy.sh`, which is what sections 3 and 4 below describe.
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-    G[GitHub<br/>squid-beast/bookyourslot] -- git pull + docker build --> V
+    G[GitHub Actions<br/>squid-beast/bookyourslot] -- push image --> R[GHCR]
+    R -- docker compose pull --> V
 
     subgraph V[VPS - 8 GB, Docker Compose]
-        C[Caddy :80/:443<br/>auto HTTPS] --> A[bookyourslot app :3000<br/>Next.js standalone]
+        T[Traefik :80/:443<br/>TLS, letsencrypt] --> A[bookyourslot app :3000<br/>Next.js standalone]
         A --> D[(Postgres 16<br/>volume: database-data)]
     end
 
-    U[Guests & users] -- https://bookyourslot.online --> C
+    U[Guests & users] -- https://bookyourslot.online --> T
     A -- SMTP 465 --> H[Hostinger mail<br/>hello@bookyourslot.online]
     A -- OAuth --> GC[Google Calendar API]
 ```
 
-- Only Caddy publishes ports (80/443). App and DB live on the internal network.
+- **Traefik is not part of this compose file.** It already runs on the host and
+  is the only thing publishing 80/443. The app and DB publish no ports at all;
+  Traefik reaches the app over the `bys` bridge network using the router labels
+  on the `bookyourslot` service (router name `bys`, backend port 3000).
 - Migrations + a safe app-store seed run automatically on every app boot
   (`scripts/start.sh`). **Never run `yarn db-seed` in production** — it creates
   demo users with guessable passwords.
 
-## 1. DNS (do first — Caddy needs it to issue certificates)
+## 1. DNS (do first — Traefik needs it to issue certificates)
 
 | Record | Host  | Value        |
 | ------ | ----- | ------------ |
@@ -73,13 +85,27 @@ docker compose logs -f bookyourslot # wait for "ready" + migration output
 ```
 
 Visit `https://bookyourslot.online` — the landing page should load with a valid
-certificate, and `https://www.bookyourslot.online` should redirect to the apex.
+certificate. `https://www.bookyourslot.online` serves the same app rather than
+redirecting: the Traefik router matches both hosts, and the canonical tags in the
+page handle the SEO side. Add a www-to-apex redirect middleware in Traefik only
+if you decide the duplicate host matters.
 
 ## 5. First boot: create your admin
 
 Open **`https://bookyourslot.online/auth/login`** — with zero users in the
 database it redirects to `/auth/setup`, which creates the admin account. Use a
 strong password; this account manages apps and settings.
+
+Do this before announcing the domain. `/auth/setup` is open to anonymous
+visitors only while the user table is empty, precisely so the first admin can be
+created; once any user exists it returns 404 to everyone but an admin.
+
+## 5a. Approving new businesses
+
+Self-serve signups are created **pending** and cannot sign in until you approve
+them. As admin, go to **Settings, Admin, Users**; the pending count appears as a
+badge in the sidebar. Unlocking an account approves it and sends that business
+its verification email.
 
 ## 6. Back the landing-page demo link
 
@@ -132,7 +158,7 @@ Indexing is earned over days–weeks; these steps start the clock:
 
 ## 10. Go-live checklist
 
-- [ ] `https://bookyourslot.online` loads with valid TLS; `www.` redirects
+- [ ] `https://bookyourslot.online` loads with valid TLS; `www.` serves the app
 - [ ] Admin account created via `/auth/setup`; no demo users seeded
 - [ ] `demo` user + `/demo/30min` books end-to-end from a private window
 - [ ] Confirmation emails arrive at an external address
@@ -143,12 +169,27 @@ Indexing is earned over days–weeks; these steps start the clock:
 
 ## Updating
 
+Normally you do nothing: merging to `main` deploys automatically. To build on
+the server instead:
+
 ```bash
 cd /opt/bookyourslot/deploy/production && ./deploy.sh
 ```
 
 If a rebuild ever OOMs while the stack is running:
 `docker compose stop bookyourslot && docker compose build bookyourslot && docker compose up -d`.
+
+**One time only, on the first deploy that carries the 3.0.0 rename:** the compose
+service was renamed from `calcom` to `bookyourslot`, so a plain `up -d` leaves the
+old `production-calcom-1` container running alongside the new one and Traefik may
+keep routing to the stale one. Run this once:
+
+```bash
+cd /opt/bookyourslot/deploy/production && docker compose down && docker compose up -d
+```
+
+`down` without `-v` stops and removes containers but keeps the `database-data`
+volume. **Never add `-v`.** It deletes the database.
 
 ## Backups (recommended)
 
@@ -163,6 +204,7 @@ If a rebuild ever OOMs while the stack is running:
 | --- | --- |
 | Login loops / `CLIENT_FETCH_ERROR` | `NEXTAUTH_URL` must be `https://bookyourslot.online` |
 | No emails | SMTP vars unset/wrong → app silently falls back to a MailHog that doesn't exist. Check `EMAIL_SERVER_*` |
-| Certificate not issued | DNS not propagated yet, or port 80/443 blocked — check `docker compose logs caddy` |
+| Certificate not issued | DNS not propagated yet, or port 80/443 blocked — check the Traefik container's own logs |
+| Traefik returns 404 for the domain | The app is not on the `bys` network, or the router labels were changed. `docker network inspect bys` should list both Traefik and `bookyourslot` |
 | `/username` pages behave oddly | Ensure `ORGANIZATIONS_ENABLED` is empty (apex-domain rewrite hazard) |
 | Calendar connections broken after env change | You rotated `CALENDSO_ENCRYPTION_KEY` — restore the old value; reconnect calendars |
