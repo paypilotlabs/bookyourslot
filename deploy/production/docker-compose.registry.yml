@@ -10,7 +10,7 @@
 # remote-deploy.sh does exactly that (and pulls first). IMAGE_TAG is persisted in
 # .env by the deploy so restarts and reboots keep the pinned build.
 services:
-  calcom:
+  bookyourslot:
     image: ghcr.io/squid-beast/bookyourslot:${IMAGE_TAG:-latest}
     # Always fetch the pinned tag before starting so a re-tagged image can't go
     # stale on the host. The base file's build: section is ignored on `up` once

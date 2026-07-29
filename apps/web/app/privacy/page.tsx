@@ -1,4 +1,4 @@
-import { APP_NAME, SUPPORT_MAIL_ADDRESS, WEBSITE_URL } from "@calcom/lib/constants";
+import { APP_NAME, SEO_IMG_DEFAULT, SUPPORT_MAIL_ADDRESS, WEBSITE_URL } from "@calcom/lib/constants";
 import { MarketingShell } from "~/marketing/components/MarketingShell";
 import { Prose } from "~/marketing/components/Prose";
 
@@ -7,6 +7,21 @@ export const metadata = {
   description:
     "What data BookYourSlot collects, why, and how it's handled, both for account holders and for guests who book meetings.",
   alternates: { canonical: `${WEBSITE_URL}/privacy` },
+  openGraph: {
+    title: `Privacy Policy · ${APP_NAME}`,
+    description:
+      "What data BookYourSlot collects, why, and how it's handled, both for account holders and for guests who book meetings.",
+    url: `${WEBSITE_URL}/privacy`,
+    siteName: APP_NAME,
+    type: "website",
+    images: [{ url: SEO_IMG_DEFAULT, width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Privacy Policy · ${APP_NAME}`,
+    description:
+      "What data BookYourSlot collects, why, and how it's handled, both for account holders and for guests who book meetings.",
+  },
 };
 
 export default function PrivacyPage() {
@@ -54,16 +69,16 @@ export default function PrivacyPage() {
           <h2>Google user data</h2>
           <p>
             Connecting a Google account is optional. If you connect Google Calendar, {APP_NAME} requests only
-            the calendar access it needs to schedule: reading your busy times so it never offers a slot you are
-            already booked for, and creating or updating events for bookings made through your page. If you
-            sign in with Google, we receive your name, email address, and profile picture to identify your
-            account. We do not use Google user data for advertising, we do not sell it, and we do not use it to
-            train any model. You can disconnect Google Calendar at any time from your app settings, which stops
-            all further access.
+            the calendar access it needs to schedule: reading your busy times so it never offers a slot you
+            are already booked for, and creating or updating events for bookings made through your page. If
+            you sign in with Google, we receive your name, email address, and profile picture to identify your
+            account. We do not use Google user data for advertising, we do not sell it, and we do not use it
+            to train any model. You can disconnect Google Calendar at any time from your app settings, which
+            stops all further access.
           </p>
           <p>
-            {APP_NAME}'s use and transfer of information received from Google APIs to any other app will adhere
-            to the{" "}
+            {APP_NAME}'s use and transfer of information received from Google APIs to any other app will
+            adhere to the{" "}
             <a
               href="https://developers.google.com/terms/api-services-user-data-policy"
               target="_blank"

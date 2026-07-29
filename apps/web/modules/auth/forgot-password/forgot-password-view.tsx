@@ -1,16 +1,14 @@
 "use client";
 
+import { useLocale } from "@calcom/lib/hooks/useLocale";
+import { Button } from "@calcom/ui/components/button";
+import { EmailField } from "@calcom/ui/components/form";
+import AuthContainer from "@components/ui/AuthContainer";
 // eslint-disable-next-line no-restricted-imports
 import { debounce } from "lodash";
 import Link from "next/link";
 import type { CSSProperties, SyntheticEvent } from "react";
 import React from "react";
-
-import { useLocale } from "@calcom/lib/hooks/useLocale";
-import { Button } from "@calcom/ui/components/button";
-import { EmailField } from "@calcom/ui/components/form";
-
-import AuthContainer from "@components/ui/AuthContainer";
 
 export type PageProps = {
   csrfToken?: string;
@@ -103,7 +101,11 @@ export default function ForgotPassword(props: PageProps) {
       footerText={
         !success && (
           <>
-            <Link href="/auth/login" className="text-emphasis font-medium">
+            {/* Sits on the navy ground, so it uses the brand cream rather than
+                text-emphasis, which resolves to near-black in light mode. */}
+            <Link
+              href="/auth/login"
+              className="text-brand-cream/80 hover:text-brand-cream text-sm font-medium underline-offset-4 hover:underline">
               {t("back_to_signin")}
             </Link>
           </>
@@ -136,9 +138,8 @@ export default function ForgotPassword(props: PageProps) {
             />
             <div className="stack-y-2">
               <Button
-                className="w-full justify-center"
+                className="w-full justify-center border-transparent bg-[#CDF34F] text-[#0E0E1B] hover:bg-[#bfe23e] hover:text-[#0E0E1B]"
                 type="submit"
-                color="secondary"
                 disabled={loading}
                 aria-label={t("request_password_reset")}
                 loading={loading}>
