@@ -9,7 +9,7 @@ echo "==> Pulling latest main"
 git -C ../.. pull --ff-only
 
 echo "==> Building app image (first build 20-40 min, later builds faster)"
-docker compose build calcom
+docker compose build bookyourslot
 
 echo "==> Restarting stack"
 docker compose up -d
@@ -17,4 +17,4 @@ docker compose up -d
 echo "==> Pruning old images"
 docker image prune -f
 
-echo "==> Done. Tail logs with: docker compose logs -f calcom"
+echo "==> Done. Tail logs with: docker compose logs -f bookyourslot"

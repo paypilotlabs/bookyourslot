@@ -17,7 +17,7 @@
 set -euo pipefail
 
 APP_DIR="/opt/bookyourslot/deploy/production"
-SERVICE="calcom"
+SERVICE="bookyourslot"
 HEALTH_TIMEOUT=180 # seconds for the NEW container to answer before auto-rollback
 BACKUP_DIR="/opt/bookyourslot/backups"
 BACKUP_KEEP=7

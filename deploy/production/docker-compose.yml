@@ -21,7 +21,7 @@ services:
       retries: 10
     # No published ports — only the app reaches Postgres.
 
-  calcom:
+  bookyourslot:
     build:
       context: ../..
       dockerfile: Dockerfile
