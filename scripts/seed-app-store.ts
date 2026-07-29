@@ -2,14 +2,15 @@
  * @deprecated
  * This file is deprecated. The only use of this file is to seed the database for E2E tests. Each test should take care of seeding it's own data going forward.
  */
-import dotEnv from "dotenv";
-import path from "node:path"
 
-import { appStoreMetadata } from "@calcom/app-store/appStoreMetaData";
+import path from "node:path";
+import process from "node:process";
 import { shouldEnableApp } from "@calcom/app-store/_utils/validateAppKeys";
+import { appStoreMetadata } from "@calcom/app-store/appStoreMetaData";
 import prisma from "@calcom/prisma";
 import type { Prisma } from "@calcom/prisma/client";
 import { AppCategories } from "@calcom/prisma/enums";
+import dotEnv from "dotenv";
 
 dotEnv.config({ path: path.resolve(__dirname, "../.env") });
 dotEnv.config({ path: path.resolve(__dirname, "../.env.appStore") });
@@ -94,17 +95,6 @@ async function createApp(
 export default async function main() {
   // Calendar apps
   await createApp("apple-calendar", "applecalendar", ["calendar"], "apple_calendar");
-  if (
-    process.env.BASECAMP3_CLIENT_ID &&
-    process.env.BASECAMP3_CLIENT_SECRET &&
-    process.env.BASECAMP3_USER_AGENT
-  ) {
-    await createApp("basecamp3", "basecamp3", ["other"], "basecamp3_other", {
-      client_id: process.env.BASECAMP3_CLIENT_ID,
-      client_secret: process.env.BASECAMP3_CLIENT_SECRET,
-      user_agent: process.env.BASECAMP3_USER_AGENT,
-    });
-  }
   await createApp("caldav-calendar", "caldavcalendar", ["calendar"], "caldav_calendar");
   try {
     const { client_secret, client_id, redirect_uris } = JSON.parse(
@@ -128,21 +118,6 @@ export default async function main() {
       client_id: process.env.MS_GRAPH_CLIENT_ID,
       client_secret: process.env.MS_GRAPH_CLIENT_SECRET,
     });
-    await createApp("msteams", "office365video", ["conferencing"], "office365_video", {
-      client_id: process.env.MS_GRAPH_CLIENT_ID,
-      client_secret: process.env.MS_GRAPH_CLIENT_SECRET,
-    });
-  }
-  if (
-    process.env.LARK_OPEN_APP_ID &&
-    process.env.LARK_OPEN_APP_SECRET &&
-    process.env.LARK_OPEN_VERIFICATION_TOKEN
-  ) {
-    await createApp("lark-calendar", "larkcalendar", ["calendar"], "lark_calendar", {
-      app_id: process.env.LARK_OPEN_APP_ID,
-      app_secret: process.env.LARK_OPEN_APP_SECRET,
-      open_verification_token: process.env.LARK_OPEN_VERIFICATION_TOKEN,
-    });
   }
   // Video apps
   if (process.env.DAILY_API_KEY) {
@@ -151,20 +126,12 @@ export default async function main() {
       scale_plan: process.env.DAILY_SCALE_PLAN,
     });
   }
-  if (process.env.TANDEM_CLIENT_ID && process.env.TANDEM_CLIENT_SECRET) {
-    await createApp("tandem", "tandemvideo", ["conferencing"], "tandem_video", {
-      client_id: process.env.TANDEM_CLIENT_ID as string,
-      client_secret: process.env.TANDEM_CLIENT_SECRET as string,
-      base_url: (process.env.TANDEM_BASE_URL as string) || "https://tandem.chat",
-    });
-  }
   if (process.env.ZOOM_CLIENT_ID && process.env.ZOOM_CLIENT_SECRET) {
     await createApp("zoom", "zoomvideo", ["conferencing"], "zoom_video", {
       client_id: process.env.ZOOM_CLIENT_ID,
       client_secret: process.env.ZOOM_CLIENT_SECRET,
     });
   }
-  await createApp("jitsi", "jitsivideo", ["conferencing"], "jitsi_video");
   // Other apps
   if (process.env.HUBSPOT_CLIENT_ID && process.env.HUBSPOT_CLIENT_SECRET) {
     await createApp("hubspot", "hubspot", ["crm"], "hubspot_other_calendar", {
@@ -178,41 +145,17 @@ export default async function main() {
       consumer_secret: process.env.SALESFORCE_CONSUMER_SECRET,
     });
   }
-  if (process.env.ZOHOCRM_CLIENT_ID && process.env.ZOHOCRM_CLIENT_SECRET) {
-    await createApp("zohocrm", "zohocrm", ["crm"], "zohocrm_other_calendar", {
-      client_id: process.env.ZOHOCRM_CLIENT_ID,
-      client_secret: process.env.ZOHOCRM_CLIENT_SECRET,
-    });
-  }
-
-  await createApp("wipe-my-cal", "wipemycalother", ["automation"], "wipemycal_other");
-  if (process.env.GIPHY_API_KEY) {
-    await createApp("giphy", "giphy", ["other"], "giphy_other", {
-      api_key: process.env.GIPHY_API_KEY,
-    });
-  }
-
-  if (process.env.VITAL_API_KEY && process.env.VITAL_WEBHOOK_SECRET) {
-    await createApp("vital-automation", "vital", ["automation"], "vital_other", {
-      mode: process.env.VITAL_DEVELOPMENT_MODE || "sandbox",
-      region: process.env.VITAL_REGION || "us",
-      api_key: process.env.VITAL_API_KEY,
-      webhook_secret: process.env.VITAL_WEBHOOK_SECRET,
-    });
-  }
 
   if (process.env.ZAPIER_INVITE_LINK) {
     await createApp("zapier", "zapier", ["automation"], "zapier_automation", {
       invite_link: process.env.ZAPIER_INVITE_LINK,
     });
   }
-  await createApp("make", "make", ["automation"], "make_automation", {
-    invite_link: "https://make.com/en/hq/app-invitation/6cb2772b61966508dd8f414ba3b44510",
-  });
-
-  if (process.env.HUDDLE01_API_TOKEN) {
-    await createApp("huddle01", "huddle01video", ["conferencing"], "huddle01_video", {
-      apiKey: process.env.HUDDLE01_API_TOKEN,
+  // Cal.com's own Make invitation URL used to be hardcoded here and written into
+  // every deployment's database. Supply your own via MAKE_INVITE_LINK.
+  if (process.env.MAKE_INVITE_LINK) {
+    await createApp("make", "make", ["automation"], "make_automation", {
+      invite_link: process.env.MAKE_INVITE_LINK,
     });
   }
 
@@ -232,13 +175,6 @@ export default async function main() {
       payment_fee_percentage: Number(process.env.PAYMENT_FEE_PERCENTAGE),
       public_key: process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY,
       webhook_secret: process.env.STRIPE_WEBHOOK_SECRET,
-    });
-  }
-
-  if (process.env.CLOSECOM_CLIENT_ID && process.env.CLOSECOM_CLIENT_SECRET) {
-    await createApp("closecom", "closecom", ["crm"], "closecom_crm", {
-      client_id: process.env.CLOSECOM_CLIENT_ID,
-      client_secret: process.env.CLOSECOM_CLIENT_SECRET,
     });
   }
 
