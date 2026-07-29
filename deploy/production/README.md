@@ -68,13 +68,25 @@ cp .env.production.example .env
 nano .env    # fill every <PLACEHOLDER> — secrets, DB password, SMTP password
 ```
 
-Licensed brand fonts are gitignored, so copy them from your machine before the
-first build (logo/favicon images work without this, but the web font needs it):
+Licensed brand fonts are gitignored, so they are in no image CI builds. The
+compose file bind-mounts this directory into the container read-only, so the
+files just need to exist on the host; no rebuild is needed after adding one.
 
 ```bash
 scp apps/web/public/fonts/brand/*.otf apps/web/public/fonts/brand/*.woff2 \
   root@<VPS_IP>:/opt/bookyourslot/apps/web/public/fonts/brand/ 2>/dev/null || true
 ```
+
+Then `docker compose up -d bookyourslot` to pick the mount up. Verify with
+`curl -I https://bookyourslot.online/fonts/brand/unique.woff2` — a 404 means the
+file is missing on the host and the page is falling back to Cal Sans.
+
+Which files matter, from `apps/web/public/fonts/brand/README.md`:
+
+| File | Used by | Effect if missing |
+| --- | --- | --- |
+| `unique.woff2` | `font-display`, every marketing headline | Headlines fall back to Cal Sans. **This is the visible one.** |
+| `manoyri.woff2` / `.otf` | `font-script` | None today. The nav wordmark is an inline SVG and no component uses `font-script`. |
 
 ## 4. First build + start
 
@@ -113,9 +125,13 @@ The landing hero links to **`/demo/30min`**. Make it real:
 
 1. Sign up a user with username **`demo`** (use an alias like
    `hello+demo@bookyourslot.online`).
-2. Ensure it has a 30-minute event type with slug **`30min`** (rename the
+2. **Approve it.** Signups are created pending, and a pending user's public page
+   returns 404 because the lookup filters on `locked: false`. Go to Settings,
+   Admin, Users and unlock `demo`, or the hero link stays broken. This is the
+   likeliest reason `/demo/30min` 404s on a site that used to serve it.
+3. Ensure it has a 30-minute event type with slug **`30min`** (rename the
    default or create one titled e.g. "Intro call") and a sensible schedule.
-3. Open `https://bookyourslot.online/demo/30min` in a private window — the
+4. Open `https://bookyourslot.online/demo/30min` in a private window — the
    booker should show slots.
 
 ## 7. Email (already configured via .env)
@@ -233,4 +249,6 @@ a guess.
 | Certificate not issued | DNS not propagated yet, or port 80/443 blocked — check the Traefik container's own logs |
 | Traefik returns 404 for the domain | The app is not on the `bys` network, or the router labels were changed. `docker network inspect bys` should list both Traefik and `bookyourslot` |
 | `/username` pages behave oddly | Ensure `ORGANIZATIONS_ENABLED` is empty (apex-domain rewrite hazard) |
+| A user's public page 404s | That account is probably pending approval — a locked user is filtered out of the username lookup. Unlock it in Settings, Admin, Users |
+| Headlines render in the wrong face | `curl -I https://bookyourslot.online/fonts/brand/unique.woff2`. A 404 means the file is missing from `apps/web/public/fonts/brand/` **on the host**; the compose bind mount serves whatever is there |
 | Calendar connections broken after env change | You rotated `CALENDSO_ENCRYPTION_KEY` — restore the old value; reconnect calendars |
