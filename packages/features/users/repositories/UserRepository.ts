@@ -1594,14 +1594,18 @@ export class UserRepository {
     searchTerm,
     cursor,
     limit,
+    locked,
   }: {
     searchTerm?: string | null;
     cursor: number | null | undefined;
     limit?: number | null;
+    /** When set, restrict to pending (true) or active (false) accounts. */
+    locked?: boolean | null;
   }) {
-    const bothLockedAndUnlockedWhere: Prisma.UserWhereInput = {
-      OR: [{ locked: false }, { locked: true }],
-    };
+    // Naming both states is what bypasses excludeLockedUsersExtension; when the
+    // caller asks for one state specifically, that single clause does the same job.
+    const bothLockedAndUnlockedWhere: Prisma.UserWhereInput =
+      locked === true || locked === false ? { locked } : { OR: [{ locked: false }, { locked: true }] };
     const trimmedSearchTerm = searchTerm?.trim();
     const searchFilters: Prisma.UserWhereInput = trimmedSearchTerm
       ? {

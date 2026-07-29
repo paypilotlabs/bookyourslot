@@ -30,6 +30,10 @@ export const adminRouter = router({
     const { default: handler } = await import("./lockUserAccount.handler");
     return handler(opts);
   }),
+  pendingApprovalCount: authedAdminProcedure.query(async () => {
+    const { default: handler } = await import("./pendingApprovalCount.handler");
+    return handler();
+  }),
   toggleFeatureFlag,
   removeTwoFactor: authedAdminProcedure.input(ZAdminRemoveTwoFactor).mutation(async (opts) => {
     const { default: handler } = await import("./removeTwoFactor.handler");

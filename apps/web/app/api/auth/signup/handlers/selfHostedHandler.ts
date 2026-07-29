@@ -1,5 +1,4 @@
 import process from "node:process";
-import { sendEmailVerification } from "@calcom/features/auth/lib/verifyEmail";
 import { SIGNUP_ERROR_CODES } from "@calcom/features/auth/signup/constants";
 import { createOrUpdateMemberships } from "@calcom/features/auth/signup/utils/createOrUpdateMemberships";
 import { joinAnyChildTeamOnOrgInvite } from "@calcom/features/auth/signup/utils/organization";
@@ -186,11 +185,11 @@ export default async function handler(body: Record<string, string>) {
       await prefillAvatar({ email: userEmail });
     }
 
-    await sendEmailVerification({
-      email: userEmail,
-      username: correctedUsername,
-      language,
-    });
+    // Deliberately no verification email here. The account is created pending,
+    // so a "verify your email" link sent now dead-ends: verifying does not
+    // unlock, and signing in still fails. The verification email is sent when an
+    // admin approves the account (see admin/lockUserAccount.handler), which is
+    // the point at which the link actually leads somewhere.
 
     // Self-serve signups are pending (locked). Return accountUnderReview so the
     // signup screen shows the "under review" state instead of redirecting to

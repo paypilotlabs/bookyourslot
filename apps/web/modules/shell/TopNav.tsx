@@ -1,12 +1,11 @@
-import { useSession } from "next-auth/react";
-import Link from "next/link";
-
 import { useIsEmbed } from "@calcom/embed-core/embed-iframe";
 import { useIsStandalone } from "@calcom/lib/hooks/useIsStandalone";
 import { useLocale } from "@calcom/lib/hooks/useLocale";
-import { SettingsIcon } from "@coss/ui/icons";
 import { Logo } from "@calcom/ui/components/logo";
-
+import PendingApprovalsBadge from "@calcom/web/modules/users/components/PendingApprovalsBadge";
+import { SettingsIcon } from "@coss/ui/icons";
+import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { KBarTrigger } from "./Kbar";
 import { UserDropdown } from "./user-dropdown/UserDropdown";
 
@@ -29,6 +28,8 @@ function TopNav() {
           <Logo />
         </Link>
         <div className="flex items-center gap-2 self-center">
+          {/* Renders only for admins, and only when something is pending. */}
+          <PendingApprovalsBadge />
           <span className="hover:bg-cal-muted hover:text-emphasis text-default group flex items-center rounded-full text-sm font-medium transition lg:hidden">
             <KBarTrigger />
           </span>
