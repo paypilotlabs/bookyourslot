@@ -1,4 +1,4 @@
-import { APP_NAME, WEBSITE_URL } from "@calcom/lib/constants";
+import { APP_NAME, SEO_IMG_DEFAULT, WEBSITE_URL } from "@calcom/lib/constants";
 import Link from "next/link";
 import { BLOG_POSTS } from "~/marketing/blog/posts";
 import { MarketingShell } from "~/marketing/components/MarketingShell";
@@ -8,6 +8,21 @@ export const metadata = {
   description:
     "Guides and product news from BookYourSlot: booking pages, availability, team scheduling, and running scheduling on your own terms.",
   alternates: { canonical: `${WEBSITE_URL}/blog` },
+  openGraph: {
+    title: `Blog · ${APP_NAME}`,
+    description:
+      "Guides and product news from BookYourSlot: booking pages, availability, team scheduling, and running scheduling on your own terms.",
+    url: `${WEBSITE_URL}/blog`,
+    siteName: APP_NAME,
+    type: "website",
+    images: [{ url: SEO_IMG_DEFAULT, width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Blog · ${APP_NAME}`,
+    description:
+      "Guides and product news from BookYourSlot: booking pages, availability, team scheduling, and running scheduling on your own terms.",
+  },
 };
 
 const dateFormatter = new Intl.DateTimeFormat("en", { dateStyle: "long" });

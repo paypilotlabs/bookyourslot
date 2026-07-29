@@ -1,4 +1,4 @@
-import { APP_NAME, SUPPORT_MAIL_ADDRESS, WEBSITE_URL } from "@calcom/lib/constants";
+import { APP_NAME, SEO_IMG_DEFAULT, SUPPORT_MAIL_ADDRESS, WEBSITE_URL } from "@calcom/lib/constants";
 import Image from "next/image";
 import { JsonLd } from "~/marketing/components/JsonLd";
 import { MarketingShell } from "~/marketing/components/MarketingShell";
@@ -11,6 +11,21 @@ export const metadata = {
   description:
     "BookYourSlot is built by Lohith Kumar Nerukonda to give local businesses enterprise-grade booking that stays self-hosted, honest, and always improving.",
   alternates: { canonical: `${WEBSITE_URL}/about` },
+  openGraph: {
+    title: `About · ${APP_NAME}`,
+    description:
+      "BookYourSlot is built by Lohith Kumar Nerukonda to give local businesses enterprise-grade booking that stays self-hosted, honest, and always improving.",
+    url: `${WEBSITE_URL}/about`,
+    siteName: APP_NAME,
+    type: "website",
+    images: [{ url: SEO_IMG_DEFAULT, width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `About · ${APP_NAME}`,
+    description:
+      "BookYourSlot is built by Lohith Kumar Nerukonda to give local businesses enterprise-grade booking that stays self-hosted, honest, and always improving.",
+  },
 };
 
 const FOCUS_AREAS = [

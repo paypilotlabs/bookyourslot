@@ -1,4 +1,4 @@
-import { APP_NAME, WEBSITE_URL } from "@calcom/lib/constants";
+import { APP_NAME, SEO_IMG_DEFAULT, WEBSITE_URL } from "@calcom/lib/constants";
 import Image from "next/image";
 import { JsonLd } from "~/marketing/components/JsonLd";
 import { MarketingShell } from "~/marketing/components/MarketingShell";
@@ -11,6 +11,21 @@ export const metadata = {
   description:
     "See exactly how BookYourSlot works: guests book in three steps, owners run their day from a live calendar that updates itself. Real screenshots, no mockups.",
   alternates: { canonical: `${WEBSITE_URL}/how-it-works` },
+  openGraph: {
+    title: `How it works · ${APP_NAME}`,
+    description:
+      "See exactly how BookYourSlot works: guests book in three steps, owners run their day from a live calendar that updates itself. Real screenshots, no mockups.",
+    url: `${WEBSITE_URL}/how-it-works`,
+    siteName: APP_NAME,
+    type: "website",
+    images: [{ url: SEO_IMG_DEFAULT, width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `How it works · ${APP_NAME}`,
+    description:
+      "See exactly how BookYourSlot works: guests book in three steps, owners run their day from a live calendar that updates itself. Real screenshots, no mockups.",
+  },
 };
 
 const GUEST_STEPS = [

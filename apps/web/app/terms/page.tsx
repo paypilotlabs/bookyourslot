@@ -1,4 +1,4 @@
-import { APP_NAME, SUPPORT_MAIL_ADDRESS, WEBSITE_URL } from "@calcom/lib/constants";
+import { APP_NAME, SEO_IMG_DEFAULT, SUPPORT_MAIL_ADDRESS, WEBSITE_URL } from "@calcom/lib/constants";
 import { MarketingShell } from "~/marketing/components/MarketingShell";
 import { Prose } from "~/marketing/components/Prose";
 
@@ -6,6 +6,19 @@ export const metadata = {
   title: `Terms of Service · ${APP_NAME}`,
   description: "The terms that apply when you create an account or book a meeting on BookYourSlot.",
   alternates: { canonical: `${WEBSITE_URL}/terms` },
+  openGraph: {
+    title: `Terms of Service · ${APP_NAME}`,
+    description: "The terms that apply when you create an account or book a meeting on BookYourSlot.",
+    url: `${WEBSITE_URL}/terms`,
+    siteName: APP_NAME,
+    type: "website",
+    images: [{ url: SEO_IMG_DEFAULT, width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Terms of Service · ${APP_NAME}`,
+    description: "The terms that apply when you create an account or book a meeting on BookYourSlot.",
+  },
 };
 
 export default function TermsPage() {
