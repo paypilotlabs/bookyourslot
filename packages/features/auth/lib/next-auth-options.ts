@@ -166,9 +166,16 @@ export async function authorizeCredentials(
     throw new Error(ErrorCode.IncorrectEmailPassword);
   }
 
-  // Locked users cannot login
+  // Locked users cannot login. Deliberately the SAME error as a wrong password
+  // and as an address with no account: a distinct "pending approval" message
+  // here would confirm to anyone probing that the address is registered, which
+  // is exactly the signal a brute-forcer is looking for. A genuine pending
+  // business is not left guessing — the signup screen already told them the
+  // account is under review, and they get an email the moment an admin
+  // approves. The OAuth and magic-link paths keep the explicit message, since
+  // reaching those means already proving control of the account.
   if (user.locked) {
-    throw new Error(ErrorCode.UserAccountLocked);
+    throw new Error(ErrorCode.IncorrectEmailPassword);
   }
 
   await checkRateLimitAndThrowError({

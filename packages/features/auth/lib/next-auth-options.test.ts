@@ -1,3 +1,4 @@
+import process from "node:process";
 import { IdentityProvider, UserPermissionRole } from "@calcom/prisma/enums";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ErrorCode } from "./ErrorCode";
@@ -235,6 +236,38 @@ describe("CredentialsProvider authorize", () => {
     ],
     teams: [],
     ...overrides,
+  });
+
+  // A pending (locked) account must be indistinguishable from a wrong password
+  // and from an address that has no account at all. Anything else lets an
+  // attacker enumerate which addresses are registered without knowing a
+  // password, which is the signal a brute-forcer is actually after.
+  describe("Account enumeration", () => {
+    it("gives a locked account the same error as a wrong password", async () => {
+      const mockUser = createMockUser({ locked: true });
+      mockFindByEmailAndIncludeProfilesAndPassword.mockResolvedValue(mockUser);
+
+      await expect(
+        authorizeCredentials({ email: "pending@example.com", password: "whatever" } as any)
+      ).rejects.toThrow(ErrorCode.IncorrectEmailPassword);
+    });
+
+    it("never leaks that a locked account exists", async () => {
+      const mockUser = createMockUser({ locked: true });
+      mockFindByEmailAndIncludeProfilesAndPassword.mockResolvedValue(mockUser);
+
+      await expect(
+        authorizeCredentials({ email: "pending@example.com", password: "whatever" } as any)
+      ).rejects.not.toThrow(ErrorCode.UserAccountLocked);
+    });
+
+    it("gives an unknown address the same error too", async () => {
+      mockFindByEmailAndIncludeProfilesAndPassword.mockResolvedValue(null);
+
+      await expect(
+        authorizeCredentials({ email: "nobody@example.com", password: "whatever" } as any)
+      ).rejects.toThrow(ErrorCode.IncorrectEmailPassword);
+    });
   });
 
   describe("Password validation", () => {
