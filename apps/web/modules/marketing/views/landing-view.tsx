@@ -12,9 +12,6 @@ import { TimezoneStrip } from "../components/TimezoneStrip";
 // ponytail: marketing copy is intentionally hardcoded English (single-locale
 // marketing surface); move to i18n keys if/when the marketing site needs locales.
 
-/** Prod runbook creates a `demo` user with a 30-min event backing this link. */
-const DEMO_BOOKING_PATH = "/demo/30min";
-
 // Truth rule: every claim below maps to functionality that works on this
 // instance. No video, payments, or Outlook, because they are not configured here.
 const FEATURES = [
@@ -168,11 +165,6 @@ export default function LandingView() {
               href="/signup"
               className="bg-brand-lime text-brand-navy rounded-full px-9 py-4 text-sm font-semibold uppercase tracking-wide transition hover:-translate-y-0.5 hover:brightness-110">
               Create your booking page
-            </Link>
-            <Link
-              href={DEMO_BOOKING_PATH}
-              className="text-brand-cream/70 hover:text-brand-cream text-sm underline underline-offset-4 transition">
-              or see a live booking page first
             </Link>
           </div>
           <p className="text-brand-cream/50 mt-5 text-xs">

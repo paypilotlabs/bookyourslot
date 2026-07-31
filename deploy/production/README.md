@@ -137,29 +137,14 @@ them. As admin, go to **Settings, Admin, Users**; the pending count appears as a
 badge in the sidebar. Unlocking an account approves it and sends that business
 its verification email.
 
-## 6. Back the landing-page demo link
-
-The landing hero links to **`/demo/30min`**. Make it real:
-
-1. Sign up a user with username **`demo`** (use an alias like
-   `hello+demo@bookyourslot.online`).
-2. **Approve it.** Signups are created pending, and a pending user's public page
-   returns 404 because the lookup filters on `locked: false`. Go to Settings,
-   Admin, Users and unlock `demo`, or the hero link stays broken. This is the
-   likeliest reason `/demo/30min` 404s on a site that used to serve it.
-3. Ensure it has a 30-minute event type with slug **`30min`** (rename the
-   default or create one titled e.g. "Intro call") and a sensible schedule.
-4. Open `https://bookyourslot.online/demo/30min` in a private window — the
-   booker should show slots.
-
-## 7. Email (already configured via .env)
+## 6. Email (already configured via .env)
 
 Prove it end to end: book the demo event from a private window using an
 external address (Gmail etc.) and confirm both confirmation emails arrive.
 If nothing arrives, `docker compose logs bookyourslot | grep -i mail` — the usual
 cause is an unset/wrong `EMAIL_SERVER_PASSWORD`.
 
-## 8. Google Calendar OAuth
+## 7. Google Calendar OAuth
 
 1. [console.cloud.google.com](https://console.cloud.google.com) → new project
    → enable **Google Calendar API**.
@@ -174,7 +159,7 @@ cause is an unset/wrong `EMAIL_SERVER_PASSWORD`.
 6. Verify: connect your own Google account from Settings → Apps, book the
    demo event, and check it lands on the calendar.
 
-## 9. Get found (SEO / AEO / GEO)
+## 8. Get found (SEO / AEO / GEO)
 
 Indexing is earned over days–weeks; these steps start the clock:
 
@@ -190,11 +175,10 @@ Indexing is earned over days–weeks; these steps start the clock:
 4. `https://bookyourslot.online/llms.txt` serves the AI-crawler summary; the
    FAQ on the landing page is the answer-engine surface. Nothing else to do.
 
-## 10. Go-live checklist
+## 9. Go-live checklist
 
 - [ ] `https://bookyourslot.online` loads with valid TLS; `www.` serves the app
 - [ ] Admin account created via `/auth/setup`; no demo users seeded
-- [ ] `demo` user + `/demo/30min` books end-to-end from a private window
 - [ ] Confirmation emails arrive at an external address
 - [ ] Google Calendar connects and receives a test booking
 - [ ] `/sitemap.xml`, `/robots.txt`, `/llms.txt`, `/og-image.png` all respond
