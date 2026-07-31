@@ -7,7 +7,7 @@ import { Prisma } from "@calcom/prisma/client";
 
 import { HttpError } from "../http-error";
 import { TracedError } from "../tracing/error";
-import { getServerErrorFromUnknown } from "./getServerErrorFromUnknown";
+import { getServerErrorFromUnknown, isPrismaError } from "./getServerErrorFromUnknown";
 
 const test400Codes = [
   ErrorCode.RequestBodyWithouEnd,
@@ -203,6 +203,28 @@ describe("Prisma error handling", () => {
 
     expect(result.statusCode).toBe(400);
     expect(result.message).toBe("Foreign key constraint failed");
+  });
+
+  // The booking path has to tell a guest who lost the race for a slot that the
+  // time has gone, which means recognising the unique-constraint violation. It
+  // must do that against the RAW error: redactError swaps any Prisma error for a
+  // bare Error in production, and callers that reached for `result.cause.code`
+  // silently stopped working once deployed. `isPrismaError` on the original error
+  // is the reliable check, so pin both halves of that here.
+  test("isPrismaError identifies a P2002 unique-constraint violation on the raw error", () => {
+    const prismaError = new Error("Unique constraint failed on the fields: (`idempotencyKey`)") as any;
+    prismaError.code = "P2002";
+    prismaError.clientVersion = "5.0.0";
+    Object.setPrototypeOf(prismaError, Prisma.PrismaClientKnownRequestError.prototype);
+
+    expect(isPrismaError(prismaError)).toBe(true);
+    expect(isPrismaError(prismaError) && prismaError.code).toBe("P2002");
+  });
+
+  test("isPrismaError rejects a non-Prisma error, so the conflict branch stays narrow", () => {
+    expect(isPrismaError(new Error("An error occurred while querying the database."))).toBe(false);
+    expect(isPrismaError("P2002")).toBe(false);
+    expect(isPrismaError(undefined)).toBe(false);
   });
 });
 
