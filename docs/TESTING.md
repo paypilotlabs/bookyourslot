@@ -177,7 +177,8 @@ Pass: every line reads `200`.
 
 ### B4. The booking round trip (the one that matters)
 
-1. From a private window, open `https://bookyourslot.online/demo/30min`.
+1. From a private window, open the public booking page of any approved account,
+   `https://bookyourslot.online/<username>/<event-slug>`.
 2. Book a slot using an **external** email you can actually read (Gmail etc.).
 3. Sign in as the owner in another window and confirm the booking is listed.
 4. Reschedule from the guest's confirmation email, then cancel it.
