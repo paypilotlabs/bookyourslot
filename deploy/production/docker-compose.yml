@@ -60,12 +60,91 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=bys"
+
+      # --- middlewares ---------------------------------------------------
+      # getIP() (packages/lib/getIP.ts:22-33) reads cf-connecting-ip and
+      # true-client-ip BEFORE x-forwarded-for, and nothing on this box sets
+      # them, so any client can forge one and mint a fresh identity per
+      # request. Traefik already deletes and rewrites X-Forwarded-For and
+      # X-Real-Ip at the entrypoint, so removing these two leaves getIP()
+      # reading a header Traefik controls. An EMPTY label value deletes the
+      # header; a non-empty one would set it.
+      - "traefik.http.middlewares.bys-scrub-ip.headers.customrequestheaders.Cf-Connecting-Ip="
+      - "traefik.http.middlewares.bys-scrub-ip.headers.customrequestheaders.True-Client-Ip="
+
+      # Login, signup, password reset, magic link. One shared bucket per source
+      # IP on purpose: switching from password spraying to signup spam must not
+      # buy a fresh budget. burst=8 covers the worst honest case, a 2FA login
+      # (two POSTs) with a fumbled password and a fumbled code.
+      - "traefik.http.middlewares.bys-rl-auth.ratelimit.average=15"
+      - "traefik.http.middlewares.bys-rl-auth.ratelimit.period=1m"
+      - "traefik.http.middlewares.bys-rl-auth.ratelimit.burst=8"
+
+      # Booking creation writes to the DB, the calendar, and sends mail to
+      # attacker-chosen addresses. Uncapped it is an open relay; this bounds it
+      # at 20 outbound emails per minute per source.
+      - "traefik.http.middlewares.bys-rl-book.ratelimit.average=20"
+      - "traefik.http.middlewares.bys-rl-book.ratelimit.period=1m"
+      - "traefik.http.middlewares.bys-rl-book.ratelimit.burst=10"
+
+      # Username availability. useDebounce(username, 600) means a typist who
+      # pauses over 600ms between keys legitimately fires one request PER
+      # CHARACTER, so a genuine signup can be ~50 requests. This is a cost cap
+      # on an unauthenticated query, not an anti-enumeration control: public
+      # profile pages at /<username> already reveal which handles are taken.
+      - "traefik.http.middlewares.bys-rl-username.ratelimit.average=120"
+      - "traefik.http.middlewares.bys-rl-username.ratelimit.period=1m"
+      - "traefik.http.middlewares.bys-rl-username.ratelimit.burst=30"
+
+      # --- routers ---------------------------------------------------------
+      # Catch-all, unchanged apart from the header scrub. Deliberately NOT rate
+      # limited: one page load pulls 30-80 requests, so any budget that
+      # survives it is too loose to be worth having.
       - "traefik.http.routers.bys.rule=Host(`bookyourslot.online`) || Host(`www.bookyourslot.online`)"
       - "traefik.http.routers.bys.entrypoints=websecure"
       - "traefik.http.routers.bys.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.bys.middlewares=bys-scrub-ip"
+      - "traefik.http.routers.bys.service=bys"
+
+      # Exact Path() only. PathPrefix(`/api/auth`) would also catch
+      # /api/auth/session, which SessionProvider refetches on every window
+      # focus, and /api/auth/csrf, which every signIn() fetches first —
+      # throttling those breaks browsing for signed-in users.
+      - "traefik.http.routers.bys-auth.rule=(Host(`bookyourslot.online`) || Host(`www.bookyourslot.online`)) && (Path(`/api/auth/callback/credentials`) || Path(`/api/auth/signup`) || Path(`/api/auth/forgot-password`) || Path(`/api/auth/reset-password`) || Path(`/api/auth/signin/email`))"
+      - "traefik.http.routers.bys-auth.entrypoints=websecure"
+      - "traefik.http.routers.bys-auth.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.bys-auth.priority=100"
+      - "traefik.http.routers.bys-auth.middlewares=bys-scrub-ip,bys-rl-auth"
+      - "traefik.http.routers.bys-auth.service=bys"
+
+      - "traefik.http.routers.bys-book.rule=(Host(`bookyourslot.online`) || Host(`www.bookyourslot.online`)) && (Path(`/api/book/event`) || Path(`/api/book/recurring-event`))"
+      - "traefik.http.routers.bys-book.entrypoints=websecure"
+      - "traefik.http.routers.bys-book.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.bys-book.priority=100"
+      - "traefik.http.routers.bys-book.middlewares=bys-scrub-ip,bys-rl-book"
+      - "traefik.http.routers.bys-book.service=bys"
+
+      - "traefik.http.routers.bys-username.rule=(Host(`bookyourslot.online`) || Host(`www.bookyourslot.online`)) && Path(`/api/username`)"
+      - "traefik.http.routers.bys-username.entrypoints=websecure"
+      - "traefik.http.routers.bys-username.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.bys-username.priority=100"
+      - "traefik.http.routers.bys-username.middlewares=bys-scrub-ip,bys-rl-username"
+      - "traefik.http.routers.bys-username.service=bys"
+
       - "traefik.http.services.bys.loadbalancer.server.port=3000"
     # ponytail: www and apex both serve the app; canonical tags handle SEO.
     # Add a www->apex redirect middleware only if the duplicate host matters.
+    #
+    # rateLimit is left without a sourceCriterion on purpose: the default keys
+    # on the TCP remote address, which the client cannot forge. Do NOT add
+    # sourcecriterion.requestheadername or ipstrategy.depth here — there is no
+    # CDN in front of this box, so a header-based key would be spoofable. If
+    # Cloudflare is ever put in front, that changes and both must be revisited
+    # together with a firewall limiting 80/443 to the CDN ranges.
+    #
+    # Every router names service=bys explicitly. Traefik only auto-assigns when
+    # a container defines exactly one service; the moment a second appears it
+    # drops every router that lacks one, and the whole site 404s.
 
 networks:
   bys:

@@ -1,5 +1,6 @@
 "use client";
 
+import process from "node:process";
 import { ErrorCode } from "@calcom/features/auth/lib/ErrorCode";
 import { HOSTED_CAL_FEATURES, WEBAPP_URL, WEBSITE_URL } from "@calcom/lib/constants";
 import { emailRegex } from "@calcom/lib/emailSchema";
@@ -116,11 +117,21 @@ export default function Login({
   const onSubmit = async (values: LoginValues) => {
     setErrorMessage(null);
     // telemetry.event(telemetryEventTypes.login, collectPageParameters());
-    const res = await signIn<"credentials">("credentials", {
-      ...values,
-      callbackUrl,
-      redirect: false,
-    });
+    let res: Awaited<ReturnType<typeof signIn<"credentials">>>;
+    try {
+      res = await signIn<"credentials">("credentials", {
+        ...values,
+        callbackUrl,
+        redirect: false,
+      });
+    } catch {
+      // next-auth parses every response as JSON. The edge rate limiter answers
+      // with text/plain, so a throttled login throws here instead of returning
+      // an error object, and without this the form would just stop spinning
+      // and say nothing at all.
+      setErrorMessage(t("too_many_requests"));
+      return;
+    }
     if (!res) setErrorMessage(errorMessages[ErrorCode.InternalServerError]);
     // we're logged in! let's do a hard refresh to the desired url
     else if (!res.error) {

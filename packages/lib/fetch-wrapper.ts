@@ -5,7 +5,10 @@ async function http<T>(path: string, config: RequestInit): Promise<T> {
   const response: Response = await fetch(request);
 
   if (!response.ok) {
-    const errJson = await response.json();
+    // Not every error body is JSON. The edge rate limiter answers 429 with
+    // text/plain, and parsing that would throw a SyntaxError here instead of
+    // the HttpError callers are written to handle.
+    const errJson = await response.json().catch(() => ({ message: response.statusText }));
     const err = HttpError.fromRequest(
       request,
       {
