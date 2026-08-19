@@ -16,7 +16,6 @@ import linear_config_json from "./linear/config.json";
 import make_config_json from "./make/config.json";
 import metapixel_config_json from "./metapixel/config.json";
 import n8n_config_json from "./n8n/config.json";
-import { metadata as office365calendar__metadata_ts } from "./office365calendar/_metadata";
 import pipedream_config_json from "./pipedream/config.json";
 import plausible_config_json from "./plausible/config.json";
 import qr_code_config_json from "./qr_code/config.json";
@@ -49,7 +48,6 @@ export const appStoreMetadata = {
   make: make_config_json,
   metapixel: metapixel_config_json,
   n8n: n8n_config_json,
-  office365calendar: office365calendar__metadata_ts,
   pipedream: pipedream_config_json,
   plausible: plausible_config_json,
   qr_code: qr_code_config_json,

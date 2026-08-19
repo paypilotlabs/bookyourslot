@@ -113,12 +113,6 @@ export default async function main() {
   } catch (e) {
     if (e instanceof Error) console.error("Error adding google credentials to DB:", e.message);
   }
-  if (process.env.MS_GRAPH_CLIENT_ID && process.env.MS_GRAPH_CLIENT_SECRET) {
-    await createApp("office365-calendar", "office365calendar", ["calendar"], "office365_calendar", {
-      client_id: process.env.MS_GRAPH_CLIENT_ID,
-      client_secret: process.env.MS_GRAPH_CLIENT_SECRET,
-    });
-  }
   // Video apps
   if (process.env.DAILY_API_KEY) {
     await createApp("daily-video", "dailyvideo", ["conferencing"], "daily_video", {

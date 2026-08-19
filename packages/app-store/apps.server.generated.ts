@@ -12,7 +12,6 @@ export const apiHandlers = {
   linear: import("./linear/api"),
   make: import("./make/api"),
   metapixel: import("./metapixel/api"),
-  office365calendar: import("./office365calendar/api"),
   plausible: import("./plausible/api"),
   qr_code: import("./qr_code/api"),
   salesforce: import("./salesforce/api"),

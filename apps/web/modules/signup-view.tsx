@@ -195,7 +195,6 @@ export default function Signup({
   token,
   orgSlug,
   isGoogleLoginEnabled,
-  isOutlookLoginEnabled,
   orgAutoAcceptEmail,
   redirectUrl,
   emailVerificationEnabled,
@@ -205,7 +204,6 @@ export default function Signup({
   const [premiumUsername, setPremiumUsername] = useState(false);
   const [usernameTaken, setUsernameTaken] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [isMicrosoftLoading, setIsMicrosoftLoading] = useState(false);
   const [accountUnderReview, setAccountUnderReview] = useState(false);
   const [displayEmailForm, setDisplayEmailForm] = useState(token);
   const [turnstileKey, setTurnstileKey] = useState(0);
@@ -597,7 +595,7 @@ export default function Signup({
                         <Button
                           color="primary"
                           loading={isGoogleLoading}
-                          disabled={isMicrosoftLoading}
+                          disabled={false}
                           CustomStartIcon={
                             <>
                               {/* eslint-disable @next/next/no-img-element */}
@@ -636,58 +634,7 @@ export default function Signup({
                       </div>
                     )}
 
-                    {isOutlookLoginEnabled && (
-                      <div className="flex flex-col gap-2 md:flex-row">
-                        <Button
-                          color="secondary"
-                          loading={isMicrosoftLoading}
-                          disabled={isGoogleLoading}
-                          CustomStartIcon={
-                            <>
-                              {/* eslint-disable @next/next/no-img-element */}
-                              <img
-                                className={classNames(
-                                  "text-subtle mr-2 h-4 w-4",
-                                  premiumUsername && "opacity-50"
-                                )}
-                                src="/microsoft-logo.svg"
-                                alt="Continue with Microsoft Icon"
-                              />
-                            </>
-                          }
-                          className={classNames("w-full justify-center rounded-md text-center")}
-                          data-testid="continue-with-microsoft-button"
-                          onClick={async () => {
-                            posthog.capture("signup_microsoft_button_clicked", {
-                              has_token: !!token,
-                              is_org_invite: isOrgInviteByLink,
-                              org_slug: orgSlug,
-                              has_prepopulated_username: !!prepopulateFormValues?.username,
-                            });
-                            setIsMicrosoftLoading(true);
-                            const baseUrl = process.env.NEXT_PUBLIC_WEBAPP_URL;
-                            const MICROSOFT_AUTH_URL = `${baseUrl}/auth/sso/microsoft`;
-                            const searchQueryParams = new URLSearchParams();
-                            if (prepopulateFormValues?.username) {
-                              // If username is present we save it in query params to check for premium
-                              searchQueryParams.set("username", prepopulateFormValues.username);
-                              localStorage.setItem("username", prepopulateFormValues.username);
-                            }
-                            if (token && prepopulateFormValues?.email) {
-                              searchQueryParams.set("email", prepopulateFormValues.email);
-                            }
-                            const url = searchQueryParams.toString()
-                              ? `${MICROSOFT_AUTH_URL}?${searchQueryParams.toString()}`
-                              : MICROSOFT_AUTH_URL;
-
-                            router.push(url);
-                          }}>
-                          {t("continue_with_microsoft")}
-                        </Button>
-                      </div>
-                    )}
-
-                    {(isGoogleLoginEnabled || isOutlookLoginEnabled) && (
+                    {isGoogleLoginEnabled && (
                       <div>
                         <div className="relative flex items-center">
                           <div className="grow border-subtle border-t" />
@@ -703,7 +650,7 @@ export default function Signup({
                     <div className="flex flex-col gap-2">
                       <Button
                         color="secondary"
-                        disabled={isGoogleLoading || isMicrosoftLoading}
+                        disabled={isGoogleLoading}
                         className={classNames(
                           "w-full justify-center rounded-md border-transparent bg-[#CDF34F] text-center text-[#0E0E1B] hover:bg-[#bfe23e] hover:text-[#0E0E1B]"
                         )}
