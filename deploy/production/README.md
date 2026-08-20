@@ -185,6 +185,33 @@ Indexing is earned over days–weeks; these steps start the clock:
 - [ ] Search Console verified + sitemap submitted
 - [ ] `ORGANIZATIONS_ENABLED` is empty in `.env`
 
+## Host-local overrides
+
+Settings that belong to this machine rather than the repo go in an untracked
+`deploy/production/docker-compose.override.yml`. Editing `docker-compose.yml`
+directly on the server does work, but every later `git pull` then aborts with
+"Your local changes would be overwritten", and the drift is invisible until it
+does.
+
+```yaml
+# deploy/production/docker-compose.override.yml
+services:
+  database:
+    ports:
+      # Postgres reachable over the tailnet only, never the public internet.
+      - "100.91.157.6:5432:5432"
+```
+
+The file is gitignored, so pulls stay clean. `remote-deploy.sh` adds it to the
+compose invocation when it exists.
+
+**Why it has to be named explicitly:** Compose auto-loads
+`docker-compose.override.yml` only when you pass no `-f` flags. The deploy passes
+three, so without the line in `remote-deploy.sh` the override is silently ignored
+and the host-local settings disappear on the next deploy with no error at all.
+The same applies to any command you run by hand — either use all the `-f` flags
+including the override, or none.
+
 ## Updating
 
 Normally you do nothing: merging to `main` deploys automatically. To build on

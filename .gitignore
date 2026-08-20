@@ -140,3 +140,5 @@ apps/web/fonts/brand/
 .pnp.loader.json
 .pnp.loader.yaml
 .pnp.loader.yml
+# Host-local compose overrides (per-machine, never committed)
+docker-compose.override.yml
