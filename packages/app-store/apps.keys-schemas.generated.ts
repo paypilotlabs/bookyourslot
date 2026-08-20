@@ -9,7 +9,6 @@ import { appKeysSchema as googlevideo_zod_ts } from "./googlevideo/zod";
 import { appKeysSchema as hubspot_zod_ts } from "./hubspot/zod";
 import { appKeysSchema as make_zod_ts } from "./make/zod";
 import { appKeysSchema as metapixel_zod_ts } from "./metapixel/zod";
-import { appKeysSchema as office365calendar_zod_ts } from "./office365calendar/zod";
 import { appKeysSchema as plausible_zod_ts } from "./plausible/zod";
 import { appKeysSchema as qr_code_zod_ts } from "./qr_code/zod";
 import { appKeysSchema as salesforce_zod_ts } from "./salesforce/zod";
@@ -26,7 +25,6 @@ export const appKeysSchemas = {
   hubspot: hubspot_zod_ts,
   make: make_zod_ts,
   metapixel: metapixel_zod_ts,
-  office365calendar: office365calendar_zod_ts,
   plausible: plausible_zod_ts,
   qr_code: qr_code_zod_ts,
   salesforce: salesforce_zod_ts,

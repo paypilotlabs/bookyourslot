@@ -4,14 +4,14 @@ What every integration in this codebase is for, the business problem it solves,
 who actually profits from it, and whether it is safe to delete.
 
 > **Status: the prune described in this guide has been carried out.** As of
-> 3.0.0 there are **26 apps** in `packages/app-store/`, down from the 105 that
+> 3.0.0 there are **25 apps** in `packages/app-store/`, down from the 105 that
 > came from upstream. The 79 removed are listed in the tables below with a
 > Delete verdict; they are gone from the codebase, from the 12 generated import
 > maps, and from `scripts/seed-app-store.ts`.
 >
-> The 26 that remain are: `applecalendar`, `baa-for-hipaa`, `caldavcalendar`,
+> The 25 that remain are: `applecalendar`, `baa-for-hipaa`, `caldavcalendar`,
 > `chatbase`, `dailyvideo`, `ga4`, `googlecalendar`, `googlevideo`, `granola`,
-> `hubspot`, `linear`, `make`, `metapixel`, `n8n`, `office365calendar`,
+> `hubspot`, `linear`, `make`, `metapixel`, `n8n`,
 > `pipedream`, `plausible`, `qr_code`, `retell-ai`, `salesforce`, `signal`,
 > `stripepayment`, `telegram`, `whatsapp`, `zapier`, `zoomvideo`.
 
@@ -69,7 +69,6 @@ any of them breaks a working feature, not just a store card.
 | Google Calendar         | `googlecalendar`    | Two-way calendar sync you are shipping. Your keep-set.                                                                                                    |
 | Apple Calendar          | `applecalendar`     | CalDAV/iCloud sync, no API keys needed. Your keep-set.                                                                                                    |
 | CalDAV                  | `caldavcalendar`    | Generic CalDAV — Fastmail, Nextcloud, etc. Backs Apple + others.                                                                                          |
-| Outlook / Microsoft 365 | `office365calendar` | Microsoft calendar sync. Your keep-set.                                                                                                                   |
 | Google Meet             | `googlevideo`       | Meeting location option you are keeping. Depends on Google Calendar.                                                                                      |
 | Zoom                    | `zoomvideo`         | Meeting location option. Your keep-set.                                                                                                                   |
 | Stripe                  | `stripepayment`     | Payments/deposits. Your keep-set. The only payment app you keep.                                                                                          |
@@ -82,14 +81,14 @@ Also do not touch the non-app folders: `_utils`, `_components`, `templates`,
 
 
 
-## 3. The keep-set (26 apps, shipped)
+## 3. The keep-set (25 apps, shipped)
 
 Everything that survived the prune, in one place. A tidy store for a dentist,
 salon, or consultant — no AI call-centers, no enterprise CRM.
 
 | Category | Apps |
 | --- | --- |
-| Calendars | Google, Apple, CalDAV, Outlook / Microsoft 365 |
+| Calendars | Google, Apple, CalDAV |
 | Video | Cal Video (`dailyvideo`), Google Meet, Zoom |
 | Payments | Stripe |
 | CRM | HubSpot, Salesforce |
@@ -117,7 +116,6 @@ value. You only need the calendar systems your users actually run.
 | Google Calendar          | `googlecalendar`       | Gmail/Workspace users — the majority | **KEEP** (load-bearing)                              |
 | Apple Calendar           | `applecalendar`        | iCloud users, Mac/iPhone owners      | **KEEP** (load-bearing)                              |
 | CalDAV                   | `caldavcalendar`       | Fastmail, Nextcloud, generic CalDAV  | **KEEP** (load-bearing)                              |
-| Outlook / 365            | `office365calendar`    | Microsoft users                      | **KEEP** (load-bearing)                              |
 | Microsoft Exchange (EWS) | `exchangecalendar`     | On-prem corporate Exchange           | DELETE candidate — enterprise IT, not SMB            |
 | Exchange 2013            | `exchange2013calendar` | Legacy on-prem Exchange              | DELETE candidate — obsolete                          |
 | Exchange 2016            | `exchange2016calendar` | Legacy on-prem Exchange              | DELETE candidate — obsolete                          |
@@ -155,9 +153,9 @@ duplicate "jump on a call" apps:
 `sylapsvideo` · `webex` · `whereby` · `huddle01video` · `jitsivideo` ·
 `tandemvideo`
 
-> Note: `office365video` is **Teams video meetings** and is separate from
-> `office365calendar` (Outlook calendar sync, which you keep). Deleting the video
-> one does not touch calendar sync.
+> Note: `office365video` (Teams video) and `office365calendar` (Outlook calendar
+> sync) were removed in separate passes — Teams with the 79-app prune, Outlook
+> later. Microsoft sign-in went with the calendar app.
 
 ---
 

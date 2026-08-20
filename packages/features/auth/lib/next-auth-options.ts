@@ -1,13 +1,7 @@
 import process from "node:process";
 import { updateProfilePhotoGoogle } from "@calcom/app-store/_utils/oauth/updateProfilePhotoGoogle";
-import { updateProfilePhotoMicrosoft } from "@calcom/app-store/_utils/oauth/updateProfilePhotoMicrosoft";
 import { createGoogleCalendarServiceWithGoogleType } from "@calcom/app-store/googlecalendar/lib/CalendarService";
 import { getIdentityProvider } from "@calcom/features/auth/lib/identityProviders";
-import {
-  OUTLOOK_CLIENT_ID,
-  OUTLOOK_CLIENT_SECRET,
-  OUTLOOK_LOGIN_ENABLED,
-} from "@calcom/features/auth/lib/outlook";
 import { CredentialRepository } from "@calcom/features/credentials/repositories/CredentialRepository";
 import { buildCredentialCreateData } from "@calcom/features/credentials/services/CredentialDataService";
 import { ProfileRepository } from "@calcom/features/profile/repositories/ProfileRepository";
@@ -21,7 +15,6 @@ import {
   HOSTED_CAL_FEATURES,
   IS_CALCOM,
   IS_TEAM_BILLING_ENABLED,
-  MICROSOFT_CALENDAR_SCOPES,
   WEBAPP_URL,
 } from "@calcom/lib/constants";
 import { symmetricDecrypt, symmetricEncrypt } from "@calcom/lib/crypto";
@@ -44,7 +37,6 @@ import { OAuth2Client } from "googleapis-common";
 import type { Account, AuthOptions, Profile, Session, User } from "next-auth";
 import type { JWT } from "next-auth/jwt";
 import { encode } from "next-auth/jwt";
-import AzureADProvider from "next-auth/providers/azure-ad";
 import CredentialsProvider from "next-auth/providers/credentials";
 import EmailProvider from "next-auth/providers/email";
 import GoogleProvider from "next-auth/providers/google";
@@ -332,32 +324,6 @@ if (IS_GOOGLE_LOGIN_ENABLED) {
           access_type: "offline",
           prompt: "consent",
         },
-      },
-    })
-  );
-}
-
-if (OUTLOOK_LOGIN_ENABLED && OUTLOOK_CLIENT_ID && OUTLOOK_CLIENT_SECRET) {
-  providers.push(
-    AzureADProvider({
-      clientId: OUTLOOK_CLIENT_ID,
-      clientSecret: OUTLOOK_CLIENT_SECRET,
-      allowDangerousEmailAccountLinking: true,
-      authorization: {
-        params: {
-          scope: ["openid", "profile", "email", ...MICROSOFT_CALENDAR_SCOPES].join(" "),
-          prompt: "consent",
-        },
-      },
-      // Azure AD returns base64-encoded picture data (~9KB) that bloats the JWT cookie.
-      // we exclude it here and fetch the profile photo separately via Microsoft Graph API.
-      profile(profile) {
-        return {
-          id: profile.sub,
-          name: profile.name,
-          email: profile.email,
-          image: null,
-        };
       },
     })
   );
@@ -661,77 +627,6 @@ export const getOptions = ({
             });
           }
           await updateProfilePhotoGoogle(oAuth2Client, Number(user.id));
-        }
-
-        // Installing Outlook Calendar by default for Microsoft/Azure AD sign-in
-        // Note: offline_access is requested but not returned in scope list by Microsoft
-        const microsoftCalendarScopesToCheck = MICROSOFT_CALENDAR_SCOPES.filter(
-          (scope) => scope !== "offline_access"
-        );
-        if (
-          account.provider === "azure-ad" &&
-          !(await CredentialRepository.findFirstByAppIdAndUserId({
-            userId: Number(user.id),
-            appId: "office365-calendar",
-          })) &&
-          microsoftCalendarScopesToCheck.every((scope) => grantedScopes.includes(scope))
-        ) {
-          const credentialKey = {
-            access_token: account.access_token,
-            refresh_token: account.refresh_token,
-            email: user.email,
-            // convert seconds to milliseconds — OAuthManager compares expiry_date against Date.now()
-            expiry_date: account.expires_at ? account.expires_at * 1000 : undefined,
-          };
-
-          const outlookCredentialData = buildCredentialCreateData({
-            userId: Number(user.id),
-            key: credentialKey,
-            appId: "office365-calendar",
-            type: "office365_calendar",
-          });
-          const outlookCredential = await CredentialRepository.create(outlookCredentialData);
-
-          // Fetch default calendar from Microsoft Graph API
-          try {
-            const calendarResponse = await fetch(
-              "https://graph.microsoft.com/v1.0/me/calendars?$select=id,isDefaultCalendar",
-              {
-                headers: {
-                  Authorization: `Bearer ${account.access_token}`,
-                  "Content-Type": "application/json",
-                },
-              }
-            );
-
-            if (calendarResponse.ok) {
-              const calendarData = await calendarResponse.json();
-              const defaultCalendar = calendarData.value?.find(
-                (cal: { isDefaultCalendar?: boolean }) => cal.isDefaultCalendar
-              );
-
-              if (defaultCalendar?.id) {
-                await prisma.selectedCalendar.create({
-                  data: {
-                    userId: Number(user.id),
-                    integration: "office365_calendar",
-                    externalId: defaultCalendar.id,
-                    credentialId: outlookCredential.id,
-                  },
-                });
-              }
-            }
-          } catch (error) {
-            log.error("Failed to fetch default calendar for Microsoft sign-in", error);
-          }
-
-          // Update profile photo for Microsoft/Azure AD sign-in
-          if (account.access_token) {
-            await updateProfilePhotoMicrosoft(account.access_token, Number(user.id));
-          }
-        } else if (account.provider === "azure-ad" && account.access_token) {
-          // Update profile photo even if calendar wasn't installed
-          await updateProfilePhotoMicrosoft(account.access_token, Number(user.id));
         }
 
         const allProfiles = await ProfileRepository.findAllProfilesForUserIncludingMovedUser(existingUser);
@@ -1174,11 +1069,6 @@ export const getOptions = ({
             user.email
           );
           await calcomAdapter.linkAccount(linkAccountNewUserData);
-
-          // Update profile photo for new Microsoft/Azure AD users
-          if (account.provider === "azure-ad" && account.access_token) {
-            await updateProfilePhotoMicrosoft(account.access_token, newUser.id);
-          }
 
           // Approval gate: the account was just created pending (locked: true),
           // so this very first OAuth login lands on the pending-approval message

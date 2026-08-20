@@ -20,8 +20,8 @@ stay pending until an admin approves them.
   minimum notice, and automatic timezone conversion for the guest.
 - **Self-serve reschedule and cancel.** Guests manage their own booking from the
   confirmation email, and the calendar stays correct without you touching it.
-- **Calendar sync.** Google Calendar, Apple Calendar, CalDAV, and Outlook /
-  Microsoft 365. Two-way sync reads busy times so you are never double-booked.
+- **Calendar sync.** Google Calendar, Apple Calendar, and CalDAV. Two-way sync
+  reads busy times so you are never double-booked.
 - **Email notifications.** Confirmations, reschedules, and cancellations go out
   automatically over SMTP.
 - **Webhooks.** `BOOKING_CREATED`, `BOOKING_RESCHEDULED`, `BOOKING_CANCELLED`
@@ -46,6 +46,7 @@ Removed on purpose. Do not sell these, and do not expect the routes to exist.
 | Admin impersonation | Removed. |
 | Standalone REST API (`apps/api/v2`) | Present in the repo, **not deployed**. The container runs the web app only. Automate through webhooks. |
 | Insights and advanced analytics | Not part of this edition. |
+| Outlook / Microsoft 365 | Removed. Calendar sync and Microsoft sign-in are both gone; Google, Apple and CalDAV remain. |
 
 Integrations went from 105 to **26**. See [docs/APP-STORE.md](docs/APP-STORE.md)
 for what each surviving app does and what it needs.
@@ -61,7 +62,6 @@ Apps that need server credentials in `deploy/production/.env`:
 | App | Environment variables |
 | --- | --- |
 | Google Calendar and Meet | `GOOGLE_API_CREDENTIALS`, `GOOGLE_LOGIN_ENABLED=true` |
-| Outlook / Microsoft 365 | `MS_GRAPH_CLIENT_ID`, `MS_GRAPH_CLIENT_SECRET` |
 | Cal Video | `DAILY_API_KEY` |
 | Zoom | `ZOOM_CLIENT_ID`, `ZOOM_CLIENT_SECRET` |
 | Stripe | `STRIPE_CLIENT_ID`, `STRIPE_PRIVATE_KEY`, `NEXT_PUBLIC_STRIPE_PUBLIC_KEY`, `STRIPE_WEBHOOK_SECRET`, `PAYMENT_FEE_FIXED`, `PAYMENT_FEE_PERCENTAGE` (all six or none) |

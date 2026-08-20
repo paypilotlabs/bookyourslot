@@ -9,5 +9,4 @@ export const CalendarServiceMap =
         applecalendar: import("./applecalendar/lib/CalendarService"),
         caldavcalendar: import("./caldavcalendar/lib/CalendarService"),
         googlecalendar: import("./googlecalendar/lib/CalendarService"),
-        office365calendar: import("./office365calendar/lib/CalendarService"),
       };

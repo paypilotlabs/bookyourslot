@@ -14,8 +14,6 @@ declare namespace NodeJS {
     readonly NEXT_PUBLIC_APP_URL: string | undefined;
     readonly NEXTAUTH_SECRET: string | undefined;
     readonly NEXT_PUBLIC_AVAILABILITY_SCHEDULE_INTERVAL: string | undefined;
-    readonly MS_GRAPH_CLIENT_ID: string | undefined;
-    readonly MS_GRAPH_CLIENT_SECRET: string | undefined;
     readonly ZOOM_CLIENT_ID: string | undefined;
     readonly ZOOM_CLIENT_SECRET: string | undefined;
     readonly EMAIL_FROM: string | undefined;

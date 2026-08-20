@@ -82,19 +82,24 @@ Full procedure: [docs/TESTING.md](../../docs/TESTING.md) Part B.
 - [ ] Nightly `pg_dump` cron in place (command in README)
 - [ ] Decide open vs invite-only signup
 
+
+
 ## Feature roadmap (not yet enabled — never claim these until done)
 
-| Feature | Status | What it needs |
-| --- | --- | --- |
-| Sign-in with Google | Wired + verified, needs keys | Checklist section 6 (both login and sign-up reach Google) |
-| Google Calendar sync | Ready, needs keys | Checklist section 6 |
-| Apple Calendar sync | Ready | Enable app (section 7) |
-| Outlook / Microsoft 365 calendar | Code exists, unconfigured | Azure app registration + admin enable |
-| Video meetings (built-in/Zoom/Meet) | Unconfigured | Provider keys + app enable; landing copy must be updated only after it works |
-| Payments (Stripe) | Unconfigured | Stripe account + keys; same truth rule |
-| Reminder workflows (email/SMS before appointments) | Not in this edition | Workflow routes are stripped from the Cal.diy base (500); needs porting before any reminder claim |
-| Owner calendar dashboard | In progress | Personal week view first |
-| Shared team pages / round-robin | Not in this edition | Team routes are stripped from the Cal.diy base (404); needs porting before any team claim |
-| Unique display font | Skipped for now | Drop unique.woff2 into fonts/brand if ever wanted |
-| Organizations / subdomains | Deliberately off | Do not enable on apex domain |
-| Admin impersonation | Not in this edition | Route 404s; the command-palette entry was removed |
+
+| Feature                                            | Status                       | What it needs                                                                                     |
+| -------------------------------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------- |
+| Sign-in with Google                                | Wired + verified, needs keys | Checklist section 6 (both login and sign-up reach Google)                                         |
+| Google Calendar sync                               | Ready, needs keys            | Checklist section 6                                                                               |
+| Apple Calendar sync                                | Ready                        | Enable app (section 7)                                                                            |
+| Outlook / Microsoft 365                            | **Removed**                  | Calendar app and Microsoft sign-in both deleted; Google, Apple and CalDAV remain                   |
+| Video meetings (built-in/Zoom/Meet)                | Unconfigured                 | Provider keys + app enable; landing copy must be updated only after it works                      |
+| Payments (Stripe)                                  | Unconfigured                 | Stripe account + keys; same truth rule                                                            |
+| Reminder workflows (email/SMS before appointments) | Not in this edition          | Workflow routes are stripped from the Cal.diy base (500); needs porting before any reminder claim |
+| Owner calendar dashboard                           | In progress                  | Personal week view first                                                                          |
+| Shared team pages / round-robin                    | Not in this edition          | Team routes are stripped from the Cal.diy base (404); needs porting before any team claim         |
+| Unique display font                                | Skipped for now              | Drop unique.woff2 into fonts/brand if ever wanted                                                 |
+| Organizations / subdomains                         | Deliberately off             | Do not enable on apex domain                                                                      |
+| Admin impersonation                                | Not in this edition          | Route 404s; the command-palette entry was removed                                                 |
+
+
