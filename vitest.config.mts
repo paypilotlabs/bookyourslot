@@ -43,6 +43,10 @@ function getTestExclude() {
   const baseExclude = [
     "**/node_modules/**",
     "**/dist/**",
+    // `next build` emits compiled copies of *.test.ts into .next/server. Without
+    // this, running the suite after a local build picks them up and fails with
+    // "Page /api/book/recurring-event.test does not export a default function".
+    "**/.next/**",
     "apps/api/v2/**/*.spec.ts",
     "__checks__/**/*.spec.ts",
   ];

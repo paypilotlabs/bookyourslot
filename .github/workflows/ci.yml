@@ -30,12 +30,12 @@ jobs:
       NEXT_PUBLIC_WEBSITE_URL: http://localhost:3000
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           # Full history so the lint step can diff against the base commit.
           fetch-depth: 0
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: 20
           cache: yarn
@@ -79,3 +79,43 @@ jobs:
 
       - name: Unit tests
         run: TZ=UTC yarn test
+
+  build:
+    name: Next build
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      # Same CI-only placeholders as the quality job. The build reads these at
+      # module scope in a few places and fails without them.
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/calendso
+      DATABASE_DIRECT_URL: postgresql://postgres:postgres@localhost:5432/calendso
+      NEXTAUTH_SECRET: ci-placeholder-secret
+      CALENDSO_ENCRYPTION_KEY: ci-placeholder-encryption-key-32c
+      NEXT_PUBLIC_WEBAPP_URL: http://localhost:3000
+      NEXT_PUBLIC_WEBSITE_URL: http://localhost:3000
+      NODE_OPTIONS: --max-old-space-size=6144
+
+    # Deliberately a separate job, not a step in `quality`:
+    #   - it runs in parallel, so it costs wall-clock time rather than adding to it
+    #   - `next build` writes apps/web/.next, which contains compiled *.test.js
+    #     files. In the same job those land in vitest's glob and the suite fails
+    #     with "Page /api/book/recurring-event.test does not export a default
+    #     function". Separate runners keep the build output away from the tests.
+    #
+    # This exists because type-check and tests cannot see a whole class of
+    # failure. A lint auto-fix once added `import process from "node:process"` to
+    # packages/lib/constants.ts, which is reachable from an edge-runtime route.
+    # CI stayed green and main was unbuildable across three merges.
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 20
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Build
+        run: yarn workspace @calcom/web build
