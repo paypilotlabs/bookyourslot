@@ -3111,8 +3111,6 @@ checksums:
     show_more: 36b0433c56ba1e0f2deae76b8e04a557
     signup_with_google: 6e48a32de87c09a7bd64a4c6a0babfa2
     signup_with_microsoft: b0aee099b53a01820edea43d9907f21c
-    signin_with_microsoft: 83fd18ddb4fbf2251a8aa73739b8b4dd
-    continue_with_microsoft: cbe83e6a317329bc7df5cf461ce63e47
     forward_params_redirect: 103430b06d8949ac7200d56ce6d46ac5
     assignment_description: dee88c1aa793ade57d2b5b6d21603161
     lowest: 89973cfb12b8260803d389d0f6c88388

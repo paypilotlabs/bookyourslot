@@ -3036,8 +3036,6 @@
   "show_more": "显示更多",
   "signup_with_google": "使用 Google 注册",
   "signup_with_microsoft": "使用 Microsoft 注册",
-  "signin_with_microsoft": "使用 Microsoft 登录",
-  "continue_with_microsoft": "继续使用 Microsoft",
   "forward_params_redirect": "转发参数，如?email=...&name=....等",
   "assignment_description": "安排每个人都有空时的会议，或轮换团队成员",
   "lowest": "最低",

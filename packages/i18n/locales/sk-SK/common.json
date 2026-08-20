@@ -3085,8 +3085,6 @@
   "show_more": "Zobraziť viac",
   "signup_with_google": "Zaregistrovať sa pomocou Google",
   "signup_with_microsoft": "Zaregistrovať sa cez Microsoft",
-  "signin_with_microsoft": "Prihlásiť sa cez Microsoft",
-  "continue_with_microsoft": "Pokračovať cez Microsoft",
   "forward_params_redirect": "Preposlať parametre ako ?email=...&name=.... a ďalšie",
   "assignment_description": "Naplánujte stretnutia, keď je každý k dispozícii, alebo striedajte členov vášho tímu",
   "lowest": "najnižšia",

@@ -3102,8 +3102,6 @@
   "show_more": "Erakutsi gehiago",
   "signup_with_google": "Erregistratu Googlerekin",
   "signup_with_microsoft": "Erregistratu Microsoft-ekin",
-  "signin_with_microsoft": "Hasi saioa Microsoft-ekin",
-  "continue_with_microsoft": "Jarraitu Microsoft-ekin",
   "forward_params_redirect": "Birbideratu parametroak, adibidez ?email=...&name=.... eta gehiago",
   "assignment_description": "Antolatu bilerak denak eskuragarri daudenean edo txandakatu taldekideen artean",
   "lowest": "baxuena",

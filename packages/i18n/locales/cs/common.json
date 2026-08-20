@@ -3102,8 +3102,6 @@
   "show_more": "Zobrazit více",
   "signup_with_google": "Zaregistrovat se pomocí Googlu",
   "signup_with_microsoft": "Zaregistrovat se pomocí Microsoftu",
-  "signin_with_microsoft": "Přihlásit se pomocí Microsoftu",
-  "continue_with_microsoft": "Pokračovat s Microsoftem",
   "forward_params_redirect": "Předat parametry jako ?email=...&name=... a další",
   "assignment_description": "Naplánujte schůzky, když jsou všichni k dispozici, nebo rotujte mezi členy týmu",
   "lowest": "nejnižší",

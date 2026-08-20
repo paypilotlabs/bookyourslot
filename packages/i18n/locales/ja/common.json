@@ -3102,8 +3102,6 @@
   "show_more": "さらに表示",
   "signup_with_google": "Googleアカウントで登録",
   "signup_with_microsoft": "Microsoftでサインアップ",
-  "signin_with_microsoft": "Microsoftでサインイン",
-  "continue_with_microsoft": "Microsoftで続ける",
   "forward_params_redirect": "?email=...&name=...などのパラメータを転送",
   "assignment_description": "全員が利用可能なときに会議をスケジュールするか、チームメンバーを順番に回す",
   "lowest": "最低",

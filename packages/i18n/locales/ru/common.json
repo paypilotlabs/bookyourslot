@@ -3102,8 +3102,6 @@
   "show_more": "Показать больше",
   "signup_with_google": "Зарегистрироваться через Google",
   "signup_with_microsoft": "Зарегистрироваться через Microsoft",
-  "signin_with_microsoft": "Войти через Microsoft",
-  "continue_with_microsoft": "Продолжить через Microsoft",
   "forward_params_redirect": "Перенаправить параметры, такие как ?email=...&name=... и другие",
   "assignment_description": "Назначайте встречи, когда все доступны, или чередуйте участников команды",
   "lowest": "самый низкий",
