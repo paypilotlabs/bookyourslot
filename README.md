@@ -132,6 +132,8 @@ Two things that will cost you data if ignored:
   what it needs
 - [docs/TESTING.md](docs/TESTING.md) for testing locally and on the VPS
 - [docs/GITHUB.md](docs/GITHUB.md) for branching, PR flow, and secrets policy
+- [docs/BACKLOG.md](docs/BACKLOG.md) for the engineering backlog: what would make
+  this more reliable, safer or faster, and what is already handled
 - [SECURITY.md](SECURITY.md) for reporting a vulnerability
 
 ## Contact
