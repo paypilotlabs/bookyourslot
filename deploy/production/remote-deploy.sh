@@ -23,6 +23,12 @@ BACKUP_DIR="/opt/bookyourslot/backups"
 BACKUP_KEEP=7
 LOCKFILE="/tmp/bys-deploy.lock"
 COMPOSE=(docker compose -f docker-compose.yml -f docker-compose.registry.yml)
+# Host-local overrides live in an untracked docker-compose.override.yml — things
+# that belong to this machine and not the repo, e.g. binding Postgres to a
+# tailnet address. Compose only auto-loads that file when NO -f flags are given,
+# and we pass three, so it has to be named explicitly or it is silently ignored
+# on every deploy and the host-local settings vanish without an error.
+[ -f docker-compose.override.yml ] && COMPOSE+=(-f docker-compose.override.yml)
 
 log() { echo "[deploy $(date -u +%FT%TZ)] $*"; }
 fail() {
