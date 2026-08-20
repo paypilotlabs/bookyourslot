@@ -3102,8 +3102,6 @@
   "show_more": "បង្ហាញបន្ថែម",
   "signup_with_google": "ចុះឈ្មោះដោយ Google",
   "signup_with_microsoft": "ចុះឈ្មោះជាមួយ Microsoft",
-  "signin_with_microsoft": "ចូលជាមួយ Microsoft",
-  "continue_with_microsoft": "បន្តជាមួយ Microsoft",
   "forward_params_redirect": "បញ្ជូនបន្តប៉ារ៉ាម៉ែត្រដូចជា ?email=...&name=... និងបន្ថែមទៀត",
   "assignment_description": "កំណត់ពេលប្រជុំនៅពេលដែលអ្នកទាំងអស់គ្នាអាចចូលរួមបាន ឬប្តូរតាមសមាជិកក្នុងក្រុមរបស់អ្នក",
   "lowest": "ទាបបំផុត",

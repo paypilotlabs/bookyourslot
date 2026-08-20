@@ -3102,8 +3102,6 @@
   "show_more": "Покажи повече",
   "signup_with_google": "Регистрация с Google",
   "signup_with_microsoft": "Регистрация с Microsoft",
-  "signin_with_microsoft": "Вход с Microsoft",
-  "continue_with_microsoft": "Продължи с Microsoft",
   "forward_params_redirect": "Препрати параметри като ?email=...&name=.... и други",
   "assignment_description": "Планирайте срещи, когато всички са свободни или редувайте членовете на екипа",
   "lowest": "най-нисък",

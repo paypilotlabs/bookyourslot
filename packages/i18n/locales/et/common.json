@@ -3102,8 +3102,6 @@
   "show_more": "Näita rohkem",
   "signup_with_google": "Registreeru Google'iga",
   "signup_with_microsoft": "Registreeru Microsoftiga",
-  "signin_with_microsoft": "Logi sisse Microsoftiga",
-  "continue_with_microsoft": "Jätka Microsoftiga",
   "forward_params_redirect": "Edasta parameetrid, nagu ?email=...&name=.... ja rohkem",
   "assignment_description": "Planeerige koosolekuid, kui kõik on saadaval, või vahetage oma meeskonnaliikmeid",
   "lowest": "madalaim",

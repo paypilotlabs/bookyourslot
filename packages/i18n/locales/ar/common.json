@@ -3102,8 +3102,6 @@
   "show_more": "إظهار المزيد",
   "signup_with_google": "التسجيل عبر Google",
   "signup_with_microsoft": "التسجيل باستخدام Microsoft",
-  "signin_with_microsoft": "تسجيل الدخول باستخدام Microsoft",
-  "continue_with_microsoft": "المتابعة باستخدام Microsoft",
   "forward_params_redirect": "إعادة توجيه المعلمات مثل ?email=...&name=.... والمزيد",
   "assignment_description": "جدولة الاجتماعات عندما يكون الجميع متاحًا أو التناوب بين أعضاء فريقك",
   "lowest": "الأدنى",

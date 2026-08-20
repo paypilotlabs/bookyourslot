@@ -3102,8 +3102,6 @@
   "show_more": "Εμφάνιση περισσότερων",
   "signup_with_google": "Εγγραφή με Google",
   "signup_with_microsoft": "Εγγραφή με Microsoft",
-  "signin_with_microsoft": "Σύνδεση με Microsoft",
-  "continue_with_microsoft": "Συνέχεια με Microsoft",
   "forward_params_redirect": "Προώθηση παραμέτρων όπως ?email=...&name=.... και άλλα",
   "assignment_description": "Προγραμματίστε συναντήσεις όταν όλοι είναι διαθέσιμοι ή εναλλάξτε μεταξύ των μελών της ομάδας σας",
   "lowest": "χαμηλότερο",

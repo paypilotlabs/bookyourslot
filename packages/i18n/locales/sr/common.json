@@ -3060,8 +3060,6 @@
   "show_more": "Prikaži više",
   "signup_with_google": "Registrujte se sa pomoću Google-a",
   "signup_with_microsoft": "Региструј се са Microsoft налогом",
-  "signin_with_microsoft": "Пријави се са Microsoft налогом",
-  "continue_with_microsoft": "Настави са Microsoft налогом",
   "forward_params_redirect": "Prosledi parametre kao što su ?email=...&name=... i više",
   "assignment_description": "Zakažite sastanke kada su svi dostupni ili rotirajte kroz članove vašeg tima",
   "lowest": "najniži",

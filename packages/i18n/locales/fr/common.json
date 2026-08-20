@@ -3102,8 +3102,6 @@
   "show_more": "En voir plus",
   "signup_with_google": "S'inscrire avec Google",
   "signup_with_microsoft": "S'inscrire avec Microsoft",
-  "signin_with_microsoft": "Se connecter avec Microsoft",
-  "continue_with_microsoft": "Continuer avec Microsoft",
   "forward_params_redirect": "Transmettez des paramètres tels que ?email=...&name=.... et plus",
   "assignment_description": "Planifiez des rendez-vous lorsque tout le monde est disponible ou faites une rotation entre les membres de votre équipe",
   "lowest": "le plus bas",

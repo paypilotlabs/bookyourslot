@@ -3102,8 +3102,6 @@
   "show_more": "Mutass többet",
   "signup_with_google": "Regisztráció Google-lal",
   "signup_with_microsoft": "Regisztráció Microsoft-fiókkal",
-  "signin_with_microsoft": "Bejelentkezés Microsoft-fiókkal",
-  "continue_with_microsoft": "Folytatás Microsoft-fiókkal",
   "forward_params_redirect": "Továbbítási paraméterek, például ?email=...&name=.... és így tovább",
   "assignment_description": "Ütemezze be az értekezleteket, amikor mindenki elérhető, vagy váltogassa a csapat tagjait",
   "lowest": "legalacsonyabb",

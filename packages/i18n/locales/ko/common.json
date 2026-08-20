@@ -3085,8 +3085,6 @@
   "show_more": "더 보기",
   "signup_with_google": "Google로 가입하기",
   "signup_with_microsoft": "Microsoft로 가입하기",
-  "signin_with_microsoft": "Microsoft로 로그인",
-  "continue_with_microsoft": "Microsoft로 계속하기",
   "forward_params_redirect": "파라미터 전달 예: ?email=...&name=... 등",
   "assignment_description": "모든 사람이 가능한 시간에 회의를 예약하거나 팀원 간 순환",
   "lowest": "최저",

@@ -3036,8 +3036,6 @@
   "show_more": "Більше",
   "signup_with_google": "Зареєструватися через Google",
   "signup_with_microsoft": "Зареєструватися через Microsoft",
-  "signin_with_microsoft": "Увійти через Microsoft",
-  "continue_with_microsoft": "Продовжити через Microsoft",
   "forward_params_redirect": "Пересилати параметри, такі як ?email=...&name=... та інші",
   "assignment_description": "Заплануйте зустрічі, коли всі доступні, або чергуйте членів вашої команди",
   "lowest": "найнижчий",

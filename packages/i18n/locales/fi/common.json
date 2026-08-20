@@ -3102,8 +3102,6 @@
   "show_more": "Näytä lisää",
   "signup_with_google": "Rekisteröidy Google-tilillä",
   "signup_with_microsoft": "Rekisteröidy Microsoftilla",
-  "signin_with_microsoft": "Kirjaudu sisään Microsoftilla",
-  "continue_with_microsoft": "Jatka Microsoftilla",
   "forward_params_redirect": "Välitä parametrit kuten ?email=...&name=.... ja muut",
   "assignment_description": "Ajoita tapaamisia kun kaikki ovat saatavilla tai kierrätä tiimin jäsenten kesken",
   "lowest": "matalin",
