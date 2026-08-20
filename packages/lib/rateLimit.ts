@@ -1,11 +1,11 @@
-import { Ratelimit, type LimitOptions, type RatelimitResponse } from "@unkey/ratelimit";
-
+import process from "node:process";
+import { type LimitOptions, Ratelimit, type RatelimitResponse } from "@unkey/ratelimit";
 import { isIpInBanListString } from "./getIP";
 import logger from "./logger";
 
 const log = logger.getSubLogger({ prefix: ["RateLimit"] });
 
-export { type RatelimitResponse };
+export type { RatelimitResponse };
 
 export type RateLimitHelper = {
   rateLimitingType?:
@@ -30,6 +30,23 @@ export const API_KEY_RATE_LIMIT = 30;
 
 let warned = false;
 
+/**
+ * Returns a PERMISSIVE STUB unless UNKEY_ROOT_KEY is set, which it is not in
+ * this deployment. Every caller of checkRateLimitAndThrowError therefore
+ * currently allows the request through. Even when configured it fails open, on
+ * error and after a 5s timeout.
+ *
+ * Edge rate limiting lives in Traefik instead - see the labels in
+ * deploy/production/docker-compose.yml. Traefik keys on the TCP source address,
+ * which cannot be forged with a header.
+ *
+ * These call sites are kept because they are the identity-keyed layer, which
+ * the edge structurally cannot provide: they limit per email or per user across
+ * every source address, so a spray from hundreds of IPs against one account is
+ * caught here and nowhere else. They also cover paths Traefik does not, such as
+ * booking cancellation, the TOTP routes and every tRPC handler. Setting
+ * UNKEY_ROOT_KEY switches all of that on with no code change.
+ */
 export function rateLimiter() {
   const { UNKEY_ROOT_KEY } = process.env;
 
