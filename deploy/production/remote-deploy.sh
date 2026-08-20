@@ -28,7 +28,13 @@ COMPOSE=(docker compose -f docker-compose.yml -f docker-compose.registry.yml)
 # tailnet address. Compose only auto-loads that file when NO -f flags are given,
 # and we pass three, so it has to be named explicitly or it is silently ignored
 # on every deploy and the host-local settings vanish without an error.
-[ -f docker-compose.override.yml ] && COMPOSE+=(-f docker-compose.override.yml)
+#
+# Test the ABSOLUTE path. This runs before the `cd "$APP_DIR"` below, and sshd
+# starts the forced command in the deploy user's home, so a relative test looked
+# in /home/deploy, never matched, and dropped the override from every automated
+# deploy. It failed silently because `[ -f x ] && y` is the non-final command of
+# an AND-OR list, which `set -e` deliberately ignores.
+[ -f "$APP_DIR/docker-compose.override.yml" ] && COMPOSE+=(-f docker-compose.override.yml)
 
 log() { echo "[deploy $(date -u +%FT%TZ)] $*"; }
 fail() {
