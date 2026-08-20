@@ -161,8 +161,17 @@ export async function authorizeCredentials(
   });
 
   // Keyed on the submitted address rather than the found user's, so attempts
-  // against addresses that have no account are limited too. Runs before the
-  // bcrypt compare below so a flood cannot be turned into CPU exhaustion.
+  // against addresses that have no account are limited too.
+  //
+  // Ordering note, corrected: this sits before the bcrypt compare so that it
+  // WILL cap the CPU cost once UNKEY_ROOT_KEY is set. It does not cap anything
+  // today - checkRateLimitAndThrowError is a permissive stub without that key
+  // (see packages/lib/rateLimit.ts). Today the only thing standing between a
+  // flood and the CPU is the Traefik per-source-IP bucket on this exact path
+  // (deploy/production/docker-compose.yml). That matters because bcryptjs is
+  // pure JS: one cost-12 compare measures ~208ms wall and blocks the event loop
+  // for most of it, so every failed login is ~200ms this single Node process
+  // cannot spend on anyone else.
   await checkRateLimitAndThrowError({
     identifier: hashEmail(user?.email ?? credentials.email),
   });
