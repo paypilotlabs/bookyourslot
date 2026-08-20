@@ -117,5 +117,18 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable
 
+      # Same order as the production Dockerfile. `next build` runs its own
+      # TypeScript pass against the workspace's built output, so without the
+      # trpc build it fails on the router types, and without
+      # copy-app-store-static it cannot resolve the generated
+      # public/app-store/svg-hashes.json the OG route imports. Keep these in
+      # step with the Dockerfile - a build that does not match it does not
+      # prove production builds.
+      - name: Build dependencies
+        run: |
+          yarn workspace @calcom/trpc run build
+          yarn --cwd packages/embeds/embed-core workspace @calcom/embed-core run build
+          yarn --cwd apps/web workspace @calcom/web run copy-app-store-static
+
       - name: Build
-        run: yarn workspace @calcom/web build
+        run: yarn --cwd apps/web workspace @calcom/web run build
