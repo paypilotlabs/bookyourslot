@@ -178,6 +178,16 @@
       }
     },
     {
+      "includes": ["packages/lib/**/*.{ts,tsx,js,jsx,mts,mjs,cjs,cts}"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noProcessGlobal": "off"
+          }
+        }
+      }
+    },
+    {
       "includes": ["packages/embeds/embed-core/**/*.{ts,tsx,js,jsx}"],
       "linter": {
         "rules": {
