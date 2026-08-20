@@ -7,24 +7,30 @@ import { withAppDirSsr } from "app/WithAppDirSsr";
 import type { Metadata } from "next";
 import { cookies, headers } from "next/headers";
 import type React from "react";
+import { cache } from "react";
 import type { PageProps as LegacyPageProps } from "~/users/views/users-public-view";
 import LegacyPage from "~/users/views/users-public-view";
 
 const getData: (ctx: ReturnType<typeof buildLegacyCtx>) => Promise<LegacyPageProps> =
   withAppDirSsr<LegacyPageProps>(getServerSideProps);
 
+// Next runs generateMetadata and the page component for the same request, so this
+// loader ran twice per view. cache() compares arguments by identity, so the key has
+// to be a primitive — buildLegacyCtx returns a fresh object every call and would
+// never hit. Same shape as the [type] page next door, see the comment there.
+const loadProps = cache(async (key: string): Promise<LegacyPageProps> => {
+  const { params, searchParams } = JSON.parse(key);
+  return getData(buildLegacyCtx(await headers(), await cookies(), params, searchParams));
+});
+
 const ServerPage = async ({ params, searchParams }: PageProps): Promise<JSX.Element> => {
-  const props = await getData(
-    buildLegacyCtx(await headers(), await cookies(), await params, await searchParams)
-  );
+  const props = await loadProps(JSON.stringify({ params: await params, searchParams: await searchParams }));
 
   return <LegacyPage {...props} />;
 };
 
 export const generateMetadata = async ({ params, searchParams }: PageProps): Promise<Metadata> => {
-  const props = await getData(
-    buildLegacyCtx(await headers(), await cookies(), await params, await searchParams)
-  );
+  const props = await loadProps(JSON.stringify({ params: await params, searchParams: await searchParams }));
 
   const { profile, markdownStrippedBio, isOrgSEOIndexable } = props;
   const isOrg = !!profile?.organization;
