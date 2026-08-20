@@ -7,6 +7,7 @@ import type { CreationSource } from "@calcom/prisma/enums";
 import { BookingStatus } from "@calcom/prisma/enums";
 import type { CalendarEvent } from "@calcom/types/Calendar";
 import type short from "short-uuid";
+import { v5 as uuidv5 } from "uuid";
 import type { TgetBookingDataSchema } from "../getBookingDataSchema";
 import type { AwaitedBookingData, EventTypeId } from "./getBookingData";
 import type { NewBookingEventType } from "./getEventTypesFromDB";
@@ -180,13 +181,15 @@ function buildNewBookingData(params: CreateBookingParams) {
 
   const attendeesData = getAttendeesData(evt);
   const eventTypeRel = getEventTypeRel(eventType.id);
+  const startTime = dayjs.utc(evt.startTime).toDate();
+  const endTime = dayjs.utc(evt.endTime).toDate();
   const newBookingData: Prisma.BookingCreateInput = {
     uid,
     userPrimaryEmail: evt.organizer.email,
     responses: input.responses === null || evt.seatsPerTimeSlot ? Prisma.JsonNull : input.responses,
     title: evt.title,
-    startTime: dayjs.utc(evt.startTime).toDate(),
-    endTime: dayjs.utc(evt.endTime).toDate(),
+    startTime,
+    endTime,
     description: evt.seatsPerTimeSlot ? null : evt.additionalNotes,
     customInputs: isPrismaObjOrUndefined(evt.customInputs),
     status: eventType.isConfirmedByDefault ? BookingStatus.ACCEPTED : BookingStatus.PENDING,
@@ -218,6 +221,33 @@ function buildNewBookingData(params: CreateBookingParams) {
     creationSource,
     tracking: tracking ? { create: tracking } : undefined,
   };
+
+  // A PENDING booking normally leaves idempotencyKey null on purpose: by default
+  // several people are meant to be able to request the same slot and let the
+  // host accept one and reject the rest. requiresConfirmationWillBlockSlot turns
+  // that off, and then availability already counts a PENDING booking as busy
+  // (BookingRepository.getAllBookingsForRoundRobin, currentBookingsAllUsersQueryThree).
+  // A second booking that gets in anyway is a duplicate that only exists because
+  // the availability read and the insert are not atomic. Give those rows a key
+  // so the unique index rejects the loser, which RegularBookingService already
+  // translates into a 409.
+  //
+  // The condition mirrors that query exactly, and deliberately is not just
+  // "status is PENDING": a paid event with requiresConfirmation off is also
+  // PENDING while awaiting payment, and availability does NOT block it, so
+  // keying those would reject legitimate bookers. The key is scoped to the
+  // event type for the same reason - two different event types of one organizer
+  // at the same time are not treated as blocking each other.
+  if (
+    newBookingData.status === BookingStatus.PENDING &&
+    eventType.eventTypeData.requiresConfirmation &&
+    eventType.eventTypeData.requiresConfirmationWillBlockSlot
+  ) {
+    newBookingData.idempotencyKey = uuidv5(
+      `${startTime.valueOf()}.${endTime.valueOf()}.${eventType.organizerUser.id}.pending.${eventType.id}`,
+      uuidv5.URL
+    );
+  }
 
   if (reqBody.recurringEventId) {
     newBookingData.recurringEventId = reqBody.recurringEventId;

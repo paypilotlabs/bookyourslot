@@ -65,6 +65,7 @@ const getEventTypesFromDBSelect = {
   lockTimeZoneToggleOnBookingPage: true,
   lockedTimeZone: true,
   requiresConfirmation: true,
+  requiresConfirmationWillBlockSlot: true,
   requiresConfirmationForFreeEmail: true,
   requiresBookerEmailVerification: true,
   maxLeadThreshold: true,
