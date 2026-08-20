@@ -136,6 +136,12 @@ const checkIfUserShouldBelongToOrg = async (idP: IdentityProvider, email: string
   return { orgUsername, orgId: existingOrg?.id };
 };
 
+// A cost-12 hash of a random string nobody holds. Compared against when there
+// is no real hash to compare against, so that every login failure costs the
+// same time. Not a secret and not a credential: the guard below throws on those
+// paths whatever the compare returns.
+const DUMMY_PASSWORD_HASH = "$2a$12$CMHJXLd1A62VQcSAXdpWNOVIHNM366yj4EiKxms2EYXZmTp/U858W";
+
 /**
  * Authorize function for credentials provider
  * Extracted for testability
@@ -153,35 +159,36 @@ export async function authorizeCredentials(
   const user = await userRepo.findByEmailAndIncludeProfilesAndPassword({
     email: credentials.email,
   });
-  // Don't leak information about it being username or password that is invalid
-  if (!user) {
-    throw new Error(ErrorCode.IncorrectEmailPassword);
-  }
 
-  // Locked users cannot login. Deliberately the SAME error as a wrong password
-  // and as an address with no account: a distinct "pending approval" message
-  // here would confirm to anyone probing that the address is registered, which
-  // is exactly the signal a brute-forcer is looking for. A genuine pending
-  // business is not left guessing — the signup screen already told them the
-  // account is under review, and they get an email the moment an admin
-  // approves. The OAuth and magic-link paths keep the explicit message, since
-  // reaching those means already proving control of the account.
-  if (user.locked) {
-    throw new Error(ErrorCode.IncorrectEmailPassword);
-  }
-
+  // Keyed on the submitted address rather than the found user's, so attempts
+  // against addresses that have no account are limited too. Runs before the
+  // bcrypt compare below so a flood cannot be turned into CPU exhaustion.
   await checkRateLimitAndThrowError({
-    identifier: hashEmail(user.email),
+    identifier: hashEmail(user?.email ?? credentials.email),
   });
 
-  // Users without a password must use their identity provider (Google/SAML) to login
-  if (!user.password?.hash) {
-    throw new Error(ErrorCode.IncorrectEmailPassword);
-  }
+  // Every rejection below costs one cost-12 bcrypt compare, including the ones
+  // that have no password to check. Returning early for an unknown address, a
+  // pending account or a social-login-only account answered in microseconds
+  // while a real account with a wrong password took ~220ms, and that gap is a
+  // usable oracle: it tells a prober which addresses are registered without
+  // needing the password. The compare's result is irrelevant on those paths,
+  // only its cost is.
+  const isCorrectPassword = await verifyPassword(
+    credentials.password,
+    user?.password?.hash ?? DUMMY_PASSWORD_HASH
+  );
 
-  // Always verify password for users who have one
-  const isCorrectPassword = await verifyPassword(credentials.password, user.password.hash);
-  if (!isCorrectPassword) {
+  // Deliberately ONE error for all four causes: no such address, wrong
+  // password, account still pending approval, and an account that can only sign
+  // in through Google. A distinct "pending approval" message here would confirm
+  // to anyone probing that the address is registered, which is exactly the
+  // signal a brute-forcer is looking for. A genuine pending business is not
+  // left guessing: the signup screen already told them the account is under
+  // review, and they get an email the moment an admin approves. The OAuth and
+  // magic-link paths keep the explicit message, since reaching those means
+  // already proving control of the account.
+  if (!user || user.locked || !user.password?.hash || !isCorrectPassword) {
     throw new Error(ErrorCode.IncorrectEmailPassword);
   }
 
