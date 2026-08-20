@@ -256,6 +256,26 @@ describe("CredentialsProvider authorize", () => {
         authorizeCredentials({ email: "nobody@example.com", password: "whatever" } as any)
       ).rejects.toThrow(ErrorCode.IncorrectEmailPassword);
     });
+
+    // Same message is not enough on its own. Bcrypt at cost 12 takes ~220ms, so
+    // a path that skips the compare answers in microseconds and response time
+    // becomes the oracle the message no longer is. Every rejection has to spend
+    // the compare, even the ones with no hash of their own to check.
+    it.each([
+      ["an unknown address", null],
+      ["a pending account", { locked: true }],
+      ["a social-login-only account", { password: null }],
+    ])("still runs a password compare for %s", async (_label, overrides) => {
+      mockFindByEmailAndIncludeProfilesAndPassword.mockResolvedValue(
+        overrides === null ? null : createMockUser(overrides)
+      );
+
+      await expect(
+        authorizeCredentials({ email: "probe@example.com", password: "whatever" } as any)
+      ).rejects.toThrow(ErrorCode.IncorrectEmailPassword);
+
+      expect(verifyPassword).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe("Password validation", () => {
