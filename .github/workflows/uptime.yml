@@ -1,0 +1,148 @@
+name: Uptime
+
+# Off-box uptime check. Everything else that watches this app runs ON the VPS,
+# so it all dies with the VPS. This runs on GitHub's infrastructure and alerts
+# through the same Telegram bot the deploy workflow already uses.
+#
+# COST, because this is a PRIVATE repo and Actions minutes are billed:
+#   Every job is billed rounded up to a whole minute, so checks/month is also
+#   roughly minutes/month. The GitHub Free allowance is 2000 minutes/month, and
+#   CI (~15 min) plus Deploy (~20 min) already spend a chunk of it.
+#     hourly       ->  ~720 min/month   (the setting below)
+#     every 30 min -> ~1440 min/month   (72% of the whole allowance)
+#     every 5 min  -> ~8640 min/month   (4x over; would cost real money)
+#
+#   To get 5-minute checks for free, copy this file into a PUBLIC repo and set
+#   the cron to '*/5 * * * *'. Standard runners are free and unmetered on public
+#   repos, and nothing here is secret - the URL is a public booking page and the
+#   Telegram credentials come from that repo's own secrets.
+#
+# Scheduled runs are best-effort: GitHub delays them under load, sometimes by
+# 10-20 minutes, and disables schedules after 60 days with no repo activity.
+# Good enough for "it has been down since last night", not for "down 4 minutes".
+
+on:
+  schedule:
+    - cron: "17 * * * *" # hourly. Not on the hour: those minutes are the most contended.
+  workflow_dispatch:
+    inputs:
+      test_alert:
+        description: "Send a test message to Telegram instead of probing. Proves alerts reach your phone."
+        type: boolean
+        default: false
+
+concurrency:
+  group: uptime
+  cancel-in-progress: false
+
+# Nothing is read from or written to the repo.
+permissions: {}
+
+env:
+  # A page that CANNOT render without a database read, so a 200 here proves
+  # Postgres answered - these routes are server-rendered per request, and a dead
+  # database makes them 500 rather than serve a stale copy.
+  BOOKING_URL: https://bookyourslot.online/startwithleo/30min
+  ROOT_URL: https://bookyourslot.online/
+  # Deliberately NOT the event title. That is user-editable content: it was
+  # "30 min meeting" on 20 Aug and "30 mins discussion" on 30 Aug, and keying on
+  # it would page you for renaming your own event type. This string comes from
+  # APP_NAME and is on every page. Its job is only to prove we reached the app
+  # rather than a proxy or captive portal answering 200 with something else.
+  KEYWORD: BookYourSlot
+
+jobs:
+  check:
+    name: Probe production
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # No actions are used anywhere in this workflow - it is curl and shell.
+      # Nothing to pin, nothing third-party in the supply chain.
+      - name: Probe and alert
+        env:
+          TG_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          TEST_ALERT: ${{ inputs.test_alert }}
+        run: |
+          set -uo pipefail
+
+          # An alerting path you have never fired is a guess. This sends a real
+          # message down the real code path so you can confirm it reaches your
+          # phone, without waiting for an actual outage to find out it does not.
+          if [ "${TEST_ALERT:-false}" = "true" ]; then
+            TEXT="$(printf '🧪 BookYourSlot uptime check - TEST\n\nThis is a drill. The monitor is working and alerts reach this chat.\nA real alert looks like this but starts with 🔴.\n\nSent: %s\n\n%s' \
+              "$(date -u '+%Y-%m-%d %H:%M UTC')" "$RUN_URL")"
+            if [ -z "${TG_TOKEN:-}" ] || [ -z "${TG_CHAT:-}" ]; then
+              echo "TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID are not set on this repo."
+              exit 1
+            fi
+            curl -sS -m 15 -X POST "https://api.telegram.org/bot${TG_TOKEN}/sendMessage" \
+              --data-urlencode "chat_id=${TG_CHAT}" \
+              --data-urlencode "text=${TEXT}" > /dev/null
+            echo "Test alert sent. If it did not arrive, the bot token or chat id is wrong."
+            exit 0
+          fi
+
+          # Prints a human reason and returns 1 on failure; silent on success.
+          probe() {
+            url="$1"; want="$2"; code=""
+            if ! code=$(curl -sS --max-time 20 -o /tmp/body -w '%{http_code}' "$url" 2>/tmp/err); then
+              printf 'could not connect: %s' "$(tr -d '\n' < /tmp/err | cut -c1-160)"
+              return 1
+            fi
+            if [ "$code" != "200" ]; then
+              printf 'returned HTTP %s' "$code"
+              return 1
+            fi
+            if [ -n "$want" ] && ! grep -qF "$want" /tmp/body; then
+              printf 'returned 200 but the page did not contain "%s"' "$want"
+              return 1
+            fi
+            return 0
+          }
+
+          # Check the database-backed page first: it is the stronger signal and
+          # covers the root implicitly. Only if it fails do we probe the root, to
+          # tell "whole site down" apart from "app up, database down".
+          FAILED=""
+          for attempt in 1 2; do
+            if REASON=$(probe "$BOOKING_URL" "$KEYWORD"); then
+              FAILED=""
+              break
+            fi
+            FAILED="yes"
+            # One retry. A single blip should not wake you up.
+            [ "$attempt" = "1" ] && sleep 25
+          done
+
+          if [ -z "$FAILED" ]; then
+            echo "healthy: $BOOKING_URL"
+            exit 0
+          fi
+
+          if ROOT_REASON=$(probe "$ROOT_URL" "$KEYWORD"); then
+            SCOPE="The site is up but its database-backed pages are not. Booking pages are down."
+          else
+            SCOPE="The whole site is unreachable (the root $ROOT_REASON)."
+          fi
+
+          TEXT="$(printf '🔴 BookYourSlot is DOWN\n\n%s\n\nProbe: %s\nDetail: %s\nChecked: %s\n\n%s' \
+            "$SCOPE" "$BOOKING_URL" "$REASON" "$(date -u '+%Y-%m-%d %H:%M UTC')" "$RUN_URL")"
+
+          echo "$TEXT"
+
+          if [ -n "${TG_TOKEN:-}" ] && [ -n "${TG_CHAT:-}" ]; then
+            curl -sS -m 15 -X POST "https://api.telegram.org/bot${TG_TOKEN}/sendMessage" \
+              --data-urlencode "chat_id=${TG_CHAT}" \
+              --data-urlencode "text=${TEXT}" > /dev/null \
+              && echo "Telegram alert sent." \
+              || echo "Telegram alert FAILED to send (the outage above is still real)."
+          else
+            echo "TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID not set - no alert sent."
+          fi
+
+          # Fail the job so the outage is also visible in the Actions tab, not
+          # only in Telegram.
+          exit 1
