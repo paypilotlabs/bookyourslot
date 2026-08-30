@@ -49,9 +49,9 @@ export default function PrivacyPage() {
             </li>
             <li>
               <strong>Calendar data</strong>: if you connect Google Calendar, we read busy/free times to
-              prevent double-bookings and create events for new bookings. Connection tokens are held in
-              our database on our own server, are never shared with anyone, and are deleted when you
-              disconnect the calendar or close your account.
+              prevent double-bookings and create events for new bookings. Connection tokens are held in our
+              database on our own server, are never shared with anyone, and are deleted when you disconnect
+              the calendar or close your account.
             </li>
             <li>
               <strong>Technical data</strong>: standard server logs (IP address, browser, timestamps) used for
