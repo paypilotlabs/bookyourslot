@@ -117,12 +117,41 @@ public key to the forced command. It prints the remaining sub-steps.
 
 ### 4.3 Let the VPS pull the private image
 
-Create a **fine-grained Personal Access Token** with **`read:packages` only**,
-scoped to this repo (GitHub → Settings → Developer settings → Fine-grained
-tokens). Then, on the VPS:
+Create a **Personal Access Token (classic)** with **`read:packages` only**
+(GitHub → Settings → Developer settings → Personal access tokens → Tokens
+(classic)).
+
+It must be a **classic** token. GHCR does not accept fine-grained tokens:
+"GitHub Packages only supports authentication using a personal access token
+(classic)." A fine-grained token authenticates against the API but is refused by
+the container registry, so `docker compose pull` fails with `denied`.
+
+Set the expiration to **No expiration**. This credential exists only so an
+unattended VPS can pull one private image, and there is nothing to rotate it
+automatically - when it lapses the next deploy fails at the pull step with
+`denied`, while the running container keeps serving, so the breakage is silent
+until the next release. `read:packages` cannot push, delete, or read code. If
+you would rather set a date, put a calendar reminder a week before it, because
+nothing else will warn you.
+
+(GitHub deletes tokens unused for a year on its own. This one is used on every
+deploy, so that never triggers.)
+
+Then, on the VPS - typed at a prompt rather than passed on the command line, so
+it stays out of shell history:
 
 ```bash
-echo "<read-packages-token>" | sudo -u deploy docker login ghcr.io -u squid-beast --password-stdin
+read -rs GHCR_TOKEN && printf '%s' "$GHCR_TOKEN" | sudo -u deploy -H docker login ghcr.io -u squid-beast --password-stdin && unset GHCR_TOKEN
+```
+
+The `-H` matters: the credential is written to the invoking user's
+`~/.docker/config.json`, and the deploy runs as `deploy`, so it has to land in
+`/home/deploy/.docker/config.json`.
+
+Verify it took, without pulling any layers:
+
+```bash
+sudo -u deploy -H docker manifest inspect ghcr.io/squid-beast/bookyourslot:latest >/dev/null && echo "GHCR auth OK"
 ```
 
 Keep the GHCR package **private** (Package settings → change visibility).
@@ -383,7 +412,7 @@ What makes this more than a deploy button:
 | `deploy` job: `Host key verification failed` | `DEPLOY_KNOWN_HOSTS` missing/stale | Re-run `ssh-keyscan` (4.4), update the secret |
 | `deploy` job: `Permission denied (publickey)` | Wrong key, or user isn't `deploy` | Recheck `DEPLOY_SSH_KEY` / `DEPLOY_USER`; re-run 4.2 |
 | Server: `invalid tag` / `unknown action` | Tag didn't match the allowlist | Expected safety behavior; use `sha-…` or `latest` |
-| `docker compose pull`: `denied` / `unauthorized` | VPS not logged in to GHCR, or token expired | Redo 4.3 with a fresh `read:packages` token |
+| `docker compose pull`: `denied` / `unauthorized` | VPS not logged in to GHCR, or the token expired | Redo 4.3 with a fresh **classic** `read:packages` token. Confirm with `sudo -u deploy -H docker manifest inspect ghcr.io/squid-beast/bookyourslot:latest` |
 | Build OOM | `MAX_OLD_SPACE_SIZE` too low for the runner | Raise the build-arg, or use a larger runner |
 | Health check fails → auto-rollback | New image genuinely broken, or slow boot | Read `docker compose logs bookyourslot`; raise `HEALTH_TIMEOUT` if it's just slow |
 | Deploy succeeded but site shows old build | Browser/Traefik cache, or `/api/logo` s-maxage | Hard refresh; the image itself is current |
