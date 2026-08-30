@@ -65,8 +65,11 @@ fi
 cat <<EOF
 
 Done. Next:
-  1. As ${DEPLOY_USER}, log in to GHCR so it can pull the private image:
-       sudo -u ${DEPLOY_USER} docker login ghcr.io -u <github-user> --password-stdin <<< "<read:packages PAT>"
+  1. As ${DEPLOY_USER}, log in to GHCR so it can pull the private image.
+     The token must be a CLASSIC PAT with read:packages — GHCR refuses
+     fine-grained tokens — and should be set to No expiration, since nothing
+     rotates it and a lapse only surfaces as a failed deploy:
+       read -rs T && printf '%s' "\$T" | sudo -u ${DEPLOY_USER} -H docker login ghcr.io -u <github-user> --password-stdin && unset T
   2. Add the matching PRIVATE key + host details to GitHub repo secrets
      (DEPLOY_SSH_KEY, DEPLOY_HOST, DEPLOY_USER=${DEPLOY_USER}, DEPLOY_KNOWN_HOSTS).
   3. Capture this host's SSH fingerprint for DEPLOY_KNOWN_HOSTS:
