@@ -24,7 +24,12 @@ name: Uptime
 on:
   schedule:
     - cron: "17 * * * *" # hourly. Not on the hour: those minutes are the most contended.
-  workflow_dispatch: # run it by hand to test the alert path
+  workflow_dispatch:
+    inputs:
+      test_alert:
+        description: "Send a test message to Telegram instead of probing. Proves alerts reach your phone."
+        type: boolean
+        default: false
 
 concurrency:
   group: uptime
@@ -59,8 +64,26 @@ jobs:
           TG_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          TEST_ALERT: ${{ inputs.test_alert }}
         run: |
           set -uo pipefail
+
+          # An alerting path you have never fired is a guess. This sends a real
+          # message down the real code path so you can confirm it reaches your
+          # phone, without waiting for an actual outage to find out it does not.
+          if [ "${TEST_ALERT:-false}" = "true" ]; then
+            TEXT="$(printf '🧪 BookYourSlot uptime check - TEST\n\nThis is a drill. The monitor is working and alerts reach this chat.\nA real alert looks like this but starts with 🔴.\n\nSent: %s\n\n%s' \
+              "$(date -u '+%Y-%m-%d %H:%M UTC')" "$RUN_URL")"
+            if [ -z "${TG_TOKEN:-}" ] || [ -z "${TG_CHAT:-}" ]; then
+              echo "TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID are not set on this repo."
+              exit 1
+            fi
+            curl -sS -m 15 -X POST "https://api.telegram.org/bot${TG_TOKEN}/sendMessage" \
+              --data-urlencode "chat_id=${TG_CHAT}" \
+              --data-urlencode "text=${TEXT}" > /dev/null
+            echo "Test alert sent. If it did not arrive, the bot token or chat id is wrong."
+            exit 0
+          fi
 
           # Prints a human reason and returns 1 on failure; silent on success.
           probe() {
