@@ -124,6 +124,20 @@ services:
       - "traefik.http.routers.bys-book.middlewares=bys-scrub-ip,bys-rl-book"
       - "traefik.http.routers.bys-book.service=bys"
 
+      # PathPrefix, deliberately, not Path. tRPC batches procedures into the URL:
+      # /api/trpc/auth/sendVerifyEmailCode,verifyCodeUnAuthenticated?batch=1 is one
+      # request that runs both, and an exact Path() match would let it straight
+      # through. sendVerifyEmailCode is a publicProcedure that sends mail to an
+      # arbitrary address, and nothing else throttles it — the in-app limiter is a
+      # permissive stub without UNKEY_ROOT_KEY. The auth router is all mutations
+      # with no queries, so no page load or session poll touches this prefix.
+      - "traefik.http.routers.bys-trpc-auth.rule=(Host(`bookyourslot.online`) || Host(`www.bookyourslot.online`)) && PathPrefix(`/api/trpc/auth/`)"
+      - "traefik.http.routers.bys-trpc-auth.entrypoints=websecure"
+      - "traefik.http.routers.bys-trpc-auth.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.bys-trpc-auth.priority=100"
+      - "traefik.http.routers.bys-trpc-auth.middlewares=bys-scrub-ip,bys-rl-auth"
+      - "traefik.http.routers.bys-trpc-auth.service=bys"
+
       - "traefik.http.routers.bys-username.rule=(Host(`bookyourslot.online`) || Host(`www.bookyourslot.online`)) && Path(`/api/username`)"
       - "traefik.http.routers.bys-username.entrypoints=websecure"
       - "traefik.http.routers.bys-username.tls.certresolver=letsencrypt"

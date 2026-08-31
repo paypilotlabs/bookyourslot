@@ -96,6 +96,10 @@ backup_db() {
   if "${COMPOSE[@]}" exec -T database \
     sh -c 'exec pg_dump --clean --if-exists -U "$POSTGRES_USER" "$POSTGRES_DB"' | gzip >"$snap"; then
     SNAP="$snap"
+    # Holds every attendee email address in plaintext. Default umask makes it
+    # world-readable; only root and deploy exist today, so this costs nothing now
+    # and stops a future account from mattering.
+    chmod 600 "$snap"
     ls -1t "$BACKUP_DIR"/pre-deploy-*.sql.gz 2>/dev/null | tail -n +"$((BACKUP_KEEP + 1))" | xargs -r rm -f
   else
     rm -f "$snap"

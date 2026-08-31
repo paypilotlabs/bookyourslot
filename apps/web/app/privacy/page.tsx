@@ -29,7 +29,7 @@ export default function PrivacyPage() {
     <MarketingShell>
       <div className="mx-auto w-full max-w-3xl px-6 pb-24 pt-10">
         <h1 className="font-display text-5xl uppercase tracking-tight sm:text-6xl">Privacy Policy</h1>
-        <p className="text-brand-navy/50 mt-3 text-sm">Last updated: July 18, 2026</p>
+        <p className="text-brand-navy/50 mt-3 text-sm">Last updated: August 30, 2026</p>
         <Prose>
           <p>
             This policy explains what data {APP_NAME} (bookyourslot.online) collects, why, and how it's
@@ -49,8 +49,9 @@ export default function PrivacyPage() {
             </li>
             <li>
               <strong>Calendar data</strong>: if you connect Google Calendar, we read busy/free times to
-              prevent double-bookings and create events for new bookings. Connection tokens are stored
-              encrypted.
+              prevent double-bookings and create events for new bookings. Connection tokens are held in our
+              database on our own server, are never shared with anyone, and are deleted when you disconnect
+              the calendar or close your account.
             </li>
             <li>
               <strong>Technical data</strong>: standard server logs (IP address, browser, timestamps) used for
