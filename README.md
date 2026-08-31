@@ -20,8 +20,12 @@ stay pending until an admin approves them.
   minimum notice, and automatic timezone conversion for the guest.
 - **Self-serve reschedule and cancel.** Guests manage their own booking from the
   confirmation email, and the calendar stays correct without you touching it.
-- **Calendar sync.** Google Calendar, Apple Calendar, and CalDAV. Two-way sync
-  reads busy times so you are never double-booked.
+- **Google Calendar sync.** Verified end to end on 31 Aug 2026: a booking creates a
+  real calendar event with a Google Meet link, a reschedule moves that same event
+  rather than duplicating it, and the owner's existing busy times remove slots from
+  the public page. Apple Calendar and CalDAV ship but have not been exercised — do
+  not claim them until they are.
+  Say "bookings land in your Google Calendar". Do not say "two-way sync".
 - **Email notifications.** Confirmations, reschedules, and cancellations go out
   automatically over SMTP.
 - **Webhooks.** `BOOKING_CREATED`, `BOOKING_RESCHEDULED`, `BOOKING_CANCELLED`
@@ -40,7 +44,7 @@ Removed on purpose. Do not sell these, and do not expect the routes to exist.
 | Area | Status |
 | --- | --- |
 | Teams, round-robin, collective events | Removed. Single-account scheduling only. |
-| Workflows, SMS and WhatsApp reminders | Removed. Email notifications still work. |
+| Workflows, SMS and WhatsApp reminders | Removed, and there is **no scheduler at all** — `packages/features/ee/workflows/` is absent and `Workflow`/`WorkflowReminder` are not in the schema. Transactional booking emails still work. The "WhatsApp" and "Telegram" apps are `linkType: "static"` location links, not messaging: they let a host paste a `wa.me` / `t.me` link as the meeting place and send nothing. |
 | Billing, plans, subscriptions | Removed. There is no in-app payment for the product itself. |
 | SSO, SAML, SCIM, organizations | Removed. `ORGANIZATIONS_ENABLED` must stay empty. |
 | Admin impersonation | Removed. |
@@ -110,12 +114,34 @@ automatically.
 - [deploy/production/CHECKLIST.md](deploy/production/CHECKLIST.md) for the
   launch checklist
 
-Two things that will cost you data if ignored:
+Four things that will cost you data or a customer if ignored:
 
 - **Never rotate `CALENDSO_ENCRYPTION_KEY` after go-live.** Every stored
-  calendar credential is encrypted with it and becomes unreadable.
+  calendar credential is encrypted with it and becomes unreadable. Keep a copy
+  somewhere other than the VPS — it is not in git, not in GitHub secrets, and not
+  in the database dumps, so without it a restore onto a fresh box is useless.
 - **Never run `docker compose down -v` in production.** The `-v` deletes the
   `database-data` volume. Plain `down` is safe.
+- **Merging a change under `deploy/` does nothing on its own.** `docker-compose.yml`
+  and `remote-deploy.sh` are read from the host checkout at `/opt/bookyourslot`,
+  not from the image, and nothing updates it automatically. `git pull --ff-only
+  origin main` on the VPS, then redeploy. This has silently swallowed two fixes.
+- **The `emails` feature flag is an inverted kill switch.** `enabled = true` stops
+  all outbound email with only a `console.warn`. It must stay `false`.
+
+### Standing checks after a deploy
+
+Google integration failure is silent here: the key lookup throws outside the
+calendar service's try block, so a broken calendar shows up only in the database.
+A booking still saves and the customer still gets a "confirmed" email.
+
+```sql
+-- Bookings that got a confirmation but never reached a calendar.
+SELECT count(*) FROM "BookingReference"
+WHERE type = 'google_calendar' AND (uid = '' OR uid IS NULL);
+```
+
+Anything above the known historical count means a real customer was affected.
 
 ## Admin tasks
 
