@@ -1,15 +1,24 @@
+import process from "node:process";
+import { SUPPORT_MAIL_ADDRESS, WEBAPP_URL } from "@calcom/lib/constants";
+import prisma from "@calcom/prisma";
 import type { NextApiRequest, NextApiResponse } from "next";
 import stringify from "qs-stringify";
 import type Stripe from "stripe";
 import { z } from "zod";
-
-import { WEBAPP_URL } from "@calcom/lib/constants";
-import prisma from "@calcom/prisma";
-
 import { getStripeAppKeys } from "../lib/getStripeAppKeys";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { client_id } = await getStripeAppKeys();
+  // Stripe ships in the app store but has no keys configured on this deployment, so
+  // getStripeAppKeys() throws a zod error and the install 500s with nothing a user can
+  // act on. Payments are not offered yet; say so, and give them somewhere to ask.
+  let client_id: string;
+  try {
+    ({ client_id } = await getStripeAppKeys());
+  } catch {
+    return res.status(501).json({
+      message: `Taking payments is not enabled on this account yet. Email ${SUPPORT_MAIL_ADDRESS} and we will set it up with you.`,
+    });
+  }
 
   if (req.method === "GET") {
     // Get user
