@@ -394,6 +394,15 @@ export const createEvent = async (
         .createEvent(calEvent, credential.id, externalCalendarIdWhenDelegationCredentialIsChosen)
         .catch(async (error: { code: number; calError: string }) => {
           success = false;
+          // Log before deciding what to do with it. The 404 branch below used to
+          // return without recording anything, so a calendar that never created
+          // its event left no error anywhere - only an empty-uid reference row
+          // and, later, "bookingRefUid is empty" on the first reschedule.
+          log.error(
+            "createEvent failed",
+            safeStringify(error),
+            safeStringify({ calEvent: getPiiFreeCalendarEvent(calEvent) })
+          );
           /**
            * There is a time when selectedCalendar externalId doesn't match witch certain credential
            * so google returns 404.
@@ -404,11 +413,6 @@ export const createEvent = async (
           if (error?.calError) {
             calError = error.calError;
           }
-          log.error(
-            "createEvent failed",
-            safeStringify(error),
-            safeStringify({ calEvent: getPiiFreeCalendarEvent(calEvent) })
-          );
           // @TODO: This code will be off till we can investigate an error with it
           //https://github.com/calcom/cal.diy/issues/3949
           // await sendBrokenIntegrationEmail(calEvent, "calendar");
