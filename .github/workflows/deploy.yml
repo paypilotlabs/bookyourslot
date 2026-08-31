@@ -158,12 +158,40 @@ jobs:
           HOST: ${{ secrets.DEPLOY_HOST }}
           USER: ${{ secrets.DEPLOY_USER }}
         run: |
-          set -euo pipefail
+          set -uo pipefail
           # The server forces a single command; "deploy <tag>" arrives as
           # SSH_ORIGINAL_COMMAND and is re-validated there.
-          ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes \
-              -o StrictHostKeyChecking=yes -o BatchMode=yes \
-              "${USER}@${HOST}" "deploy ${TAG}"
+          #
+          # Retry, because the SSH hop itself has failed twice with
+          # "connect to host port 22: Connection timed out" - a SYN that never
+          # got answered, with a healthy box on the other side and an image
+          # already pushed. Losing a good build to a network blip is worse than
+          # waiting 30 seconds.
+          #
+          # ONLY on exit 255, which is ssh's own "I could not connect". Any
+          # other code is the remote command's, meaning remote-deploy.sh really
+          # ran and really failed - retrying that would redeploy a broken tag.
+          # A retry cannot stack on a live deploy either: remote-deploy.sh takes
+          # a non-blocking flock and refuses with "another deploy is already
+          # running".
+          for attempt in 1 2 3; do
+            ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes \
+                -o StrictHostKeyChecking=yes -o BatchMode=yes \
+                -o ConnectTimeout=20 \
+                "${USER}@${HOST}" "deploy ${TAG}"
+            rc=$?
+            [ "$rc" -eq 0 ] && exit 0
+            if [ "$rc" -ne 255 ]; then
+              echo "Deploy ran on the server and failed (exit $rc). Not retrying."
+              exit "$rc"
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              echo "SSH could not connect (attempt ${attempt}/3). Retrying in 30s."
+              sleep 30
+            fi
+          done
+          echo "SSH could not connect after 3 attempts."
+          exit 255
 
       - name: Shred SSH key
         if: always()
