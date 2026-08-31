@@ -178,7 +178,7 @@ export default function LandingView() {
         {/* Product screenshot */}
         <div className="mx-auto w-full max-w-5xl px-6 pb-20 pt-8">
           <FadeIn delay={0.15}>
-            <BrowserFrame url="bookyourslot.online/demo">
+            <BrowserFrame url="bookyourslot.online/startwithleo" href="/startwithleo">
               <Image
                 src="/landing/booking.png"
                 alt="A BookYourSlot public booking page showing a calendar of available times"

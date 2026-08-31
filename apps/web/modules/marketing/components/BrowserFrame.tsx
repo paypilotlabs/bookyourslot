@@ -4,9 +4,12 @@ import type { ReactNode } from "react";
 export function BrowserFrame({
   children,
   url = "bookyourslot.online",
+  href,
 }: {
   children: ReactNode;
   url?: string;
+  /** When set, the address bar becomes a real link to that page. */
+  href?: string;
 }) {
   return (
     <div className="overflow-hidden rounded-3xl border border-neutral-200/80 bg-white shadow-[0_24px_60px_-24px_rgba(23,23,23,0.25)]">
@@ -16,9 +19,18 @@ export function BrowserFrame({
           <span className="h-2.5 w-2.5 rounded-full bg-neutral-300" />
           <span className="h-2.5 w-2.5 rounded-full bg-neutral-300" />
         </div>
-        <div className="mx-auto w-full max-w-xs rounded-full bg-white px-4 py-1 text-center text-xs text-neutral-400 ring-1 ring-neutral-200">
-          {url}
-        </div>
+        {href ? (
+          <a
+            href={href}
+            aria-label={`Open the live booking page at ${url}`}
+            className="focus-visible:ring-brand-navy mx-auto w-full max-w-xs rounded-full bg-white px-4 py-1 text-center text-xs text-neutral-400 ring-1 ring-neutral-200 transition hover:text-neutral-600 hover:ring-neutral-300 focus-visible:outline-none focus-visible:ring-2">
+            {url}
+          </a>
+        ) : (
+          <div className="mx-auto w-full max-w-xs rounded-full bg-white px-4 py-1 text-center text-xs text-neutral-400 ring-1 ring-neutral-200">
+            {url}
+          </div>
+        )}
         <div className="w-10" aria-hidden="true" />
       </div>
       {children}
