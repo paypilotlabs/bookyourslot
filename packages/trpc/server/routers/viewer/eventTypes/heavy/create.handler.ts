@@ -1,6 +1,7 @@
 import { getDefaultLocations } from "@calcom/app-store/_utils/getDefaultLocations";
 import { DailyLocationType } from "@calcom/app-store/constants";
 import { EventTypeRepository } from "@calcom/features/eventtypes/repositories/eventTypeRepository";
+import { MembershipRepository } from "@calcom/features/membership/repositories/MembershipRepository";
 import type { PrismaClient } from "@calcom/prisma";
 import { Prisma } from "@calcom/prisma/client";
 import { MembershipRole, SchedulingType } from "@calcom/prisma/enums";
@@ -12,9 +13,15 @@ import type { TCreateInputSchema } from "./create.schema";
 
 class PermissionCheckService {
   constructor(_prisma?: unknown) {}
-  async checkPermission(..._args: unknown[]) { return true; }
-  async hasPermission(..._args: unknown[]) { return true; }
-  async getTeamIdsWithPermission(..._args: unknown[]): Promise<number[]> { return []; }
+  async checkPermission(..._args: unknown[]) {
+    return true;
+  }
+  async hasPermission(..._args: unknown[]) {
+    return true;
+  }
+  async getTeamIdsWithPermission(..._args: unknown[]): Promise<number[]> {
+    return [];
+  }
 }
 
 type EventTypeLocation = z.infer<typeof eventTypeLocations>[number];
@@ -52,6 +59,16 @@ export const createHandler = async ({ ctx, input }: CreateOptions) => {
     calVideoSettings,
     ...rest
   } = input;
+
+  // `owner` is left off whenever teamId is set, but `team` is only connected inside the
+  // `teamId && schedulingType` branch below. A teamId without a schedulingType therefore lands an
+  // event type belonging to neither, so reject it rather than write the orphan.
+  if (teamId && !schedulingType) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Unable to create event type: a team event type requires a schedulingType",
+    });
+  }
 
   const userId = ctx.user.id;
   const isManagedEventType = schedulingType === SchedulingType.MANAGED;
@@ -104,12 +121,10 @@ export const createHandler = async ({ ctx, input }: CreateOptions) => {
     const isSystemAdmin = ctx.user.role === "ADMIN";
 
     // Only check for team-level permissions - this will also check for membership
-    const hasCreatePermission = await permissionService.checkPermission({
-      userId,
-      teamId,
-      permission: "eventType.create",
-      fallbackRoles: [MembershipRole.ADMIN, MembershipRole.OWNER],
-    });
+    // PermissionCheckService in this file is a stub whose every method returns true, which was
+    // harmless only while no team could exist. Teams are creatable as of this change, so this
+    // branch needs a check that can actually say no: an accepted ADMIN or OWNER membership.
+    const hasCreatePermission = !!(await MembershipRepository.getAdminOrOwnerMembership(userId, teamId));
 
     if (!isSystemAdmin && !hasOrgEventTypeCreatePermission && !hasCreatePermission) {
       // If none of the above conditions are met, the user is unauthorized.
