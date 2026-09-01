@@ -1121,6 +1121,13 @@ export class UserRepository {
     return user;
   }
 
+  async updateMetadata({ id, metadata }: { id: number; metadata: Prisma.InputJsonObject }) {
+    return this.prismaClient.user.update({
+      where: { id },
+      data: { metadata },
+    });
+  }
+
   async updateAvatar({ id, avatarUrl }: { id: number; avatarUrl: string }) {
     // Using updateMany here since if the user already has a profile it would throw an error
     // because no records were found to update the profile picture
