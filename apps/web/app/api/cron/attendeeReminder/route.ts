@@ -105,6 +105,14 @@ async function postHandler(request: NextRequest) {
       customInputs: isPrismaObjOrUndefined(booking.customInputs),
       ...getCalEventResponses({ bookingFields: booking.eventType?.bookingFields ?? null, booking }),
       location: booking.location ?? "",
+      // The Where block resolves its link from here, via LocationInfo ->
+      // getVideoCallUrlFromCalEvent. booking.location is "integrations:google:meet"
+      // rather than a URL, so without this the reminder names the provider and
+      // offers no way to join. Every video app stores the join URL here at
+      // booking time; hangoutLink is the only link field that is not required to
+      // be accompanied by invented id/password values.
+      additionalInformation:
+        typeof metadata.videoCallUrl === "string" ? { hangoutLink: metadata.videoCallUrl } : undefined,
       startTime: booking.startTime.toISOString(),
       endTime: booking.endTime.toISOString(),
       organizer: {
