@@ -1,11 +1,10 @@
-import Link from "next/link";
-import { useState, useEffect, useRef } from "react";
-import { Controller, useFieldArray, useForm } from "react-hook-form";
-
 import { getPaymentAppData } from "@calcom/app-store/_utils/payments/getPaymentAppData";
 import type { getEventLocationValue } from "@calcom/app-store/locations";
 import { getSuccessPageLocationMessage, guessEventLocationType } from "@calcom/app-store/locations";
 import dayjs from "@calcom/dayjs";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
 // TODO: Use browser locale, implement Intl in Dayjs maybe?
 import "@calcom/dayjs/locales";
 import { formatTime } from "@calcom/lib/dayjs";
@@ -29,36 +28,34 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuPortal,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuPortal,
 } from "@calcom/ui/components/dropdown";
 import { Icon } from "@calcom/ui/components/icon";
 import { MeetingTimeInTimezones } from "@calcom/ui/components/popover";
 import { showToast } from "@calcom/ui/components/toast";
 import { Tooltip } from "@calcom/ui/components/tooltip";
-
 import assignmentReasonBadgeTitleMap from "@lib/booking/assignmentReasonBadgeTitleMap";
-
-import { WrongAssignmentDialog } from "../dialog/WrongAssignmentDialog";
 import { buildBookingLink } from "../../modules/bookings/lib/buildBookingLink";
 import { useBookingDetailsSheetStore } from "../../modules/bookings/store/bookingDetailsSheetStore";
 import type { BookingAttendee } from "../../modules/bookings/types";
+import { WrongAssignmentDialog } from "../dialog/WrongAssignmentDialog";
 import { AcceptBookingButton } from "./AcceptBookingButton";
-import { RejectBookingButton } from "./RejectBookingButton";
 import { BookingActionsDropdown } from "./actions/BookingActionsDropdown";
 import {
-  useBookingActionsStoreContext,
   BookingActionsStoreProvider,
+  useBookingActionsStoreContext,
 } from "./actions/BookingActionsStoreProvider";
 import {
-  shouldShowPendingActions,
-  shouldShowRecurringCancelAction,
-  shouldShowIndividualReportButton,
   type BookingActionContext,
   getReportAction,
   isActionDisabled,
+  shouldShowIndividualReportButton,
+  shouldShowPendingActions,
+  shouldShowRecurringCancelAction,
 } from "./actions/bookingActions";
+import { RejectBookingButton } from "./RejectBookingButton";
 import type { BookingItemProps } from "./types";
 
 type ParsedBooking = ReturnType<typeof buildParsedBooking>;
@@ -563,6 +560,12 @@ const BookingItemBadges = ({
   onAssignmentReasonClick?: () => void;
 }) => {
   const { t } = useLocale();
+  // Written by the attendee-reminder cron. Means "attempted", not "delivered" —
+  // BaseEmail.sendEmail resolves even when SMTP rejects.
+  const reminderSentAt =
+    booking.metadata && typeof booking.metadata === "object" && "reminderSentAt" in booking.metadata
+      ? String((booking.metadata as Record<string, unknown>).reminderSentAt)
+      : undefined;
 
   return (
     <div className="hidden h-9 flex-row items-center pb-4 pl-6 sm:flex">
@@ -570,6 +573,13 @@ const BookingItemBadges = ({
         <Badge className="ltr:mr-2 rtl:ml-2" variant="orange">
           {t("unconfirmed")}
         </Badge>
+      )}
+      {reminderSentAt && (
+        <Tooltip content={`${t("reminder_sent")} ${reminderSentAt}`}>
+          <Badge className="ltr:mr-2 rtl:ml-2" variant="gray">
+            {t("reminder_sent")}
+          </Badge>
+        </Tooltip>
       )}
       {isRescheduled && (
         <Tooltip content={`${t("rescheduled_by")} ${booking.rescheduler}`}>
@@ -590,7 +600,9 @@ const BookingItemBadges = ({
       )}
       {booking?.assignmentReasonSortedByCreatedAt.length > 0 && (
         <AssignmentReasonTooltip
-          assignmentReason={booking.assignmentReasonSortedByCreatedAt[booking.assignmentReasonSortedByCreatedAt.length - 1]}
+          assignmentReason={
+            booking.assignmentReasonSortedByCreatedAt[booking.assignmentReasonSortedByCreatedAt.length - 1]
+          }
           onClick={onAssignmentReasonClick}
         />
       )}
