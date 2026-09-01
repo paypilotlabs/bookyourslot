@@ -181,12 +181,17 @@ async function getHandler(req: NextApiRequest, res: NextApiResponse) {
     // Caught and logged like updateProfilePhotoGoogle: the calendar is already
     // committed by this point, so malformed stored metadata (findById parses it with
     // a throwing schema) or a transient write must not cost the user the redirect
-    // that ends their onboarding. Scoped to the credential just created, and skipped
-    // when a default already exists, so no established account is rewritten.
+    // that ends their onboarding.
+    //
+    // Only for an account still in onboarding that has expressed no preference. The
+    // page that sets the flag has no completedOnboarding guard, and an absent default
+    // is not an empty value: getDefaultLocations and EventManager both read it as Cal
+    // Video, so writing it for an established account would move their existing event
+    // types with nothing in the UI saying so.
     try {
       const userRepo = new UserRepository(prisma);
       const user = await userRepo.findById({ id: req.session.user.id });
-      if (user && !user.metadata?.defaultConferencingApp) {
+      if (user && !user.completedOnboarding && !user.metadata?.defaultConferencingApp) {
         await userRepo.updateMetadata({
           id: req.session.user.id,
           metadata: { ...user.metadata, defaultConferencingApp: { appSlug: "google-meet" } },

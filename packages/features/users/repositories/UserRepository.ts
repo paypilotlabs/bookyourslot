@@ -1121,6 +1121,7 @@ export class UserRepository {
     return user;
   }
 
+  /** Replaces the whole metadata column. Callers must spread the existing value. */
   async updateMetadata({ id, metadata }: { id: number; metadata: Prisma.InputJsonObject }) {
     return this.prismaClient.user.update({
       where: { id },
