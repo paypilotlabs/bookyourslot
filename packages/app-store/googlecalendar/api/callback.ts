@@ -1,10 +1,7 @@
-import { calendar_v3 } from "@googleapis/calendar";
-import { OAuth2Client } from "googleapis-common";
-import type { NextApiRequest, NextApiResponse } from "next";
-
 import { createGoogleCalendarServiceWithGoogleType } from "@calcom/app-store/googlecalendar/lib/CalendarService";
 import { CredentialRepository } from "@calcom/features/credentials/repositories/CredentialRepository";
 import { buildCredentialCreateData } from "@calcom/features/credentials/services/CredentialDataService";
+import { UserRepository } from "@calcom/features/users/repositories/UserRepository";
 import { renewSelectedCalendarCredentialId } from "@calcom/lib/connectedCalendar";
 import {
   GOOGLE_CALENDAR_SCOPES,
@@ -14,10 +11,14 @@ import {
 } from "@calcom/lib/constants";
 import { getSafeRedirectUrl } from "@calcom/lib/getSafeRedirectUrl";
 import { HttpError } from "@calcom/lib/http-error";
+import logger from "@calcom/lib/logger";
 import { defaultHandler } from "@calcom/lib/server/defaultHandler";
 import { defaultResponder } from "@calcom/lib/server/defaultResponder";
+import prisma from "@calcom/prisma";
 import { Prisma } from "@calcom/prisma/client";
-
+import { calendar_v3 } from "@googleapis/calendar";
+import { OAuth2Client } from "googleapis-common";
+import type { NextApiRequest, NextApiResponse } from "next";
 import getInstalledAppPath from "../../_utils/getInstalledAppPath";
 import { decodeOAuthState } from "../../_utils/oauth/decodeOAuthState";
 import { updateProfilePhotoGoogle } from "../../_utils/oauth/updateProfilePhotoGoogle";
@@ -161,23 +162,44 @@ async function getHandler(req: NextApiRequest, res: NextApiResponse) {
     type: "google_video",
   });
 
-  // If the user already has a google meet credential, there's nothing to do in here
-  if (existingGoogleMeetCredential) {
-    res.redirect(
-      getSafeRedirectUrl(`${WEBAPP_URL}/apps/installed/conferencing?hl=google-meet`) ??
-        getInstalledAppPath({ variant: "conferencing", slug: "google-meet" })
-    );
-    return;
+  if (!existingGoogleMeetCredential) {
+    const googleMeetCredentialData = buildCredentialCreateData({
+      userId: req.session.user.id,
+      type: "google_video",
+      key: {},
+      appId: "google-meet",
+    });
+    await CredentialRepository.create(googleMeetCredentialData);
+
+    // The credential alone never reaches an event type. getDefaultLocations resolves
+    // Meet only when the user also has it as their default conferencing app, and
+    // otherwise returns an empty location list, which is what left every event type
+    // created after onboarding with nowhere to meet.
+    //
+    // Caught and logged like updateProfilePhotoGoogle: the calendar is already
+    // committed by this point, so malformed stored metadata (findById parses it with
+    // a throwing schema) or a transient write must not cost the user the redirect
+    // that ends their onboarding.
+    //
+    // Only for an account still in onboarding that has expressed no preference. The
+    // page that sets the flag has no completedOnboarding guard, and an absent default
+    // is not an empty value: getDefaultLocations and EventManager both read it as Cal
+    // Video, so writing it for an established account would move their existing event
+    // types with nothing in the UI saying so.
+    try {
+      const userRepo = new UserRepository(prisma);
+      const user = await userRepo.findById({ id: req.session.user.id });
+      if (user && !user.completedOnboarding && !user.metadata?.defaultConferencingApp) {
+        await userRepo.updateMetadata({
+          id: req.session.user.id,
+          metadata: { ...user.metadata, defaultConferencingApp: { appSlug: "google-meet" } },
+        });
+      }
+    } catch (error) {
+      logger.error("Could not set Google Meet as the default conferencing app", error);
+    }
   }
 
-  // Create a new google meet credential
-  const googleMeetCredentialData = buildCredentialCreateData({
-    userId: req.session.user.id,
-    type: "google_video",
-    key: {},
-    appId: "google-meet",
-  });
-  await CredentialRepository.create(googleMeetCredentialData);
   res.redirect(
     getSafeRedirectUrl(`${WEBAPP_URL}/apps/installed/conferencing?hl=google-meet`) ??
       getInstalledAppPath({ variant: "conferencing", slug: "google-meet" })
