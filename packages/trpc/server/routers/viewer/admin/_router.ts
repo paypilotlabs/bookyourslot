@@ -3,6 +3,7 @@ import { router } from "../../../trpc";
 import { ZAdminAssignFeatureToTeamSchema } from "./assignFeatureToTeam.schema";
 import { ZCreateCouponSchema } from "./createCoupon.schema";
 import { ZCreateSelfHostedLicenseSchema } from "./createSelfHostedLicenseKey.schema";
+import { ZAdminCreateTeamSchema } from "./createTeam.schema";
 import { ZAdminGetTeamsForFeatureSchema } from "./getTeamsForFeature.schema";
 import { ZListMembersSchema } from "./listPaginated.schema";
 import { ZAdminLockUserAccountSchema } from "./lockUserAccount.schema";
@@ -55,6 +56,10 @@ export const adminRouter = router({
     }),
   createCoupon: authedAdminProcedure.input(ZCreateCouponSchema).mutation(async (opts) => {
     const { default: handler } = await import("./createCoupon.handler");
+    return handler(opts);
+  }),
+  createTeam: authedAdminProcedure.input(ZAdminCreateTeamSchema).mutation(async (opts) => {
+    const { default: handler } = await import("./createTeam.handler");
     return handler(opts);
   }),
   getTeamsForFeature: authedAdminProcedure.input(ZAdminGetTeamsForFeatureSchema).query(async (opts) => {
