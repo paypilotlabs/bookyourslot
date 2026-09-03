@@ -17,9 +17,17 @@ name: Uptime
 #   repos, and nothing here is secret - the URL is a public booking page and the
 #   Telegram credentials come from that repo's own secrets.
 #
-# Scheduled runs are best-effort: GitHub delays them under load, sometimes by
-# 10-20 minutes, and disables schedules after 60 days with no repo activity.
-# Good enough for "it has been down since last night", not for "down 4 minutes".
+# Scheduled runs are best-effort: GitHub delays them under load, and in practice the
+# delay is far worse than the 10-20 minutes usually quoted. Measured gaps between the
+# last eighteen runs of this workflow ranged from 2.3 to 6.5 hours despite an hourly
+# cron. Treat this as "it has been down since last night", never as "down 4 minutes",
+# and do not quote an uptime figure to a customer on the strength of it.
+#
+# TWO NOTIFICATIONS PER FAILURE, BY DESIGN. The job exits non-zero at the end so an
+# outage is also visible in the Actions tab, which means GitHub emails you as well as
+# the Telegram message below. Keeping the run red is worth more than the quiet, since
+# it is the only outage history that exists. To silence just the email, use GitHub
+# Settings, Notifications, Actions and untick email for failed workflows.
 
 on:
   schedule:
@@ -50,6 +58,10 @@ env:
   # APP_NAME and is on every page. Its job is only to prove we reached the app
   # rather than a proxy or captive portal answering 200 with something else.
   KEYWORD: BookYourSlot
+  # Seconds curl may spend on one probe, total, not just connecting.
+  MAX_TIME: 20
+  # Consecutive failures required before anyone is woken up.
+  ATTEMPTS: 3
 
 jobs:
   check:
@@ -86,18 +98,73 @@ jobs:
           fi
 
           # Prints a human reason and returns 1 on failure; silent on success.
+          #
+          # Records WHY a probe failed, not merely that it did. curl's phase timings are
+          # what separate "the request never reached the box" from "the box answered too
+          # slowly": tcp=0.000000s means no TCP connection was ever established, so the
+          # fault is network or DNS rather than the application.
+          #
+          # This exists because of a real incident. On 2026-09-03 04:37 UTC this workflow
+          # alerted, and afterwards the cause could not be determined: the server had not
+          # restarted, had no resource pressure and showed no gap in its network counters,
+          # yet nothing had recorded whether the connection arrived. Traefik on this host
+          # runs with --log.level=WARN and no access log, and it is provisioned outside
+          # this repository, so these timings are the only diagnostic available to us.
           probe() {
-            url="$1"; want="$2"; code=""
-            if ! code=$(curl -sS --max-time 20 -o /tmp/body -w '%{http_code}' "$url" 2>/tmp/err); then
-              printf 'could not connect: %s' "$(tr -d '\n' < /tmp/err | cut -c1-160)"
+            url="$1"; want="$2"; rc=0; timing=""; code=""; detail=""
+            # curl leaves the previous response in place when a request fails rather than
+            # truncating it, verified against both a connect failure and a DNS failure. The
+            # checks below return before the keyword grep on every failure path, so today
+            # that cannot mislead us, but the consequence if the order were ever changed is
+            # a down site reported healthy off a stale body. One line to make it impossible.
+            : > /tmp/body
+            timing=$(curl -sS --max-time "$MAX_TIME" -o /tmp/body \
+              -w 'http=%{http_code} dns=%{time_namelookup}s tcp=%{time_connect}s tls=%{time_appconnect}s ttfb=%{time_starttransfer}s total=%{time_total}s' \
+              "$url" 2>/tmp/err) || rc=$?
+
+            if [ "$rc" -ne 0 ]; then
+              detail=$(tr -d '\n' < /tmp/err | cut -c1-140)
+              # curl exit 6 is name resolution. Worth its own line: it sends you to the
+              # registrar or the DNS provider, not to the server.
+              if [ "$rc" -eq 6 ]; then
+                printf 'DNS did not resolve (curl exit 6: %s)%s' "$detail" "${timing:+ | $timing}"
+                return 1
+              fi
+              # An empty timing means curl died before it could report anything at all.
+              case "$timing" in
+                ""|*"tcp=0.000000s"*)
+                  printf 'never established a connection (curl exit %s: %s)%s' \
+                    "$rc" "$detail" "${timing:+ | $timing}"
+                  return 1 ;;
+              esac
+              # TCP is up, so the rest is about how far the exchange got. Only curl exit 28
+              # is actually a timeout; an expired certificate (60), a handshake failure (35)
+              # or a reset (56) all connect and then die in milliseconds. Calling those a
+              # 20-second timeout would send whoever reads the alert after a hung app when
+              # the real answer is the certificate or the proxy.
+              if [ "$rc" -eq 28 ]; then
+                printf 'connected, then failed to answer within %ss (curl exit 28: %s) | %s' \
+                  "$MAX_TIME" "$detail" "$timing"
+              else
+                case "$timing" in
+                  *"tls=0.000000s"*)
+                    printf 'connected, but TLS never completed (curl exit %s: %s) | %s' \
+                      "$rc" "$detail" "$timing" ;;
+                  *)
+                    printf 'connected, then the connection failed (curl exit %s: %s) | %s' \
+                      "$rc" "$detail" "$timing" ;;
+                esac
+              fi
               return 1
             fi
+
+            code=${timing#http=}; code=${code%% *}
             if [ "$code" != "200" ]; then
-              printf 'returned HTTP %s' "$code"
+              printf 'returned HTTP %s | %s' "$code" "$timing"
               return 1
             fi
             if [ -n "$want" ] && ! grep -qF "$want" /tmp/body; then
-              printf 'returned 200 but the page did not contain "%s"' "$want"
+              printf 'returned 200 but the page did not contain "%s" | %s' "$want" "$timing"
               return 1
             fi
             return 0
@@ -106,15 +173,35 @@ jobs:
           # Check the database-backed page first: it is the stronger signal and
           # covers the root implicitly. Only if it fails do we probe the root, to
           # tell "whole site down" apart from "app up, database down".
+          # Three attempts. Two was not enough: the 2026-09-03 alert fired on a
+          # disturbance that had cleared well before anyone read it, and a third attempt
+          # would probably have caught the recovery and stayed quiet. With 20s and 40s
+          # backoff the third probe starts between t+60s (failures that return instantly,
+          # such as a reset or a 500) and t+100s (failures that burn the full MAX_TIME).
+          # Every attempt is echoed so the job log carries the history even when the run
+          # ends up passing.
+          # The loop below is entry-conditional, so ATTEMPTS=0 or a typo would skip every
+          # probe, leave FAILED empty and report the site healthy without ever contacting
+          # it. A misconfigured monitor has to fail red. MAX_TIME needs no such guard: a
+          # bad value makes curl error, which already surfaces as a failure.
+          case "$ATTEMPTS" in
+            ''|*[!0-9]*|0)
+              echo "ATTEMPTS must be a positive integer, got '$ATTEMPTS'" >&2
+              exit 1 ;;
+          esac
+
           FAILED=""
-          for attempt in 1 2; do
+          attempt=1
+          while [ "$attempt" -le "$ATTEMPTS" ]; do
             if REASON=$(probe "$BOOKING_URL" "$KEYWORD"); then
               FAILED=""
+              echo "attempt $attempt/$ATTEMPTS: ok"
               break
             fi
             FAILED="yes"
-            # One retry. A single blip should not wake you up.
-            [ "$attempt" = "1" ] && sleep 25
+            echo "attempt $attempt/$ATTEMPTS failed: $REASON"
+            [ "$attempt" -lt "$ATTEMPTS" ] && sleep $(( attempt * 20 ))
+            attempt=$(( attempt + 1 ))
           done
 
           if [ -z "$FAILED" ]; then
