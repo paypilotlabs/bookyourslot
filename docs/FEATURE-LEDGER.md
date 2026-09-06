@@ -164,8 +164,8 @@ started.** No client can use teams today.
 | Authorization on team services | **LIVE** | PR #44 replaced a stub that returned `true` |
 | Round-robin selection engine | UNREACHABLE | `getLuckyUser.ts`, fully intact |
 | Host priority and weight | UNREACHABLE | `Host` model |
-| **Create a team service** | **NOT BUILT** | `CreateEventTypeDialog.tsx:117` still `{teamId ? null :` |
-| **Assign hosts to a service** | **NOT BUILT** | `EventTypeWebWrapper.tsx:48` still `() => null` |
+| **Create a team service** | **DONE** | Guard removed; teamId and ROUND_ROBIN injected at mutate time |
+| **Assign hosts to a service** | **DONE** | Real tab built on the surviving CheckedTeamSelect and AssignAllTeamMembers |
 | Shared team booking page | NOT BUILT | `/teams` returns 404 |
 | Invitation emails | RULED OUT for now | memberships are written pre-accepted; no invite flow exists |
 | Role enforcement inside a team | NOT BUILT | permission service is still a stub |
@@ -204,8 +204,8 @@ Recorded with provenance so they stop disappearing.
 |---|---|---|---|
 | **Hide the app store, admin configures for clients** | 5 Sep | NOT BUILT | Small for the hiding, larger for admin-side config |
 | **Retell voice agent books by phone** | 5 Sep | NOT BUILT | Real project |
-| **Team service creation** (PR 2 of 4) | 2 Sep | NOT BUILT | Small |
-| **Host assignment UI** (PR 3 of 4) | 2 Sep | NOT BUILT | Medium |
+| **Team service creation** (PR 2 of 4) | 2 Sep | **DONE** | Shipped with PR 3 |
+| **Host assignment UI** (PR 3 of 4) | 2 Sep | **DONE** | Plus a DI stub fix the build uncovered |
 | Turn the reminder schedulers on | 5 Sep | BUILT, NOT ON | 15 minutes |
 | Nightly and offsite backups | ongoing | NOT BUILT | Days |
 | Encrypt `Credential.key` | ongoing | NOT BUILT | Multi-site migration |
