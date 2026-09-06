@@ -174,9 +174,10 @@ Full procedure: [docs/TESTING.md](../../docs/TESTING.md) Part B.
 - [ ] Encrypt `Credential.key` for real — do this before anyone other than the owner
   connects a calendar. With the key on the same host as the database it defends a
   leaked backup, not a compromised host
-- [ ] Remove `displayDebug={true}` from `BookingPageErrorBoundary.tsx` — a client-side
+- [x] Remove `displayDebug={true}` from `BookingPageErrorBoundary.tsx` — a client-side
   render error on a public booking page shows a stack trace and a
-  `mailto:support@cal.com` button to whoever is trying to book
+  `mailto:support@cal.com` button to whoever is trying to book. Done: the prop is
+  passed nowhere and `error-page.tsx` defaults it to `false`
 - [ ] Hostinger agent dashboard answers on `:32768` over cleartext HTTP. Vendor-managed
   and rate-limited, so low risk, but it does not belong on the public internet
 
@@ -225,7 +226,7 @@ two separate fixes already.
 | Reminder workflows (email/SMS/WhatsApp)            | Not in this edition          | `packages/features/ee/workflows/` is absent and `Workflow`/`WorkflowReminder` are not in the schema — there is no scheduler at all. Cheapest route is n8n (already running on the VPS) on a cron against Postgres, **not** porting the subsystem. Never claim reminders until built |
 | Owner calendar dashboard                           | Shipped                      | `/calendar` renders week and day views of bookings                                                 |
 | Shared team pages / round-robin                    | Not in this edition          | Team routes are stripped from the Cal.diy base (404); needs porting before any team claim         |
-| Unique display font                                | Skipped for now              | Drop unique.woff2 into fonts/brand if ever wanted                                                 |
+| Unique display font                                | Wired, binary out of band    | `@font-face` and `--font-display` ship; `unique.woff2` is absent so it falls back. Drop the file into fonts/brand if ever wanted |
 | Organizations / subdomains                         | Deliberately off             | Do not enable on apex domain                                                                      |
 | WhatsApp / Telegram                                | Location links only          | Both apps are `linkType: "static"` — they let a host paste a `wa.me` / `t.me` link as the meeting **place**. They send nothing. No Business API, no templates, no messages. Also: `attendeePhoneNumber` is `hidden: true`, so no phone number has ever been collected |
 | Admin impersonation                                | Not in this edition          | Route 404s; the command-palette entry was removed                                                 |
