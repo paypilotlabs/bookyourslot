@@ -202,23 +202,29 @@ Recorded with provenance so they stop disappearing.
 
 | Feature | Asked | Status | Size |
 |---|---|---|---|
-| **Hide the app store, admin configures for clients** | 5 Sep | NOT BUILT | Small for the hiding, larger for admin-side config |
-| **Retell voice agent books by phone** | 5 Sep | NOT BUILT | Real project |
-| **Team service creation** (PR 2 of 4) | 2 Sep | **DONE** | Shipped with PR 3 |
-| **Host assignment UI** (PR 3 of 4) | 2 Sep | **DONE** | Plus a DI stub fix the build uncovered |
+| **Hide the app store, admin configures for clients** | 5 Sep | **DONE** (PR #50) | Store is admin-only; clients keep installed apps, the calendar category and a request block |
+| **Retell voice agent books by phone** | 5 Sep | **BUILT, NOT ON** | Workflow, agent script and setup doc shipped. Needs an n8n import, a Retell agent and a number |
+| **Team service creation** (PR 2 of 4) | 2 Sep | **DONE** (PR #53) | Guard removed; teamId and ROUND_ROBIN injected at mutate time |
+| **Host assignment UI** (PR 3 of 4) | 2 Sep | **DONE** (PR #53) | Built on the surviving CheckedTeamSelect, plus a DI stub fix the build uncovered |
 | Turn the reminder schedulers on | 5 Sep | BUILT, NOT ON | 15 minutes |
 | Nightly and offsite backups | ongoing | NOT BUILT | Days |
 | Encrypt `Credential.key` | ongoing | NOT BUILT | Multi-site migration |
 
-## Retell voice booking, since it is the largest
+## Retell voice booking
 
-`packages/app-store/retell-ai` is `"__template": "link-as-an-app"` with an external
-link and **no runtime code**. Same category as the BAA card. There is no integration.
+`packages/app-store/retell-ai` is still `"__template": "link-as-an-app"` with an
+external link and no runtime code, and installing that card does nothing. The
+integration does not go through it.
 
-The shape is at least clear: Retell handles the call and posts to a webhook; that
-webhook finds a free slot and creates a booking. The booking half is already
-reachable because `/api/book/event` needs no session. Availability lookup for a voice
-agent is the part that needs designing.
+It is built and lives outside the app: `automations/bookyourslot-retell-voice.n8n.json`
+with `automations/retell-agent-script.md`, set up per
+[RETELL-VOICE-BOOKING.md](RETELL-VOICE-BOOKING.md). Retell calls two n8n webhooks,
+which read availability from `slots.getSchedule` and create the booking through
+`/api/book/event`. Both are reachable without a session because the public booker
+needs them, and the booking payload was verified against production with `_isDryRun`.
+
+**Not on until you wire it:** an n8n import, a Retell agent built from the script, and
+a number per client.
 
 ---
 

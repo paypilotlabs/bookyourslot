@@ -234,6 +234,58 @@ For complex features, you can use spec-driven development when explicitly reques
 
 See [SPEC-WORKFLOW.md](SPEC-WORKFLOW.md) for the full workflow documentation.
 
+## What this fork is, and what must not come back
+
+BookYourSlot is a Cal.com fork sold as a **managed service**: one operator runs the
+instance and each customer is a separate account. Most enterprise machinery was
+stripped. These are the traps, not a feature list. The inventory lives in
+[docs/FEATURE-LEDGER.md](docs/FEATURE-LEDGER.md) and what may be claimed to a
+customer lives in [docs/PRODUCT-SOURCE-OF-TRUTH.md](docs/PRODUCT-SOURCE-OF-TRUTH.md).
+
+### Never reintroduce
+
+- **`ORGANIZATIONS_ENABLED` stays empty.** Organizations are stripped. Do not add
+  code that assumes an org, and do not enable it to make a test pass.
+- **The app store is admin-only.** `apps/web/app/(use-page-wrapper)/apps/_lib/appStoreAccess.ts`
+  gates it. Do not add a client-facing route, nav entry or search action that
+  reaches a non-calendar app page. The calendar category is deliberately open,
+  because Google requires the account holder to consent and a calendar connection
+  cannot be made on their behalf.
+- **Never build UI that implies payments work.** The Stripe webhook is a hardcoded
+  404 (`apps/web/pages/api/integrations/stripepayment/webhook.ts`). A price on an
+  event type produces bookings that never confirm.
+- **Never describe WhatsApp, Telegram or Signal as messaging.** They are static
+  location links. `packages/sms/sms-manager.ts` rate-limits and returns without
+  sending, so nothing on this deployment sends an SMS.
+- **Cal Video does not work.** `DAILY_API_KEY` is unset, so recordings, transcripts
+  and the Cal Video no-show triggers can never fire. Google Meet is the only
+  working video location.
+
+### Present but easy to get wrong
+
+- **Teams are half built.** The schema, the round-robin engine and admin
+  provisioning exist; the UI does not, and `/teams` is 404. Do not describe
+  round-robin as available. `PermissionCheckService` in
+  `eventTypes/heavy/create.handler.ts` is a stub returning `true`, so any new
+  team-scoped write needs its own authorization check.
+- **Reminders live in a cron, not in workflows.** Three bands at 48h, 24h and 30m
+  in `apps/web/app/api/cron/attendeeReminder/`, each with its own dedupe marker.
+  The 24h band keeps the original `reminderSentAt` key on purpose. **Nothing in the
+  app schedules them**; an external caller must hit the route.
+- **The `emails` feature flag is inverted.** Setting it to enabled **stops** all
+  outbound email. It must stay false.
+- **There is no REST API in production.** `apps/api/v2` is pruned out of the Docker
+  build, so `/settings/developer/api-keys` mints keys nothing accepts. Slots and
+  booking creation are reachable without a session because the public booker needs
+  them; everything else is not readable.
+
+### Before claiming anything works
+
+Check it against the running system. This repository has shipped features that
+looked correct and did nothing: a reminder with no scheduler, an onboarding flow
+that never installed Meet, an uptime alert that could not say what failed. A route
+returning 200 is not the same as a feature working.
+
 ## Extended Documentation
 
 For detailed information, see the `agents/` directory:

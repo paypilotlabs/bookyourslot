@@ -26,6 +26,11 @@ stay pending until an admin approves them.
   the public page. Apple Calendar and CalDAV ship but have not been exercised — do
   not claim them until they are.
   Say "bookings land in your Google Calendar". Do not say "two-way sync".
+  A **newly signed-up** account gets this too, verified 5 Sep 2026 on a real account
+  that connected Google and came out with a Meet location on its event type. That
+  had been broken: onboarding never installed Google Meet, because the
+  `installGoogleVideo` flag was read in three places and set in none, so new
+  accounts were created with `locations=[]` and produced no join link at all.
 - **Email notifications.** Confirmations, reschedules, and cancellations go out
   automatically over SMTP.
 - **Webhooks.** `BOOKING_CREATED`, `BOOKING_RESCHEDULED`, `BOOKING_CANCELLED`
@@ -36,6 +41,25 @@ stay pending until an admin approves them.
 - **Admin approval gate.** Self-serve signups are created pending. An admin
   approves them from Settings, Admin, Users, which sends the new business their
   verification email.
+- **In-person and phone appointments.** Six location types need no app install:
+  the attendee's own address (they type it, it lands in the calendar event and
+  opens Maps on a phone), the organizer's address, a custom location, the
+  attendee's phone, the organizer's phone, and any pasted link. When a service
+  offers more than one, the guest picks at booking time and is asked for whatever
+  that choice needs. This is what makes the product work for a salon, a clinic or
+  a mobile trade rather than video calls only.
+- **Attendee reminders at 48h, 24h and 30m.** Three bands, each with its own
+  dedupe marker, so a booking made a week out collects three and one made three
+  hours out collects two. Email only, and **an external scheduler has to call the
+  route** or nothing is sent, see [docs/N8N-REMINDERS.md](docs/N8N-REMINDERS.md).
+- **Admin-only app store.** Clients do not browse integrations; the operator
+  assigns them. Clients keep their installed apps view and the calendar category,
+  which they need because only they can consent to Google.
+- **Booking questions.** Thirteen answer types per service, each optionally
+  required. Answers reach the host's email, the calendar entry and the webhook.
+- **Requires confirmation, seats, and recurring bookings.** Approve each booking
+  by hand from a signed link in your email, sell group classes with seats per
+  slot, or schedule a repeating series.
 
 ## Not in this edition
 
@@ -43,8 +67,11 @@ Removed on purpose. Do not sell these, and do not expect the routes to exist.
 
 | Area | Status |
 | --- | --- |
-| Teams, round-robin, collective events | Removed. Single-account scheduling only. |
-| Workflows, SMS and WhatsApp reminders | Removed, and there is **no scheduler at all** — `packages/features/ee/workflows/` is absent and `Workflow`/`WorkflowReminder` are not in the schema. Transactional booking emails still work. The "WhatsApp" and "Telegram" apps are `linkType: "static"` location links, not messaging: they let a host paste a `wa.me` / `t.me` link as the meeting place and send nothing. |
+| Teams and round-robin | **Partly present, not usable.** `Team` and `Membership` survive in the schema, the round-robin engine (`getLuckyUser.ts`) and per-host priority and weight are intact, and an admin can provision a team through a tRPC mutation. There is no UI: `/teams` returns 404, `CreateEventTypeDialog` refuses a team event type, and the host assignment tab renders nothing. **No client can reach any of it.** Do not sell round-robin. |
+| Collective booking | **Works.** `/alice+bob/30min` books everyone named into one appointment. It intersects their availability, so it is the opposite of round-robin and must never be pitched as "whoever is free". |
+| Workflows engine | Removed. `packages/features/ee/workflows/` is absent and `Workflow`/`WorkflowReminder` are not in the schema. |
+| Attendee reminders | **Present.** Three bands at 48h, 24h and 30m before the start, each with its own dedupe marker, in `apps/web/app/api/cron/attendeeReminder/`. Email only. Nothing in the app schedules them: an external caller such as n8n must hit the route, see [docs/N8N-REMINDERS.md](docs/N8N-REMINDERS.md). If that stops, reminders stop silently. |
+| SMS and WhatsApp sending | Removed. `packages/sms/sms-manager.ts` checks a rate limit and returns without sending. The "WhatsApp", "Telegram" and "Signal" apps are `linkType: "static"` location links: they let a host paste a `wa.me` / `t.me` link as the meeting place and send nothing. Never describe them as reminders. |
 | Billing, plans, subscriptions | Removed. There is no in-app payment for the product itself. |
 | SSO, SAML, SCIM, organizations | Removed. `ORGANIZATIONS_ENABLED` must stay empty. |
 | Admin impersonation | Removed. |
@@ -52,8 +79,15 @@ Removed on purpose. Do not sell these, and do not expect the routes to exist.
 | Insights and advanced analytics | Not part of this edition. |
 | Outlook / Microsoft 365 | Removed. Calendar sync and Microsoft sign-in are both gone; Google, Apple and CalDAV remain. |
 
-Integrations went from 105 to **26**. See [docs/APP-STORE.md](docs/APP-STORE.md)
-for what each surviving app does and what it needs.
+Integrations went from 105 to **26 in the tree**, of which **19 render** in the
+store: the rest have no enabled row or no metadata in the registry. See
+[docs/APP-STORE.md](docs/APP-STORE.md) for what each surviving app does and what
+it needs.
+
+The store itself is **admin-only**. A client sees their installed apps and a line
+telling them where to ask for more; every browse and install route 404s for them.
+The one exception is the calendar category, because Google requires the account
+holder to click consent and a calendar connection cannot be made on their behalf.
 
 ## Integrations and the keys they need
 
