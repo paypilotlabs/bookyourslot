@@ -1,11 +1,13 @@
 "use client";
 
+import { type ActiveAppCategoryKeys, APP_CATEGORY_ENTRIES } from "@calcom/app-store/_utils/getAppCategories";
 import getAppCategoryTitle from "@calcom/app-store/_utils/getAppCategoryTitle";
 import { AppList, type HandleDisconnect } from "@calcom/features/apps/components/AppList";
 import type { UpdateUsersDefaultConferencingAppParams } from "@calcom/features/apps/components/AppSetDefaultLinkDialog";
 import type { RemoveAppParams } from "@calcom/features/apps/components/DisconnectIntegrationModal";
 import DisconnectIntegrationModal from "@calcom/features/apps/components/DisconnectIntegrationModal";
 import type { BulkUpdatParams } from "@calcom/features/eventtypes/components/BulkEditDefaultForEventsModal";
+import { SUPPORT_MAIL_ADDRESS } from "@calcom/lib/constants";
 import { useLocale } from "@calcom/lib/hooks/useLocale";
 import { AppCategories } from "@calcom/prisma/enums";
 import type { RouterOutputs } from "@calcom/trpc/react";
@@ -19,8 +21,8 @@ import { SkeletonLoader } from "@calcom/web/modules/apps/components/SkeletonLoad
 import { CalendarListContainer } from "@components/apps/CalendarListContainer";
 import InstalledAppsLayout from "@components/apps/layouts/InstalledAppsLayout";
 import { QueryCell } from "@lib/QueryCell";
+import { useSession } from "next-auth/react";
 import { useReducer } from "react";
-import { APP_CATEGORY_ENTRIES, ActiveAppCategoryKeys } from "@calcom/app-store/_utils/getAppCategories";
 
 interface IntegrationsContainerProps {
   variant?: AppCategories;
@@ -184,6 +186,34 @@ type PageProps = {
   installedCalendars: RouterOutputs["viewer"]["apps"]["integrations"];
 };
 
+/**
+ * The store is admin-only, so a client has no way to discover an integration or ask
+ * for one in-product. This is that route: one line telling them integrations are
+ * managed for them, and where to write. Deliberately a single block rather than a
+ * card per uninstalled app, which would advertise Stripe, the BAA link and Cal Video,
+ * none of which this deployment can deliver.
+ *
+ * Hidden from admins, who are the people being emailed.
+ */
+const RequestIntegrationBlock = () => {
+  const { t } = useLocale();
+  const session = useSession();
+
+  if (session.data?.user?.role === "ADMIN") return null;
+
+  return (
+    <div className="border-subtle mt-6 rounded-md border p-7">
+      <h3 className="text-emphasis text-sm font-semibold leading-none">{t("need_another_integration")}</h3>
+      <p className="text-default mt-2 text-sm">
+        {t("integrations_are_managed_for_you")}{" "}
+        <a className="text-emphasis font-medium underline" href={`mailto:${SUPPORT_MAIL_ADDRESS}`}>
+          {SUPPORT_MAIL_ADDRESS}
+        </a>
+      </p>
+    </div>
+  );
+};
+
 export default function InstalledApps({ category, connectedCalendars, installedCalendars }: PageProps) {
   const { t } = useLocale();
   const utils = trpc.useUtils();
@@ -247,6 +277,7 @@ export default function InstalledApps({ category, connectedCalendars, installedC
             exclude={[...categoryList, "calendar"]}
           />
         )}
+        <RequestIntegrationBlock />
       </InstalledAppsLayout>
       <DisconnectIntegrationModal
         handleModelClose={handleModelClose}
