@@ -202,8 +202,8 @@ Recorded with provenance so they stop disappearing.
 
 | Feature | Asked | Status | Size |
 |---|---|---|---|
-| **Hide the app store, admin configures for clients** | 5 Sep | NOT BUILT | Small for the hiding, larger for admin-side config |
-| **Retell voice agent books by phone** | 5 Sep | NOT BUILT | Real project |
+| **Hide the app store, admin configures for clients** | 5 Sep | **DONE** (PR #50) | Store is admin-only; clients keep installed apps, the calendar category and a request block |
+| **Retell voice agent books by phone** | 5 Sep | **BUILT, NOT ON** | Workflow, agent script and setup doc shipped. Needs an n8n import, a Retell agent and a number |
 | **Team service creation** (PR 2 of 4) | 2 Sep | NOT BUILT | Small |
 | **Host assignment UI** (PR 3 of 4) | 2 Sep | NOT BUILT | Medium |
 | Turn the reminder schedulers on | 5 Sep | BUILT, NOT ON | 15 minutes |
