@@ -16,10 +16,7 @@
       "name": "Every hour (48h)",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [
-        260,
-        0
-      ]
+      "position": [260, 0]
     },
     {
       "parameters": {
@@ -40,10 +37,7 @@
       "name": "Send 48h reminders",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        520,
-        0
-      ],
+      "position": [520, 0],
       "credentials": {
         "httpHeaderAuth": {
           "id": "REPLACE_ME",
@@ -72,10 +66,7 @@
       "name": "Every hour (24h)",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [
-        260,
-        320
-      ]
+      "position": [260, 320]
     },
     {
       "parameters": {
@@ -96,10 +87,7 @@
       "name": "Send 24h reminders",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        520,
-        320
-      ],
+      "position": [520, 320],
       "credentials": {
         "httpHeaderAuth": {
           "id": "REPLACE_ME",
@@ -128,10 +116,7 @@
       "name": "Every 10 minutes (30m)",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [
-        260,
-        640
-      ]
+      "position": [260, 640]
     },
     {
       "parameters": {
@@ -152,10 +137,7 @@
       "name": "Send 30m reminders",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        520,
-        640
-      ],
+      "position": [520, 640],
       "credentials": {
         "httpHeaderAuth": {
           "id": "REPLACE_ME",
@@ -184,10 +166,7 @@
       "name": "Every 5 minutes (webhooks)",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [
-        260,
-        960
-      ]
+      "position": [260, 960]
     },
     {
       "parameters": {
@@ -208,10 +187,7 @@
       "name": "Flush scheduled webhooks",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        520,
-        960
-      ],
+      "position": [520, 960],
       "credentials": {
         "httpHeaderAuth": {
           "id": "REPLACE_ME",
@@ -236,10 +212,7 @@
       "name": "Setup",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
-      "position": [
-        -300,
-        -40
-      ]
+      "position": [-300, -40]
     }
   ],
   "connections": {
