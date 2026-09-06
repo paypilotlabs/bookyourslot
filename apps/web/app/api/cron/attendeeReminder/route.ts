@@ -10,7 +10,7 @@ import type { CalendarEvent } from "@calcom/types/Calendar";
 import { defaultResponderForAppDir } from "app/api/defaultResponderForAppDir";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { reminderWindow } from "./window";
+import { DEFAULT_REMINDER_WINDOW, isReminderWindowKey, REMINDER_WINDOWS, reminderWindow } from "./window";
 
 /** One run will never mail more than this. Overflow is picked up an hour later. */
 const MAX_PER_RUN = 200;
@@ -25,8 +25,23 @@ async function postHandler(request: NextRequest) {
     return NextResponse.json({ message: "Not authenticated" }, { status: 401 });
   }
 
+  // Which of the three bands this call is for. Rejected rather than defaulted when
+  // unrecognised: a scheduler misconfigured with ?window=30min would otherwise look
+  // like it was working while quietly sending the 24h reminder on a ten minute loop.
+  const requested = request.nextUrl.searchParams.get("window");
+  if (requested !== null && !isReminderWindowKey(requested)) {
+    return NextResponse.json(
+      {
+        message: `Unknown window "${requested}". Expected one of ${Object.keys(REMINDER_WINDOWS).join(", ")}`,
+      },
+      { status: 400 }
+    );
+  }
+  const windowKey = requested ?? DEFAULT_REMINDER_WINDOW;
+  const { marker } = REMINDER_WINDOWS[windowKey];
+
   const bookings = await prisma.booking.findMany({
-    where: { status: BookingStatus.ACCEPTED, ...reminderWindow(new Date()) },
+    where: { status: BookingStatus.ACCEPTED, ...reminderWindow(new Date(), windowKey) },
     orderBy: { startTime: "asc" },
     take: MAX_PER_RUN,
     select: {
@@ -71,7 +86,7 @@ async function postHandler(request: NextRequest) {
 
   for (const booking of bookings) {
     const metadata = isPrismaObjOrUndefined(booking.metadata) ?? {};
-    if (metadata.reminderSentAt) {
+    if (metadata[marker]) {
       skipped++;
       continue;
     }
@@ -137,7 +152,7 @@ async function postHandler(request: NextRequest) {
     // Spread the existing metadata — a bare object would drop videoCallUrl.
     await prisma.booking.update({
       where: { id: booking.id },
-      data: { metadata: { ...metadata, reminderSentAt: new Date().toISOString() } },
+      data: { metadata: { ...metadata, [marker]: new Date().toISOString() } },
     });
 
     for (const attendee of attendeesList) {
@@ -155,8 +170,8 @@ async function postHandler(request: NextRequest) {
 
   // Logged as well as returned: n8n keeps the response, the container log is what
   // survives when nobody is looking at n8n.
-  console.log(`attendeeReminder: sent=${sent} skipped=${skipped} failed=${failed}`);
-  return NextResponse.json({ sent, skipped, failed, considered: bookings.length });
+  console.log(`attendeeReminder[${windowKey}]: sent=${sent} skipped=${skipped} failed=${failed}`);
+  return NextResponse.json({ window: windowKey, sent, skipped, failed, considered: bookings.length });
 }
 
 export const POST = defaultResponderForAppDir(postHandler);

@@ -181,15 +181,22 @@ async function getHandler(req: NextApiRequest, res: NextApiResponse) {
     // a throwing schema) or a transient write must not cost the user the redirect
     // that ends their onboarding.
     //
-    // Only for an account still in onboarding that has expressed no preference. The
-    // page that sets the flag has no completedOnboarding guard, and an absent default
-    // is not an empty value: getDefaultLocations and EventManager both read it as Cal
-    // Video, so writing it for an established account would move their existing event
-    // types with nothing in the UI saying so.
+    // Guarded only on the user not having chosen a conferencing app, never on where
+    // they are in onboarding. Gating on completedOnboarding was too tight and left a
+    // real gap: an account that finishes onboarding and connects Google Calendar
+    // afterwards got the Meet credential but no default, so every event type it
+    // created later came out with no location at all. Observed on a live account,
+    // which held meet=true and defaultConferencingApp=none.
+    //
+    // Writing it for an established account was the original worry, and it does not
+    // hold here. An absent default resolves to Cal Video, which cannot work on this
+    // deployment because DAILY_API_KEY is unset, so the only thing being replaced is
+    // a link that was never going to open. A default the user actually picked is
+    // still never touched.
     try {
       const userRepo = new UserRepository(prisma);
       const user = await userRepo.findById({ id: req.session.user.id });
-      if (user && !user.completedOnboarding && !user.metadata?.defaultConferencingApp) {
+      if (user && !user.metadata?.defaultConferencingApp) {
         await userRepo.updateMetadata({
           id: req.session.user.id,
           metadata: { ...user.metadata, defaultConferencingApp: { appSlug: "google-meet" } },
