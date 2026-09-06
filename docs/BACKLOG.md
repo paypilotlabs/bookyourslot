@@ -166,17 +166,48 @@ display font as "skipped" (it is serving), and the owner calendar dashboard as
 
 ## P5 — Product
 
-### 13. Reminders, via n8n rather than a port
+### 13. Turn the reminder schedulers on
 
-The most-requested capability for this market, and the workflow routes are
-stripped from the base. Porting them is large. **n8n reaches the same outcome as
-configuration**: BookYourSlot already fires `BOOKING_CREATED` and 18 other
-webhook events, and n8n can send the reminder.
+The reminder code is built and the three bands (48h, 24h, 30m) ship in
+[N8N-REMINDERS.md](N8N-REMINDERS.md), but **nothing is calling them**. Checked on
+3 September: `attendeeReminder` appeared in the container log **zero times in 48
+hours**, so the only reminder ever sent in production was fired by hand.
 
-See [N8N.md](N8N.md). For WhatsApp specifically the code is easy and Meta's
-business verification plus template approval is the real project.
+Import `automations/bookyourslot-schedulers.n8n.json`, attach the Header Auth
+credential to all four HTTP nodes, activate. Until that is done the feature exists
+and does nothing.
 
-*Effort: hours in n8n, versus weeks to port workflows.*
+*Effort: 15 minutes. Nothing else on this list unlocks as much value per minute.*
+
+### 13b. Nothing alerts when reminders stop
+
+Following from the above: if n8n is stopped, paused, or its credential expires,
+reminders cease and the only symptom is silence. The uptime monitor watches the
+booking page, not the schedulers.
+
+Cheapest version is an n8n error workflow on the four HTTP nodes. A stronger
+version is a daily check that the container log contains recent
+`attendeeReminder[` lines.
+
+*Effort: 30 minutes for the n8n error workflow.*
+
+### 13c. `GOOGLE_CALENDAR_API_KEY` is unset, and a settings toggle can break a booking page
+
+Verified unset in the running container. The holiday feature builds its client
+eagerly: `getUserAvailability.ts:847` calls `getHolidayService()`, which reaches
+`HolidayServiceCachingProxy`'s constructor, which calls
+`getGoogleCalendarClient()`, which **throws** when the key is absent. That throw is
+outside the try/catch, which only wraps `fetchHolidays`.
+
+Currently latent: **zero** users have set a holiday country, and
+`calculateHolidayBlockedDates` returns before the service is built when no country
+is set. But the first customer who picks a country in Settings, Out of office,
+Holidays breaks their own booking page.
+
+Either set the key or make the failure degrade to "no holidays blocked".
+
+*Effort: minutes to set the key. An hour to make it fail soft, which is the better
+fix.*
 
 ### 14. Prove the booking round trip on production
 
@@ -198,6 +229,31 @@ sitemap is submitted.
 ## Already done
 
 Verified as handled, recorded so they are not re-investigated:
+
+- **Attendee reminders, three bands.** 48h, 24h and 30m, each with its own dedupe
+  marker, bands tiling the runway so no booking collects the same reminder twice.
+  The 24h band deliberately reuses the original `reminderSentAt` key so anyone
+  reminded under the single-window version is not reminded again. Scheduling them
+  is item 13 above and is not done.
+- **The reminder email carries the meeting link.** It did not at first: the event
+  was rebuilt from the database, which loses the `videoCallData` the booking
+  handler had in memory, so the Where block named the provider and linked to
+  nothing. Fixed by passing `metadata.videoCallUrl` through as
+  `additionalInformation.hangoutLink`, and proven on a live booking.
+- **New accounts get a working Google Meet link.** `installGoogleVideo` was read in
+  three places and set in none, so onboarding never installed Meet, and event types
+  were created with `locations=[]`. Confirmed fixed on a live account that connected
+  Google Calendar and came out with `meet=true` and a Meet location on its event
+  type.
+- **Teams can be provisioned.** An admin-only mutation creates a team and its
+  memberships atomically, and team event types are now properly authorized: the
+  permission service in the create handler is a stub returning `true`, which was
+  harmless only while no team could exist.
+- **Uptime alerts say what actually failed.** The previous wording called every
+  curl failure "could not connect", including a response that was merely slow, which
+  is what made the 3 September page unattributable. Now separates DNS, no
+  connection, timeout, TLS failure and everything else, with the phase timings
+  attached.
 
 - **Docker log rotation** — `/etc/docker/daemon.json` sets `max-size: 10m`,
   `max-file: 3`. Disk is at 12% of 193G.

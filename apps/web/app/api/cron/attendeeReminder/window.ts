@@ -1,22 +1,78 @@
-export const REMINDER_HOURS = 24;
+const MINUTE_MS = 60_000;
 const HOUR_MS = 3_600_000;
 
+export type ReminderWindowKey = "48h" | "24h" | "30m";
+
+type ReminderWindowSpec = {
+  /** Remind when the booking starts no more than this far ahead. */
+  leadMs: number;
+  /** And no sooner than this. Whatever is nearer belongs to the next window along. */
+  floorMs: number;
+  /** Skip bookings younger than this: a reminder that close to the confirmation reads as a duplicate. */
+  minAgeMs: number;
+  /** Booking.metadata key recording that this window has already fired. */
+  marker: string;
+  /** How often the external scheduler must call this window for the band not to be stepped over. */
+  callEvery: string;
+};
+
 /**
- * Which bookings are candidates for a reminder on this run.
+ * Three bands, each owning a slice of the runway, so one booking collects one
+ * reminder per band rather than three copies of the same one.
  *
- * Deliberately a rolling one-sided window rather than a band around "24h from
- * now". A band only matches bookings that happen to pass through it while the
- * cron is running, so a single missed run silently drops every booking that
- * crossed it — the exact shape of silent failure this deployment has already
- * been bitten by. A ceiling plus a per-booking sent-marker is self-healing: a
- * run that was skipped is simply picked up by the next one.
+ * Each band is bounded below by the next band's ceiling. That matters more than it
+ * looks: overlapping bands would mean a booking 20 minutes out still matched the
+ * 24h band, and the marker would not save us because the markers are per band.
  *
- * The createdAt floor stops us "reminding" someone about a booking they made
- * twenty minutes ago, which reads as a duplicate confirmation.
+ * A band plus a per-booking marker is self-healing. A skipped run is picked up by
+ * the next one while the booking is still inside the band, and a booking that
+ * misses its band entirely (a long outage, or one made after the band had passed)
+ * simply falls through to the next band down rather than being lost. The narrow
+ * 30m band is the one exception, which is why it wants a ten minute cadence.
  */
-export function reminderWindow(now: Date) {
+export const REMINDER_WINDOWS: Record<ReminderWindowKey, ReminderWindowSpec> = {
+  "48h": {
+    leadMs: 48 * HOUR_MS,
+    floorMs: 24 * HOUR_MS,
+    minAgeMs: 2 * HOUR_MS,
+    marker: "reminderSentAt48h",
+    callEvery: "hourly",
+  },
+  "24h": {
+    leadMs: 24 * HOUR_MS,
+    floorMs: 30 * MINUTE_MS,
+    minAgeMs: 2 * HOUR_MS,
+    // Deliberately the original key from when this route sent a single reminder.
+    // Bookings already reminded under that version must not be reminded again.
+    marker: "reminderSentAt",
+    callEvery: "hourly",
+  },
+  "30m": {
+    leadMs: 30 * MINUTE_MS,
+    floorMs: 0,
+    // Shorter than the others on purpose. Two hours would mean anyone booking
+    // inside two hours of their appointment never gets the reminder that matters
+    // most, but somebody who booked eight minutes ago does not need reminding.
+    minAgeMs: 30 * MINUTE_MS,
+    marker: "reminderSentAt30m",
+    callEvery: "every 10 minutes",
+  },
+};
+
+export const DEFAULT_REMINDER_WINDOW: ReminderWindowKey = "24h";
+
+export function isReminderWindowKey(value: unknown): value is ReminderWindowKey {
+  return typeof value === "string" && value in REMINDER_WINDOWS;
+}
+
+/** The Prisma `where` fragment selecting this window's candidates on this run. */
+export function reminderWindow(now: Date, key: ReminderWindowKey = DEFAULT_REMINDER_WINDOW) {
+  const spec = REMINDER_WINDOWS[key];
   return {
-    startTime: { gt: now, lte: new Date(now.getTime() + REMINDER_HOURS * HOUR_MS) },
-    createdAt: { lte: new Date(now.getTime() - 2 * HOUR_MS) },
+    startTime: {
+      gt: new Date(now.getTime() + spec.floorMs),
+      lte: new Date(now.getTime() + spec.leadMs),
+    },
+    createdAt: { lte: new Date(now.getTime() - spec.minAgeMs) },
   };
 }

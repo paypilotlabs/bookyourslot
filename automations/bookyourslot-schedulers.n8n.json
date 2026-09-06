@@ -1,0 +1,308 @@
+{
+  "name": "BookYourSlot schedulers",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 1
+            }
+          ]
+        }
+      },
+      "id": "trg-Every hour (48h)",
+      "name": "Every hour (48h)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        260,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://bookyourslot.online/api/cron/attendeeReminder?window=48h",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 120000,
+          "response": {
+            "response": {
+              "fullResponse": false
+            }
+          }
+        }
+      },
+      "id": "req-Send 48h reminders",
+      "name": "Send 48h reminders",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        520,
+        0
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_ME",
+          "name": "BookYourSlot CRON key"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "alwaysOutputData": true,
+      "notes": "Two days out. Hourly is enough: the band is 24 hours wide.",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 1
+            }
+          ]
+        }
+      },
+      "id": "trg-Every hour (24h)",
+      "name": "Every hour (24h)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        260,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://bookyourslot.online/api/cron/attendeeReminder?window=24h",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 120000,
+          "response": {
+            "response": {
+              "fullResponse": false
+            }
+          }
+        }
+      },
+      "id": "req-Send 24h reminders",
+      "name": "Send 24h reminders",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        520,
+        320
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_ME",
+          "name": "BookYourSlot CRON key"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "alwaysOutputData": true,
+      "notes": "The day before. Hourly. Uses the original marker, so nobody already reminded gets a second copy.",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 10
+            }
+          ]
+        }
+      },
+      "id": "trg-Every 10 minutes (30m)",
+      "name": "Every 10 minutes (30m)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        260,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://bookyourslot.online/api/cron/attendeeReminder?window=30m",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 120000,
+          "response": {
+            "response": {
+              "fullResponse": false
+            }
+          }
+        }
+      },
+      "id": "req-Send 30m reminders",
+      "name": "Send 30m reminders",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        520,
+        640
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_ME",
+          "name": "BookYourSlot CRON key"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "alwaysOutputData": true,
+      "notes": "Just before. MUST run every 10 minutes: the band is only 30 minutes wide, so an hourly schedule would step straight over it.",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 5
+            }
+          ]
+        }
+      },
+      "id": "trg-Every 5 minutes (webhooks)",
+      "name": "Every 5 minutes (webhooks)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        260,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://bookyourslot.online/api/cron/webhookTriggers",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 120000,
+          "response": {
+            "response": {
+              "fullResponse": false
+            }
+          }
+        }
+      },
+      "id": "req-Flush scheduled webhooks",
+      "name": "Flush scheduled webhooks",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        520,
+        960
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_ME",
+          "name": "BookYourSlot CRON key"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "alwaysOutputData": true,
+      "notes": "Nothing else calls this. Without it MEETING_STARTED and MEETING_ENDED can never fire, however they are ticked on a webhook.",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "content": "## BookYourSlot schedulers\n\nFour independent chains. Nothing connects them; that is intentional.\n\n**Before this will do anything:**\n\n1. Create a credential of type **Header Auth**\n   - Name: `Authorization`\n   - Value: the CRON_API_KEY from\n     `/opt/bookyourslot/deploy/production/.env`\n   - No `Bearer` prefix. The route compares the\n     header to the key exactly.\n2. Select it on all four HTTP Request nodes.\n3. **Activate** the workflow. Schedule triggers do\n   not run while it is inactive.\n\n**The key is deliberately not in this file.**\nImport shows `REPLACE_ME`; pick your credential.\n\n**Do not change the 10 minute cadence** on the 30m\nchain. Its band is 30 minutes wide and an hourly\nrun would skip most bookings entirely.\n\nWindows are decided by the app, not here. Each URL\nnames its band with `?window=`. An unrecognised\nvalue is rejected with 400 rather than silently\nfalling back, so a typo fails loudly.\n\nExpected response: `{\"window\":\"24h\",\"sent\":0,\n\"skipped\":0,\"failed\":0,\"considered\":0}`.\nA 401 means the credential is wrong.",
+        "height": 1180,
+        "width": 520,
+        "color": 4
+      },
+      "id": "note-Setup",
+      "name": "Setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -300,
+        -40
+      ]
+    }
+  ],
+  "connections": {
+    "Every hour (48h)": {
+      "main": [
+        [
+          {
+            "node": "Send 48h reminders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every hour (24h)": {
+      "main": [
+        [
+          {
+            "node": "Send 24h reminders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 10 minutes (30m)": {
+      "main": [
+        [
+          {
+            "node": "Send 30m reminders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 5 minutes (webhooks)": {
+      "main": [
+        [
+          {
+            "node": "Flush scheduled webhooks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "tags": [
+    {
+      "name": "bookyourslot"
+    }
+  ],
+  "meta": {
+    "instanceId": ""
+  },
+  "versionId": ""
+}
