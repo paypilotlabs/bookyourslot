@@ -1,11 +1,10 @@
+import { getStaticProps } from "@lib/apps/[slug]/getStaticProps";
 import type { PageProps as _PageProps } from "app/_types";
 import { generateAppMetadata } from "app/_utils";
 import { notFound } from "next/navigation";
 import { z } from "zod";
-
-import { getStaticProps } from "@lib/apps/[slug]/getStaticProps";
-
 import AppView from "~/apps/[slug]/slug-view";
+import { isAppStoreAdmin, isClientBrowsableApp } from "../_lib/appStoreAccess";
 
 const paramsSchema = z.object({
   slug: z.string(),
@@ -46,6 +45,12 @@ async function Page({ params }: _PageProps) {
 
   if (!props) {
     notFound();
+  }
+
+  // A client can open Google, Apple or CalDAV so they can connect their own
+  // calendar. Every other app page is the operator's business, not theirs.
+  if (!isClientBrowsableApp(props.data) && !(await isAppStoreAdmin())) {
+    return notFound();
   }
 
   return <AppView {...props} />;
