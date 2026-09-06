@@ -1230,10 +1230,15 @@ speaks the `speak_during_execution` line while it waits.
 called live — the service list changes rarely and a tool call at the top of every conversation
 costs a second of silence for nothing.
 
-**Transfer to a human** is a Retell transfer node, not a tool. Triggered by: the caller
-asks for a person, the agent fails the same step twice, an error returns `NEEDS_HUMAN`, or
-the caller says anything that sounds like an emergency. **Every business must give you a
-transfer number at setup. No exceptions.**
+**Transfer to a human** is a `transfer_call` tool in the agent's `general_tools`. A
+transfer *node* is the conversation-flow construct, and BookYourSlot ships a
+single-prompt agent, so it uses the tool. **Not enabled today.** The config is written
+and dormant in `automations/retell-agent-script.md` under "Not enabled yet: transfer to
+a human", and the live prompt still tells the agent it cannot transfer. Do not describe
+transfer to a customer until it is turned on and tested. When it is: the caller asks for
+a person, the agent fails the same step twice, or the caller says anything that sounds
+like an emergency. **Every business must give you a transfer number at setup. No
+exceptions.**
 
 ## F.5 The call script
 

@@ -177,6 +177,8 @@ Stated plainly so nothing here is oversold:
 
 ## Related
 
+- [VOICE-BOOKING-RUNBOOK.md](VOICE-BOOKING-RUNBOOK.md), the ordered setup for a new client
+
 - `automations/bookyourslot-schedulers.n8n.json` - the importable workflow
 - `apps/web/app/api/cron/attendeeReminder/window.ts` - the band definitions
 - `docs/N8N.md` - webhooks from BookYourSlot into n8n, the other direction

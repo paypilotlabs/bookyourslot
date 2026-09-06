@@ -224,6 +224,46 @@ sitemap is submitted.
 
 *Effort: 30 minutes.*
 
+### 16. Turn on call transfer
+
+The Retell `transfer_call` config is written and dormant in
+[automations/retell-agent-script.md](../automations/retell-agent-script.md) under
+"Not enabled yet: transfer to a human". Schema verified against Retell's
+`create-retell-llm` OpenAPI in September 2026, so this is a paste, not a design task.
+
+Enabling is four steps, only one of which is in this repository:
+
+1. Get a transfer number from the client. It must not forward back to the Retell
+   number or the transfer loops into the agent.
+2. Paste the tool JSON into the agent's `general_tools`, substituting the number.
+3. Make the three prompt edits listed in that section. The line "Never claim you can
+   transfer" is accurate while this is off, and it is the thing that must change when
+   it is on. A tool added without the prompt edits is a tool the model never invokes.
+4. Place a real call and let the destination ring out. Failure behaviour for a
+   single-prompt agent is undocumented and there is no `transfer_failed` disconnection
+   reason. Claim nothing about recovery until it has been observed.
+
+Every already-provisioned agent needs the prompt re-pasted by hand. The script file is
+a paste source, not deployed config, so editing it changes nothing on a running agent.
+
+*Effort: 30 minutes for the first client, 5 for each after.*
+
+### 17. The availability chain can return an empty body mid-call
+
+In `automations/bookyourslot-retell-voice.n8n.json`, `Create the booking` sets
+`neverError: true` so a 4xx reaches the handler and the agent has something true to
+say. `Read free slots` does not. Any non-2xx from `getSchedule` therefore kills the
+run before the responder, and because `responseMode` is `responseNode` the caller
+gets silence rather than a sentence.
+
+This is the same defect that was fixed for the booking chain in `4f7499d`. The fix is
+the same shape: add the option, then a fallback branch that says something honest.
+
+Not bundled with the payment guard because it changes what a live caller hears and
+wants its own test call.
+
+*Effort: 20 minutes plus a test call.*
+
 ---
 
 ## Already done
