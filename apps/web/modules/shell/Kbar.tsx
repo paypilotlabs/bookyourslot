@@ -67,14 +67,6 @@ const KBAR_ACTION_CONFIGS: ActionConfig[] = [
     href: "/event-types",
   },
   {
-    id: "app-store",
-    name: "app_store",
-    section: "apps",
-    shortcut: ["a", "s"],
-    keywords: "app store",
-    href: "/apps",
-  },
-  {
     id: "upcoming-bookings",
     name: "upcoming",
     section: "bookings",
@@ -180,7 +172,27 @@ const KBAR_ACTION_CONFIGS: ActionConfig[] = [
   },
 ];
 
-function buildKbarActions(push: (href: string) => void): Action[] {
+function buildKbarActions(push: (href: string) => void, isAdmin: boolean): Action[] {
+  // The store and every per-app page 404 for a client, so offering them in search
+  // would only dead-end someone who typed "app". A client connects their calendar
+  // from Settings, Calendars instead.
+  const appStoreSearchActions: Action[] = isAdmin
+    ? [
+        {
+          id: "app-store",
+          name: "app_store",
+          section: "apps",
+          shortcut: ["a", "s"],
+          keywords: "app store",
+          perform: () => push("/apps"),
+        },
+        ...getApps.map((item) => ({
+          ...item,
+          perform: () => push(`/apps/${item.id}`),
+        })),
+      ]
+    : [];
+
   const staticActions: Action[] = KBAR_ACTION_CONFIGS.map((config) => ({
     id: config.id,
     name: config.name,
@@ -190,12 +202,7 @@ function buildKbarActions(push: (href: string) => void): Action[] {
     perform: () => push(config.href),
   }));
 
-  const appStoreActions: Action[] = getApps.map((item) => ({
-    ...item,
-    perform: () => push(`/apps/${item.id}`),
-  }));
-
-  return [...staticActions, ...appStoreActions];
+  return [...staticActions, ...appStoreSearchActions];
 }
 
 function useEventTypesAction(): void {
@@ -278,7 +285,10 @@ function useUpcomingBookingsAction(): void {
 
 const KBarRoot = ({ children }: { children: ReactNode }): JSX.Element => {
   const router = useRouter();
-  const actions = useMemo(() => buildKbarActions(router.push), [router.push]);
+  const session = useSession();
+  // The store 404s for a client, so offering it in search would only dead-end them.
+  const isAdmin = session.data?.user?.role === "ADMIN";
+  const actions = useMemo(() => buildKbarActions(router.push, isAdmin), [router.push, isAdmin]);
 
   return <KBarProvider actions={actions}>{children}</KBarProvider>;
 };

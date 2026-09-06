@@ -11,7 +11,7 @@ import { useMobileMoreItems } from "./useMobileMoreItems";
 
 export const MORE_SEPARATOR_NAME = "more";
 
-const getNavigationItems = (): NavigationItemType[] => [
+const getNavigationItems = (isAdmin: boolean): NavigationItemType[] => [
   {
     name: "event_types_page_title",
     href: "/event-types",
@@ -36,30 +36,33 @@ const getNavigationItems = (): NavigationItemType[] => [
   },
   {
     name: "apps",
-    href: "/apps",
+    // A client is shown what they have, never the store. The operator assigns
+    // integrations, so browsing for them would only advertise things this
+    // deployment cannot deliver. The store pages 404 for them regardless; this
+    // keeps the sidebar from linking somewhere they cannot go.
+    href: isAdmin ? "/apps" : "/apps/installed/calendar",
     icon: "grid-3x3",
     moreOnMobile: true,
-    isCurrent: ({ pathname: path, item }) => {
-      // During Server rendering path is /v2/apps but on client it becomes /apps(weird..)
-      return path?.startsWith(item.href) ?? false;
-    },
-    child: [
-      {
-        name: "app_store",
-        href: "/apps",
-        isCurrent: ({ pathname: path, item }) => {
-          // During Server rendering path is /v2/apps but on client it becomes /apps(weird..)
-          return (path?.startsWith(item.href) ?? false) && !(path?.includes("/installed") ?? false);
-        },
-      },
-      {
-        name: "installed_apps",
-        href: "/apps/installed/calendar",
-        isCurrent: ({ pathname: path }) =>
-          (path?.startsWith("/apps/installed/") ?? false) ||
-          (path?.startsWith("/v2/apps/installed/") ?? false),
-      },
-    ],
+    isCurrent: ({ pathname: path }) => path?.startsWith("/apps") ?? false,
+    child: isAdmin
+      ? [
+          {
+            name: "app_store",
+            href: "/apps",
+            isCurrent: ({ pathname: path, item }) => {
+              // During Server rendering path is /v2/apps but on client it becomes /apps(weird..)
+              return (path?.startsWith(item.href) ?? false) && !(path?.includes("/installed") ?? false);
+            },
+          },
+          {
+            name: "installed_apps",
+            href: "/apps/installed/calendar",
+            isCurrent: ({ pathname: path }) =>
+              (path?.startsWith("/apps/installed/") ?? false) ||
+              (path?.startsWith("/v2/apps/installed/") ?? false),
+          },
+        ]
+      : undefined,
   },
   {
     name: MORE_SEPARATOR_NAME,
@@ -69,8 +72,11 @@ const getNavigationItems = (): NavigationItemType[] => [
 ];
 
 const useNavigationItems = () => {
+  const session = useSession();
+  const isAdmin = session.data?.user?.role === "ADMIN";
+
   return useMemo(() => {
-    const items = getNavigationItems();
+    const items = getNavigationItems(isAdmin);
 
     const desktopNavigationItems = items.filter((item) => item.name !== MORE_SEPARATOR_NAME);
     const mobileNavigationBottomItems = items.filter(
@@ -85,7 +91,10 @@ const useNavigationItems = () => {
       mobileNavigationBottomItems,
       mobileNavigationMoreItems,
     };
-  }, []);
+    // isAdmin arrives asynchronously: the session is undefined on first render and
+    // resolves after. Without it here the memo keeps the nav built for a client and
+    // an admin never gets the store link back.
+  }, [isAdmin]);
 };
 
 export const Navigation = () => {

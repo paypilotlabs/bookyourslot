@@ -1,15 +1,14 @@
-import { _generateMetadata } from "app/_utils";
-import { cookies, headers } from "next/headers";
-
 import { getAppRegistry, getAppRegistryWithCredentials } from "@calcom/app-store/_appRegistry";
 import { getServerSession } from "@calcom/features/auth/lib/getServerSession";
 import { UserRepository } from "@calcom/features/users/repositories/UserRepository";
 import prisma from "@calcom/prisma";
 import type { AppCategories } from "@calcom/prisma/enums";
-
 import { buildLegacyRequest } from "@lib/buildLegacyCtx";
-
+import { _generateMetadata } from "app/_utils";
+import { cookies, headers } from "next/headers";
+import { notFound } from "next/navigation";
 import AppsPage from "~/apps/apps-view";
+import { isAppStoreAdmin } from "../_lib/appStoreAccess";
 
 export const generateMetadata = async () => {
   return await _generateMetadata(
@@ -22,6 +21,9 @@ export const generateMetadata = async () => {
 };
 
 const ServerPage = async () => {
+  // Clients do not browse for integrations; the operator assigns them.
+  if (!(await isAppStoreAdmin())) notFound();
+
   const req = buildLegacyRequest(await headers(), await cookies());
   const session = await getServerSession({ req });
   let appStore, userAdminTeamsIds: number[];
@@ -54,9 +56,7 @@ const ServerPage = async () => {
         name: name as AppCategories,
         count,
       }))
-      .sort(function (a, b) {
-        return b.count - a.count;
-      }),
+      .sort((a, b) => b.count - a.count),
     appStore,
     userAdminTeams: userAdminTeamsIds,
   };
