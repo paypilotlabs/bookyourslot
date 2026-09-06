@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import { GOOGLE_HOLIDAY_CALENDARS } from "./constants";
 import type { CachedHoliday } from "./HolidayServiceCachingProxy";
 
@@ -10,8 +11,8 @@ vi.mock("./HolidayServiceCachingProxy", () => ({
   HolidayServiceCachingProxy: vi.fn(),
 }));
 
-import { HolidayService } from "./HolidayService";
 import { getHolidayServiceCachingProxy } from "./HolidayServiceCachingProxy";
+import { HolidayService } from "./HolidayService";
 
 const mockHolidays: CachedHoliday[] = [
   {

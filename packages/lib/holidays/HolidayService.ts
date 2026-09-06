@@ -1,11 +1,12 @@
 import dayjs from "@calcom/dayjs";
 import { HolidayRepository } from "@calcom/features/holidays/repositories/HolidayRepository";
-import { CONFLICT_CHECK_MONTHS, GOOGLE_HOLIDAY_CALENDARS } from "./constants";
+
 import {
-  type CachedHoliday,
   getHolidayServiceCachingProxy,
+  type CachedHoliday,
   type HolidayServiceCachingProxy,
 } from "./HolidayServiceCachingProxy";
+import { CONFLICT_CHECK_MONTHS, GOOGLE_HOLIDAY_CALENDARS } from "./constants";
 import type { Country, Holiday, HolidayWithStatus } from "./types";
 
 export interface ConflictingBooking {
