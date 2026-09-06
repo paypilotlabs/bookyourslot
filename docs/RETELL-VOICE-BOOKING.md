@@ -67,6 +67,13 @@ endpoint takes an id, not a slug.
 **One workflow per client.** Each client gets their own Retell number and their own
 copy of this workflow. A shared number would book the wrong business.
 
+**Name the calendar slot after the caller.** Separate from the workflow, and per
+event type. Without it every phone booking lands on the calendar as
+"30 mins discussion between Owner and Caller", which reads backwards when the owner
+is scanning a day. Event Types, the service, Advanced, "Event name in calendar",
+set `{Scheduler} - {Event type title}`. Full detail in
+[VOICE-BOOKING-RUNBOOK.md](VOICE-BOOKING-RUNBOOK.md#2-name-the-calendar-slot-after-the-caller).
+
 ### 3. Activate the workflow
 
 Webhooks 404 while a workflow is inactive, and n8n does not warn you.
@@ -185,6 +192,8 @@ webhook payload:
 - **One client per workflow and per number.**
 
 ## Related
+
+- [VOICE-BOOKING-RUNBOOK.md](VOICE-BOOKING-RUNBOOK.md), the ordered setup for a new client
 
 - `automations/bookyourslot-retell-voice.n8n.json` - the workflow
 - `automations/retell-agent-script.md` - the prompt and function definitions
