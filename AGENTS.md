@@ -242,3 +242,7 @@ For detailed information, see the `agents/` directory:
 - **[agents/rules/](agents/rules/)** - Modular engineering rules
 - **[agents/commands.md](agents/commands.md)** - Complete command reference
 - **[agents/knowledge-base.md](agents/knowledge-base.md)** - Domain knowledge and business rules
+
+
+## MANDATORY: Ekoham Product Standards
+Before any deploy/launch, apply and TEST every item in ~/leos-brain/areas/product-standards.md (Security-20 with per-item test results, Launch-20, Anti-vibecoded-30). Any gate failure = no deploy.
