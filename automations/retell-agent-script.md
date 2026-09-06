@@ -96,8 +96,8 @@ COMMON QUESTIONS
   offers times the team is actually available and read back what you were given.
 - Price: "I can't confirm a price from here, but I can get you booked in and they'll
   go through it with you." Never quote a number.
-- Payment or deposits: "There's nothing to pay to book. They'll sort that with you
-  directly." Never take card details. You cannot take payment.
+- Payment or deposits: "I can't take any payment over the phone. They'll go through
+  that with you directly." Never take card details. You cannot take payment.
 - Where they are / directions: only if it is in your knowledge base. Otherwise offer
   to note it in the booking.
 - Cancelling or moving an existing booking: "The confirmation email has links to
@@ -188,7 +188,82 @@ back to you. It creates a real booking; do not call it to check anything.
 | Slot taken while talking | "Sorry, that time was just taken. Would another time work?" → call `check_availability` again |
 | Missing a detail | "Before I can book that I still need your email address..." → collect it and retry |
 | Email unusable | "I do not think I caught your email address correctly. Could you spell it out?" |
+| Service needs payment | "I can't take payment for that one over the phone. Let me take your details and someone will call you back." → do not retry |
 | Anything else | Take a callback. Do not invent a reason |
+
+---
+
+## Not enabled yet: transfer to a human
+
+**This is off, and the prompt above is correct as written.** It tells the agent it
+cannot transfer, and today that is true. Nothing in this repository participates in a
+transfer: it is Retell configuration only, so there is no n8n node and no BookYourSlot
+code behind it. The config is recorded here so that turning it on is a known set of
+edits rather than a fresh investigation.
+
+Schema verified against Retell's `create-retell-llm` OpenAPI, September 2026. Confirm
+against the current docs before enabling.
+
+Add to the Retell LLM's `general_tools` array:
+
+```json
+{
+  "type": "transfer_call",
+  "name": "transfer_to_owner",
+  "description": "Transfer the caller to a person. Use only when the caller asks for a person and you cannot help them yourself.",
+  "transfer_destination": {
+    "type": "predefined",
+    "number": "{{TRANSFER_NUMBER}}"
+  },
+  "transfer_option": {
+    "type": "cold_transfer",
+    "transfer_ring_duration_ms": 20000
+  }
+}
+```
+
+Cold transfer, because routing the caller and dropping off is what a receptionist
+handoff actually is. Warm and agentic warm add human detection, hold music and a
+whisper step, none of which this needs.
+
+`transfer_ring_duration_ms` is set explicitly rather than inheriting the 30 second
+default, so the caller's wait is a decision rather than an accident.
+
+**Deliberately omitted, do not add without reading why:**
+
+- `transfer_destination.type: "inferred"` lets the model choose the phone number. A
+  hallucinated number reaches a real stranger.
+- `show_transferee_as_caller`. Retell's own pages disagree about when it works, and one
+  of them says a transfer fails outright where caller ID override is unsupported.
+- `ignore_e164_validation`. Retell's schema places it at tool level, its example places
+  it inside `transfer_destination`. Unresolved, and ignored on Retell Telephony anyway.
+
+**`{{TRANSFER_NUMBER}}` is per client.** Add it to the per-client values table when this
+is enabled. It must be a number that does not forward back to the Retell number, or the
+transfer loops into the agent. Usually the owner's direct mobile.
+
+**Three prompt edits are required on enable, all in the same change:**
+
+1. `WHEN THE CALLER ASKS FOR THE OWNER OR A REAL PERSON`: delete `Do not imply you can
+   transfer the call.` and offer the choice, "I can get you booked in right now, or put
+   you through to someone. Which would you prefer?"
+2. `NEVER DO THESE`: replace `Never claim you can transfer, or that you know where a
+   team member is.` with `Never claim to know where a team member is.`
+3. `IF YOU CANNOT HELP` currently says to take a message. Reconcile it with the tool, or
+   the agent has two conflicting instructions for the same moment.
+
+Configuring the tool without those three edits ships a tool the model never invokes,
+because the prompt still forbids the thing the tool does.
+
+**Untested, and not to be claimed until observed:** what a single-prompt agent does when
+a cold transfer is not answered. Retell documents a failure branch for conversation-flow
+agents only, and there is no `transfer_failed` disconnection reason in the call object.
+Place a real call and let the destination ring out before writing anything about
+recovery behaviour.
+
+**Constraints:** phone calls only, never web calls. Requires a Retell or imported number.
+The AI session ends once the call is bridged, and the call object reports
+`disconnection_reason: "call_transfer"`.
 
 ---
 
@@ -226,6 +301,13 @@ client's own calendar.
   books with a bad one. Expect this to be the most common failure.
 - **The agent cannot look up an existing booking.** Reschedule and cancel are links in
   the confirmation email.
-- **No payment, ever.** There is nothing to take and the prompt says so.
+- **No payment, ever.** Not only because the prompt says so, but because the booking
+  body the workflow sends is a fixed allowlist with `metadata: {}` and a server-side
+  `eventTypeId`, so nothing a caller says can attach a price. If a priced event type
+  is ever mapped into `Client config`, the workflow refuses the booking rather than
+  claiming it succeeded.
 - **No SMS.** Confirmation and reminders are email only.
+- **No transfer to a human, yet.** The config is written and dormant above. Until it is
+  enabled the agent takes a message instead, and the prompt is correct to say it cannot
+  transfer.
 - **One client per workflow and per number.**
