@@ -8,6 +8,14 @@ Every item below was verified against the running system, not assumed. Where
 something turned out to be already handled it is listed under
 [Already done](#already-done) rather than quietly dropped.
 
+**Last audited 6 September 2026**, all 17 items against the code and the live VPS.
+That pass moved seven items to Already done (4, 5, 8, 9, 13, 14, 17) and corrected four
+descriptions (7, 10, 12, 13c) that would have sent someone to fix the wrong thing. Item numbers are stable across edits because
+other documents cite them.
+
+Items only the operator can run have no diff and live in
+[OPS-RUNBOOK.md](OPS-RUNBOOK.md); the rows here link to it rather than repeat it.
+
 Ordered by what actually bites first.
 
 ---
@@ -25,9 +33,10 @@ without shipping and the newest copy of your customers' bookings is a month old.
 
 The corrected cron is already in
 [deploy/production/README.md](../deploy/production/README.md); it just needs
-installing, and `/root/backups` creating first.
+installing, and `/root/backups` creating first. **Pull the VPS checkout before reading
+that file off the box** — see the structural note at the end.
 
-*Effort: 10 minutes.*
+*Effort: 10 minutes. Commands in [OPS-RUNBOOK.md](OPS-RUNBOOK.md).*
 
 ### 2. No backup has ever been restored
 
@@ -37,7 +46,7 @@ snapshot into a scratch database and confirm the bookings are actually in it.
 Note the 7 existing snapshots predate the `--clean --if-exists` change, so they
 restore only into an **empty** target.
 
-*Effort: 30 minutes, once.*
+*Effort: 30 minutes, once. Commands in [OPS-RUNBOOK.md](OPS-RUNBOOK.md).*
 
 ### 3. Every backup is on the same disk as the database
 
@@ -49,30 +58,7 @@ survive the disk. One `rclone`/`scp` line to anywhere off-box closes it.
 
 ---
 
-## P2 — Would have caught bugs that actually shipped
-
-### 4. CI never builds
-
-`.github/workflows/ci.yml` runs type-check and tests. It does not run
-`next build`. That gap let a lint auto-fix add `import process from "node:process"`
-to `packages/lib/constants.ts`, which broke the edge-runtime OG route and left
-**main unbuildable across three merges** — with CI green the whole time.
-
-Adding a build job catches this class before merge, at roughly +20 minutes per PR.
-The alternative is treating a red deploy as "the build broke, look now", which
-works only because the Telegram alert fires (`deploy` reports `skipped`).
-
-*Effort: 1 hour. Real trade-off: PR latency.*
-
-### 5. GitHub Actions are pinned to tags, not SHAs
-
-`actions/checkout@v7`, `docker/setup-buildx-action@v4`, `docker/login-action@v4`,
-`docker/build-push-action@v7`. Tags are mutable. That job holds the deploy SSH key
-and can reach production, so a compromised tag runs arbitrary code with your
-credentials. The workflow's own comment already says to pin before relying on it,
-and Dependabot is configured to keep pins current.
-
-*Effort: 30 minutes, one time.*
+## P2 — Process
 
 ### 6. Branch protection is absent
 
@@ -81,7 +67,7 @@ The repo is private on the free plan, so the GitHub API returns
 `main` can be pushed to directly. Costs a few dollars a month, or accept it and
 rely on discipline.
 
-*Effort: minutes, plus a subscription decision.*
+*Effort: minutes, plus a subscription decision. Verified still returning 403 on 6 September 2026.*
 
 ---
 
@@ -89,58 +75,56 @@ rely on discipline.
 
 ### 7. Duplicate bookings are only blocked for exact matches
 
-`Booking.idempotencyKey` is unique on (startTime, endTime, organizer) and is
-enforced by Postgres, so two guests cannot take the identical confirmed slot.
-Two cases slip through under concurrency:
+`Booking.idempotencyKey` is a **single-column nullable unique index**, not a composite:
+the `(startTime, endTime, organizer)` tuple is hashed into the value by application
+code, and a Prisma extension sets it on `ACCEPTED` inserts. Postgres enforces it, so
+two guests cannot take the identical confirmed slot.
 
 - **Overlapping but not identical** — 10:00-10:30 against 10:15-10:45, or two
-  durations on a multi-duration event type. Different keys, both insert.
-- **Requires-confirmation events** — inserted as `PENDING`, which leaves the key
-  `NULL`, and Postgres permits unlimited NULLs in a unique index. **No database
-  protection at all.**
+  durations on a multi-duration event type. Different keys, both insert. **Still open.**
+  The only protection is `ensureAvailableUsers`, a read that is not atomic with the
+  insert. There is no exclusion constraint and no range type.
+- ~~Requires-confirmation events leave the key NULL~~ — **closed** in `16ac9f2`. A
+  `PENDING` booking on an event type with `requiresConfirmation` *and*
+  `requiresConfirmationWillBlockSlot` now gets a key of its own. It stays NULL for plain
+  requires-confirmation and for paid-awaiting-payment rows, deliberately: several people
+  are meant to be able to request the same slot and let the host pick one.
 
-Neither bites today. The second becomes real the moment you enable
-requires-confirmation on any event type.
+The remaining gap does not bite today, and closing it means touching the booking path,
+so it wants its own PR and its own tests.
 
 *Effort: medium. Needs care — this is the booking path.*
-
-### 8. Login has a timing oracle
-
-Non-existent, locked, and OAuth-only accounts all return before the bcrypt
-compare; only a real account with a wrong password pays the cost-12 hash. Response
-time therefore distinguishes them, even though the messages are now identical.
-Closing it needs a dummy compare against a fixed hash.
-
-Far weaker than the message leak that was already fixed, but real.
-
-*Effort: 1 hour.*
-
-### 9. The booking page runs its data load twice per request
-
-`apps/web/app/(booking-page-wrapper)/[user]/[type]/page.tsx` calls `getData()`
-in both `ServerPage` and `generateMetadata`, and `withAppDirSsr` has no
-memoisation. Next dedupes `fetch`, not Prisma. This is the highest-traffic path in
-the product, doing roughly double the queries it needs.
-
-Fix is React's `cache()` keyed on a primitive — about 12 lines across two files.
-
-*Effort: 1 hour.*
 
 ---
 
 ## P4 — Cleanup
 
-### 10. `packages/lib/rateLimit.ts` is dead weight
+### 10. Decide what `packages/lib/rateLimit.ts` is for
 
-Roughly 120 lines whose only runtime behaviour is returning
-`{ success: true, remaining: 999 }`, because `UNKEY_ROOT_KEY` is unset and will
-stay unset — rate limiting now lives in Traefik. Every
-`checkRateLimitAndThrowError` call in the codebase is a no-op that reads like a
-protection.
+**This item used to say "delete it". That is now contested by the file itself**, and the
+decision has to come before any code moves.
 
-Worth deleting precisely because it *looks* like a control while being inert.
+The mechanics are unchanged: 150 lines whose only runtime behaviour is returning
+`{ success: true, remaining: 999 }`, because `UNKEY_ROOT_KEY` is unset. 21 production
+call sites, all no-ops that read like a protection.
 
-*Effort: 2 hours, needs care — many call sites.*
+But the file's own docblock now argues to keep them: they are the **identity-keyed**
+layer, and Traefik structurally cannot provide it. Traefik limits per source address; a
+spray from hundreds of addresses against one account is caught here and nowhere else.
+Setting `UNKEY_ROOT_KEY` switches that on with no code change.
+
+Both readings are defensible. Pick one:
+
+- **Set `UNKEY_ROOT_KEY`** and the call sites become real. Costs an Unkey account.
+- **Accept the no-op** and leave the docblock as the explanation. Costs nothing, and the
+  code keeps looking like a control that is not one.
+- **Delete it** as originally written. Then also handle `smsLockState.ts`, which imports
+  `rateLimiter` directly and is not mentioned in the original item.
+
+Note `checkRateLimitAndThrowError` is not exported from `rateLimit.ts`; it has its own
+file. The original item was wrong about that too.
+
+*Effort: the decision is 10 minutes. Acting on it is 2 hours whichever way it goes.*
 
 ### 11. Rotate the Postgres password
 
@@ -152,36 +136,34 @@ Note `POSTGRES_PASSWORD` only applies at first init: an existing volume needs
 `ALTER USER ... WITH PASSWORD` inside the container, then `DATABASE_URL` updated
 to match, then a restart.
 
-*Effort: 30 minutes, brief downtime.*
+*Effort: 30 minutes, brief downtime. Commands in [OPS-RUNBOOK.md](OPS-RUNBOOK.md).*
 
-### 12. Stale rows in the feature roadmap
+### 12. One stale row in the feature roadmap
 
-`CHECKLIST.md` still lists Google sign-in as "needs keys" (it is live), the Unique
-display font as "skipped" (it is serving), and the owner calendar dashboard as
-"in progress" (route and view both exist).
+**This item was wrong about two of the three rows it named.** Checked against
+`CHECKLIST.md` directly:
 
-*Effort: 10 minutes.*
+- Google sign-in reads "Keys in place, round-trip untested", not "needs keys". Accurate
+  as written: the wiring is complete and nobody has clicked it through.
+- The owner calendar dashboard already reads "Shipped". Accurate: `/calendar` renders.
+- The Unique display font reads "Skipped for now". Also accurate. `unique.woff2` does
+  **not** exist and `--font-display` falls back. The font that does serve is Manoyri, a
+  different face on `--font-script`. The row could say "wired, binary out-of-band" but
+  it is not false.
+
+The one genuinely stale row is elsewhere: `CHECKLIST.md` asks to remove
+`displayDebug={true}` from `BookingPageErrorBoundary.tsx`. That prop is passed nowhere
+and defaults to `false`. The box should be ticked.
+
+*Effort: 5 minutes.*
 
 ---
 
 ## P5 — Product
 
-### 13. Turn the reminder schedulers on
-
-The reminder code is built and the three bands (48h, 24h, 30m) ship in
-[N8N-REMINDERS.md](N8N-REMINDERS.md), but **nothing is calling them**. Checked on
-3 September: `attendeeReminder` appeared in the container log **zero times in 48
-hours**, so the only reminder ever sent in production was fired by hand.
-
-Import `automations/bookyourslot-schedulers.n8n.json`, attach the Header Auth
-credential to all four HTTP nodes, activate. Until that is done the feature exists
-and does nothing.
-
-*Effort: 15 minutes. Nothing else on this list unlocks as much value per minute.*
-
 ### 13b. Nothing alerts when reminders stop
 
-Following from the above: if n8n is stopped, paused, or its credential expires,
+If n8n is stopped, paused, or its credential expires,
 reminders cease and the only symptom is silence. The uptime monitor watches the
 booking page, not the schedulers.
 
@@ -189,9 +171,9 @@ Cheapest version is an n8n error workflow on the four HTTP nodes. A stronger
 version is a daily check that the container log contains recent
 `attendeeReminder[` lines.
 
-*Effort: 30 minutes for the n8n error workflow.*
+*Effort: 30 minutes for the n8n error workflow. Steps in [OPS-RUNBOOK.md](OPS-RUNBOOK.md).*
 
-### 13c. `GOOGLE_CALENDAR_API_KEY` is unset, and a settings toggle can break a booking page
+### 13c. `GOOGLE_CALENDAR_API_KEY` is still unset
 
 Verified unset in the running container. The holiday feature builds its client
 eagerly: `getUserAvailability.ts:847` calls `getHolidayService()`, which reaches
@@ -199,30 +181,33 @@ eagerly: `getUserAvailability.ts:847` calls `getHolidayService()`, which reaches
 `getGoogleCalendarClient()`, which **throws** when the key is absent. That throw is
 outside the try/catch, which only wraps `fetchHolidays`.
 
-Currently latent: **zero** users have set a holiday country, and
-`calculateHolidayBlockedDates` returns before the service is built when no country
-is set. But the first customer who picks a country in Settings, Out of office,
-Holidays breaks their own booking page.
+**The throw is fixed. Setting the key is not, and that is what is left.**
 
-Either set the key or make the failure degrade to "no holidays blocked".
+This item used to call itself latent, on the grounds that zero users had set a holiday
+country. That reasoning was backwards: nobody had set one because **nobody could**.
+`getHolidayService()` has six callers and five reach it outside any try/catch, including
+`getSupportedCountries`, which populates the country dropdown. So the settings page threw
+before it could render, and `holidays-view.tsx` printed the raw message: customers saw
+the literal string `GOOGLE_CALENDAR_API_KEY environment variable is not set`.
 
-*Effort: minutes to set the key. An hour to make it fail soft, which is the better
-fix.*
+The guard now lives in `fetchHolidays` instead of the client's constructor, so it throws
+inside `refreshCache`'s existing catch, which logs. Every caller degrades to "no holidays
+blocked" and the settings page loads.
 
-### 14. Prove the booking round trip on production
+What remains: `GOOGLE_CALENDAR_API_KEY` is still unset, so picking a country yields an
+empty holiday list. The panel says "no holidays found", which is true but does not say
+why, and a customer could read a selected country as holidays being blocked when nothing
+is. Setting the key closes it properly. Surfacing a distinct "lookup unavailable" state
+through tRPC is the larger alternative and has not been done.
 
-Nobody has booked a slot end to end since Google Calendar was connected. Book one
-from a private window, confirm both emails arrive, confirm it lands on the
-calendar, then reschedule and cancel it.
-
-*Effort: 20 minutes. Highest confidence-per-minute item here.*
+*Effort: minutes to set the key.*
 
 ### 15. Search Console and Bing
 
 Both unticked. Indexing takes weeks to earn, so the clock only starts once the
 sitemap is submitted.
 
-*Effort: 30 minutes.*
+*Effort: 30 minutes. Steps in [OPS-RUNBOOK.md](OPS-RUNBOOK.md).*
 
 ### 16. Turn on call transfer
 
@@ -248,27 +233,44 @@ a paste source, not deployed config, so editing it changes nothing on a running 
 
 *Effort: 30 minutes for the first client, 5 for each after.*
 
-### 17. The availability chain can return an empty body mid-call
-
-In `automations/bookyourslot-retell-voice.n8n.json`, `Create the booking` sets
-`neverError: true` so a 4xx reaches the handler and the agent has something true to
-say. `Read free slots` does not. Any non-2xx from `getSchedule` therefore kills the
-run before the responder, and because `responseMode` is `responseNode` the caller
-gets silence rather than a sentence.
-
-This is the same defect that was fixed for the booking chain in `4f7499d`. The fix is
-the same shape: add the option, then a fallback branch that says something honest.
-
-Not bundled with the payment guard because it changes what a live caller hears and
-wants its own test call.
-
-*Effort: 20 minutes plus a test call.*
-
 ---
 
 ## Already done
 
 Verified as handled, recorded so they are not re-investigated:
+
+- **CI builds on every PR.** `06efc74`. `ci.yml` gained a second job, `Next build`, that
+  builds the way the Dockerfile does. The gap it closes is the one that let a lint
+  auto-fix add `import process from "node:process"` to `packages/lib/constants.ts` and
+  leave main unbuildable across three merges with CI green throughout.
+- **Every GitHub Action is pinned to a commit SHA.** Same commit. All eight `uses:`
+  references carry a 40-character SHA with the version as a trailing comment, and
+  Dependabot keeps them current. The job holds the deploy SSH key, which is why a mutable
+  tag mattered.
+- **Login costs the same time whichever way it fails.** A cost-12 compare against
+  `DUMMY_PASSWORD_HASH` runs even when there is no stored hash, so an unknown address, a
+  locked account, a social-login-only account and a wrong password are one throw after
+  one compare. The message was already identical; the timing now is too.
+- **The public booking page loads once per request.** `d03ab4d`. React's `cache()` keyed
+  on a JSON string, because `cache()` compares arguments by identity and the page passes
+  objects. `generateMetadata` and the page component now share one load on the
+  highest-traffic path in the product.
+- **The reminder schedulers are running.** `bysSchedulers001` is imported and active in
+  n8n. Of 58 workflows on that instance exactly two are active, and both are ours. What
+  is still missing is an alert for when they stop, which is 13b.
+- **The booking round trip is proven on production.** Eight bookings exist: two were
+  rescheduled, four cancelled, and each carries a `google_calendar` reference. The
+  accepted ones carry a Meet URL. Book, sync, reschedule and cancel have all run against
+  the live system.
+- **The voice availability chain answers when the request fails.** `Read free slots` now
+  sets `neverError`, `fullResponse` and `onError`, and the formatting node returns a
+  spoken fallback instead of letting the run die before the responder. A 500 or a changed
+  response shape no longer reads as an empty calendar. **Takes effect only once the
+  workflow is re-imported into n8n** — see [OPS-RUNBOOK.md](OPS-RUNBOOK.md).
+- **The holidays settings page loads without `GOOGLE_CALENDAR_API_KEY`.** The guard moved
+  from `GoogleCalendarClient`'s constructor into `fetchHolidays`, so it throws inside
+  `refreshCache`'s existing catch rather than out of six unguarded callers. Setting the
+  key is still outstanding and is 13c.
 
 - **Attendee reminders, three bands.** 48h, 24h and 30m, each with its own dedupe
   marker, bands tiling the runway so no booking collects the same reminder twice.
@@ -320,3 +322,9 @@ That drift is silent and cumulative: the host once sat six commits behind while
 every deploy reported success. The rule worth remembering:
 
 > **App code deploys itself. Anything under `deploy/production/` needs a manual pull.**
+
+Measured on 6 September 2026: the checkout at `/opt/bookyourslot` was **33 commits behind
+`origin/main`**. So the compose files, `remote-deploy.sh` and the backup cron documented
+in the box's own `deploy/production/README.md` were all stale, and installing that cron
+by reading it off the server would have installed an outdated line. `git pull` there
+before acting on anything this document points at.

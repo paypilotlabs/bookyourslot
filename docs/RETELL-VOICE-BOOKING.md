@@ -169,7 +169,8 @@ webhook payload:
 | Symptom | Cause |
 |---|---|
 | Webhook 404 | Workflow is not active |
-| Agent offers no times | `found: false`. Check the username, the service slug, and that the account has availability |
+| Agent offers no times | `found: false` with `spoken: "nothing in the next two weeks"`. Check the username, the service slug, and that the account has availability |
+| Agent says it cannot see the calendar | `found: false` with the "cannot see the calendar" sentence. The slots request failed or came back in an unexpected shape. Check the n8n execution, not the account |
 | `I could not complete that booking` | Look at the n8n execution. `Say what happened` carries the status and message |
 | Books at the wrong time | `timeZone` in `Client config` is the caller's, not the store's |
 | Booking has no notes | The agent called `book_appointment` without `reason` or `phone` |

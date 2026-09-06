@@ -16,7 +16,7 @@ This runbook sequences two deep documents and does not restate them:
 | n8n editor | `http://100.91.157.6:5678/`, tailnet only, not public |
 | The app, as the client's user | `https://bookyourslot.online` |
 | Retell dashboard | your Retell account |
-| `CRON_API_KEY` | `/root/production/.env` on the VPS, only needed for reminders |
+| `CRON_API_KEY` | `/opt/bookyourslot/deploy/production/.env` on the VPS, only needed for reminders |
 
 You do not need a BookYourSlot API key. There is no working REST API on this
 deployment. The voice flow uses the two public endpoints the booker itself uses.

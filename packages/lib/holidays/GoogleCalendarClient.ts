@@ -1,5 +1,4 @@
 import dayjs from "@calcom/dayjs";
-
 import { GOOGLE_HOLIDAY_CALENDARS } from "./constants";
 
 interface GoogleCalendarEvent {
@@ -34,17 +33,22 @@ export interface GoogleCalendarHoliday {
 }
 
 export class GoogleCalendarClient {
-  private apiKey: string;
+  private apiKey: string | undefined;
 
   constructor(apiKey?: string) {
-    const key = apiKey || process.env.GOOGLE_CALENDAR_API_KEY;
-    if (!key) {
-      throw new Error("GOOGLE_CALENDAR_API_KEY environment variable is not set");
-    }
-    this.apiKey = key;
+    this.apiKey = apiKey || process.env.GOOGLE_CALENDAR_API_KEY;
   }
 
   async fetchHolidays(countryCode: string, year: number): Promise<GoogleCalendarHoliday[]> {
+    // Checked here rather than in the constructor because the constructor runs eagerly
+    // from getHolidayService(), which six callers reach outside any try/catch. Throwing
+    // there broke the holidays settings page for everyone. Throwing here lands inside
+    // refreshCache's existing catch, which logs and leaves the cached holidays alone.
+    // It must still throw: returning [] would let refreshCache delete a good cache.
+    if (!this.apiKey) {
+      throw new Error("GOOGLE_CALENDAR_API_KEY environment variable is not set");
+    }
+
     const calendarConfig = GOOGLE_HOLIDAY_CALENDARS[countryCode];
     if (!calendarConfig) {
       return [];
