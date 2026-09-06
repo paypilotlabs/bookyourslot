@@ -1,3 +1,4 @@
+import process from "node:process";
 import { Dialog } from "@calcom/features/components/controlled-dialog";
 import CreateEventTypeForm from "@calcom/features/eventtypes/components/CreateEventTypeForm";
 import { useLocale } from "@calcom/lib/hooks/useLocale";
@@ -114,19 +115,29 @@ export function CreateEventTypeDialog({ profileOptions }: { profileOptions: Prof
         enableOverflow
         title={teamId ? t("add_new_team_event_type") : t("add_new_event_type")}
         description={t("new_event_type_to_book_description")}>
-        {teamId ? null : (
-          <CreateEventTypeForm
-            urlPrefix={urlPrefix}
-            isPending={createMutation.isPending}
-            form={form}
-            isManagedEventType={isManagedEventType}
-            handleSubmit={(values) => {
-              createMutation.mutate(values);
-            }}
-            SubmitButton={SubmitButton}
-            pageSlug={pageSlug}
-          />
-        )}
+        <CreateEventTypeForm
+          urlPrefix={urlPrefix}
+          isPending={createMutation.isPending}
+          form={form}
+          isManagedEventType={isManagedEventType}
+          handleSubmit={(values) => {
+            // teamId and schedulingType are injected here rather than held in the form.
+            // The create handler only attaches the event type to a team when it receives
+            // both, so without this the dialog would render for a team and then quietly
+            // produce a personal event type. Injecting after validation also sidesteps the
+            // client-side refine that demands a schedulingType whenever the form itself
+            // carries a teamId.
+            //
+            // Round robin is the default because it is the shape people mean by "the team
+            // takes bookings". It is changed, and hosts are assigned, on the team tab that
+            // this dialog redirects to.
+            createMutation.mutate(
+              teamId ? { ...values, teamId, schedulingType: SchedulingType.ROUND_ROBIN } : values
+            );
+          }}
+          SubmitButton={SubmitButton}
+          pageSlug={pageSlug}
+        />
       </DialogContent>
     </Dialog>
   );
