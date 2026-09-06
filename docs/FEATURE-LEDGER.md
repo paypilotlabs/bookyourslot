@@ -101,7 +101,7 @@ Insurance offices and HVAC skew Microsoft.
 | Per-service schedules | LIVE | |
 | Date overrides for closures | LIVE | multi-date on create, per schedule not per account |
 | Out of office | LIVE | |
-| Public holiday auto-blocking | LIVE **with a landmine** | see Open risks |
+| Public holiday auto-blocking | WIRED, returns nothing | needs `GOOGLE_CALENDAR_API_KEY`; degrades safely without it, see Open risks |
 | Buffers before and after | LIVE | fixed menu, so no 25 minute drive-time pad |
 | Minimum notice, slot interval | LIVE | |
 | Caps per day / week / month / year | LIVE | per service, counts only accepted bookings |
@@ -256,7 +256,7 @@ a number per client.
 | Risk | State |
 |---|---|
 | **Tenant isolation has never been audited** | Everything read so far is user-scoped, but not having seen leakage is not proof there is none. Worth an audit before a clinic and a salon share the box |
-| **`GOOGLE_CALENDAR_API_KEY` unset** | Latent. Zero clients have set a holiday country. The first who does breaks their own booking page: the holiday client is built eagerly and throws outside the try/catch |
+| **`GOOGLE_CALENDAR_API_KEY` unset** | No longer throws. The guard moved into `fetchHolidays`, so it fails inside the existing catch and every caller degrades to "no holidays blocked". Until the key is set, picking a country yields an empty list: the panel says "no holidays found", which is true but does not say why |
 | Reminders are not scheduled | The feature exists and does nothing until n8n is wired |
 | Three misleading cards are live | `/apps/stripe`, `/apps/baa-for-hipaa`, `/apps/whatsapp` all return 200. Hiding the app store closes all three at once |
 | No nightly or offsite backup | Recovery point is the last deploy, and a failed backup does not stop a deploy |
