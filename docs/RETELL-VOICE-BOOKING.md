@@ -76,7 +76,46 @@ Webhooks 404 while a workflow is inactive, and n8n does not warn you.
 Follow `automations/retell-agent-script.md`. Paste the General Prompt, add the two
 functions with the URLs your n8n gives you.
 
-### 5. Point a number at the agent
+### 5. Webhook routing, so Retell can reach n8n
+
+Retell is a cloud service and n8n listens only on the tailnet, so the two webhook
+paths are routed through Traefik on the existing domain. No DNS record is needed and
+no new subdomain.
+
+The n8n container carries these labels:
+
+```
+traefik.enable=true
+traefik.docker.network=bys
+traefik.http.routers.n8n-hooks.rule=(Host(`bookyourslot.online`) || Host(`www.bookyourslot.online`)) && PathPrefix(`/webhook/bookyourslot/`)
+traefik.http.routers.n8n-hooks.entrypoints=websecure
+traefik.http.routers.n8n-hooks.tls.certresolver=letsencrypt
+traefik.http.routers.n8n-hooks.priority=100
+traefik.http.services.n8n-hooks.loadbalancer.server.port=5678
+traefik.http.middlewares.n8n-hooks-rl.ratelimit.average=30
+```
+
+**The prefix is `/webhook/bookyourslot/`, not `/webhook`.** That matters: this n8n
+holds dozens of unrelated workflows, several with their own webhooks, and a bare
+`/webhook` prefix would publish every one of them. The editor is not routed at all
+and stays reachable only on the tailnet.
+
+Verify all three after any change to this:
+
+```bash
+curl -s -o /dev/null -w '%{http_code}\n' -X POST -H 'Content-Type: application/json' \
+  -d '{"service":"consultation"}' https://bookyourslot.online/webhook/bookyourslot/availability   # 200
+curl -s -o /dev/null -w '%{http_code}\n' https://bookyourslot.online/rest/login                  # 404, editor not exposed
+curl -s -o /dev/null -w '%{http_code}\n' https://bookyourslot.online/webhook/waitlist            # 404, other workflows not exposed
+```
+
+**On authentication.** These two paths are unauthenticated. That is a smaller gap
+than it looks: `/api/book/event` is already public and session-free because the
+booking page needs it, so a shared secret here would not protect anything an attacker
+could not reach directly. What does apply is the Traefik rate limit above. If you
+later want a secret anyway, add a header check in the first Code node of each chain.
+
+### 6. Point a number at the agent
 
 Buy a number in Retell and assign the agent. That number is now that client's
 booking line.
