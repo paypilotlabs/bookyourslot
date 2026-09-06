@@ -1,0 +1,290 @@
+{
+  "name": "BookYourSlot voice booking (Retell)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bookyourslot/availability",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "wh-avail",
+      "name": "Retell asks: when are you free?",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "webhookId": "bys-availability"
+    },
+    {
+      "parameters": {
+        "jsCode": "// The only node you edit when onboarding a client.\n// Give each client their own Retell number and their own copy of this workflow.\nconst CLIENT = {\n  username:    'startwithleo',   // their BookYourSlot username\n  timeZone:    'America/Detroit',// the STORE's timezone, not the caller's\n  // Service name spoken by the agent -> the event type it books.\n  // eventTypeId is required by the booking API; find it in the event type URL.\n  services: {\n    'consultation':   { slug: '30min',  eventTypeId: 3, minutes: 30 },\n    'quick question': { slug: '15min',  eventTypeId: 1, minutes: 15 },\n  },\n  defaultService: 'consultation',\n};\n\nconst body = $json.body ?? $json;\nconst wanted = (body.service || CLIENT.defaultService).toLowerCase().trim();\nconst service = CLIENT.services[wanted] ?? CLIENT.services[CLIENT.defaultService];\n\nreturn [{ json: { ...body, client: CLIENT, service } }];\n"
+      },
+      "id": "cfg-avail",
+      "name": "Client config",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 0]
+    },
+    {
+      "parameters": {
+        "url": "=https://bookyourslot.online/api/trpc/slots/getSchedule",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "input",
+              "value": "={{ JSON.stringify({ json: { usernameList: [$json.client.username], eventTypeSlug: $json.service.slug, startTime: $json.from || new Date().toISOString(), endTime: $json.to || new Date(Date.now() + 14*864e5).toISOString(), timeZone: $json.client.timeZone, isTeamEvent: false } }) }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "id": "http-slots",
+      "name": "Read free slots",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 0],
+      "retryOnFail": true,
+      "maxTries": 2
+    },
+    {
+      "parameters": {
+        "jsCode": "\n// Retell reads this aloud, so give it few options and human wording.\n// Never read back a raw ISO timestamp to a caller.\nconst cfg = $('Client config').first().json;\nconst days = $json?.result?.data?.json?.slots ?? {};\n\nconst all = Object.entries(days).flatMap(([day, slots]) =>\n  (slots || []).map((s) => s.time)\n).sort();\n\nconst speak = (iso) => new Date(iso).toLocaleString('en-US', {\n  timeZone: cfg.client.timeZone,\n  weekday: 'long', month: 'long', day: 'numeric',\n  hour: 'numeric', minute: '2-digit',\n});\n\n// Three options, spread across different days where possible, so the caller is not\n// read six times on the same afternoon.\nconst byDay = new Map();\nfor (const iso of all) {\n  const key = iso.slice(0, 10);\n  if (!byDay.has(key)) byDay.set(key, iso);\n}\nconst offers = [...byDay.values()].slice(0, 3);\n\nreturn [{ json: {\n  found: offers.length > 0,\n  service: cfg.service.slug,\n  minutes: cfg.service.minutes,\n  // what the agent says\n  spoken: offers.length\n    ? offers.map(speak).join(', or ')\n    : 'nothing in the next two weeks',\n  // what the agent must send back when booking\n  options: offers.map((iso) => ({ iso, spoken: speak(iso) })),\n} }];\n"
+      },
+      "id": "fmt-slots",
+      "name": "Turn slots into something speakable",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "resp-avail",
+      "name": "Answer Retell",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [880, 0]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bookyourslot/book",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "wh-book",
+      "name": "Retell says: book it",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 420],
+      "webhookId": "bys-book"
+    },
+    {
+      "parameters": {
+        "jsCode": "// The only node you edit when onboarding a client.\n// Give each client their own Retell number and their own copy of this workflow.\nconst CLIENT = {\n  username:    'startwithleo',   // their BookYourSlot username\n  timeZone:    'America/Detroit',// the STORE's timezone, not the caller's\n  // Service name spoken by the agent -> the event type it books.\n  // eventTypeId is required by the booking API; find it in the event type URL.\n  services: {\n    'consultation':   { slug: '30min',  eventTypeId: 3, minutes: 30 },\n    'quick question': { slug: '15min',  eventTypeId: 1, minutes: 15 },\n  },\n  defaultService: 'consultation',\n};\n\nconst body = $json.body ?? $json;\nconst wanted = (body.service || CLIENT.defaultService).toLowerCase().trim();\nconst service = CLIENT.services[wanted] ?? CLIENT.services[CLIENT.defaultService];\n\nreturn [{ json: { ...body, client: CLIENT, service } }];\n"
+      },
+      "id": "cfg-book",
+      "name": "Client config ",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 420]
+    },
+    {
+      "parameters": {
+        "jsCode": "\n// The agent is instructed to confirm every field aloud before calling this, but an\n// agent can be talked past its instructions. This is the backstop: a booking with\n// no email address is a booking the customer never sees written down, and the\n// 48h/24h/30m reminders have nowhere to go.\nconst j = $json;\nconst need = ['name', 'email', 'start'];\nconst missing = need.filter((k) => !j[k] || String(j[k]).trim() === '');\n\nconst email = String(j.email || '').trim();\nif (email && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/.test(email)) missing.push('a valid email');\n\nif (missing.length) {\n  return [{ json: {\n    ok: false,\n    booked: false,\n    speak: `I still need ${missing.join(' and ')} before I can book that. Could you give me that again?`,\n    missing,\n  } }];\n}\nreturn [{ json: { ...j, ok: true } }];\n"
+      },
+      "id": "validate",
+      "name": "Refuse to book on missing details",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 420]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://bookyourslot.online/api/book/event",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ eventTypeId: $json.service.eventTypeId, start: $json.start, timeZone: $json.client.timeZone, language: 'en', metadata: {}, responses: {   name: $json.name,   email: $json.email,   notes: [     'Booked by phone through the voice agent.',     'Service: ' + $json.service.slug + '.',     $json.phone ? 'Caller phone: ' + $json.phone + '.' : '',     $json.reason ? 'Reason given: ' + $json.reason : ''   ].filter(Boolean).join(' '),   guests: [] } }) }}",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "http-book",
+      "name": "Create the booking",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, 420],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "jsCode": "\n// neverError is on, so a 4xx arrives here rather than killing the run. The caller is\n// on the line: the agent must always have something true to say.\nconst res = $json;\nconst status = res.statusCode ?? 0;\nconst body = res.body ?? {};\n\nif (status >= 200 && status < 300 && body.uid) {\n  return [{ json: {\n    ok: true, booked: true, uid: body.uid,\n    speak: 'That is booked. You will receive a confirmation email shortly.',\n  } }];\n}\n\n// The common one: somebody took the slot between the agent reading it out and the\n// caller saying yes. Recoverable, and the agent should offer another time.\nconst msg = String(body.message || '');\nif (/no_available_users|not available|already booked/i.test(msg)) {\n  return [{ json: {\n    ok: false, booked: false, retryable: true,\n    speak: 'Sorry, that time was just taken. Would another time work?',\n  } }];\n}\n\nreturn [{ json: {\n  ok: false, booked: false, retryable: false, status, detail: msg,\n  speak: 'I could not complete that booking. Let me take your details and someone will call you back.',\n} }];\n"
+      },
+      "id": "fmt-book",
+      "name": "Say what happened",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [880, 420]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "resp-book",
+      "name": "Answer Retell ",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1100, 420]
+    },
+    {
+      "parameters": {
+        "content": "## BookYourSlot voice booking\n\nTwo webhooks Retell calls as custom functions.\n\n**One workflow per client.** Edit only the two\n`Client config` nodes: username, timezone, and the\nservices with their eventTypeId.\n\n**Find an eventTypeId** in the event type URL:\n`/event-types/3?tabName=setup` means id 3.\n\n**No credentials needed.** Slots and booking are\nboth reachable without a session, because the public\nbooker needs them. Nothing here holds a secret.\n\n**Activate the workflow** or the webhooks 404.\n\nPayload verified against production with\n`_isDryRun`, which validates the whole path and\nwrites nothing.",
+        "height": 620,
+        "width": 420,
+        "color": 4
+      },
+      "id": "note",
+      "name": "Setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-460, -40]
+    }
+  ],
+  "connections": {
+    "Retell asks: when are you free?": {
+      "main": [
+        [
+          {
+            "node": "Client config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Client config": {
+      "main": [
+        [
+          {
+            "node": "Read free slots",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read free slots": {
+      "main": [
+        [
+          {
+            "node": "Turn slots into something speakable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Turn slots into something speakable": {
+      "main": [
+        [
+          {
+            "node": "Answer Retell",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retell says: book it": {
+      "main": [
+        [
+          {
+            "node": "Client config ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Client config ": {
+      "main": [
+        [
+          {
+            "node": "Refuse to book on missing details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Refuse to book on missing details": {
+      "main": [
+        [
+          {
+            "node": "Create the booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create the booking": {
+      "main": [
+        [
+          {
+            "node": "Say what happened",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Say what happened": {
+      "main": [
+        [
+          {
+            "node": "Answer Retell ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true
+  },
+  "tags": [
+    {
+      "name": "bookyourslot"
+    },
+    {
+      "name": "retell"
+    }
+  ],
+  "meta": {
+    "instanceId": ""
+  },
+  "versionId": ""
+}
