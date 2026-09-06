@@ -97,7 +97,7 @@
     },
     {
       "parameters": {
-        "jsCode": "\n// The agent is instructed to confirm every field aloud before calling this, but an\n// agent can be talked past its instructions. This is the backstop: a booking with\n// no email address is a booking the customer never sees written down, and the\n// 48h/24h/30m reminders have nowhere to go.\nconst j = $json;\nconst need = ['name', 'email', 'start'];\nconst missing = need.filter((k) => !j[k] || String(j[k]).trim() === '');\n\nconst email = String(j.email || '').trim();\nif (email && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/.test(email)) missing.push('a valid email');\n\nif (missing.length) {\n  return [{ json: {\n    ok: false,\n    booked: false,\n    speak: `I still need ${missing.join(' and ')} before I can book that. Could you give me that again?`,\n    missing,\n  } }];\n}\nreturn [{ json: { ...j, ok: true } }];\n"
+        "jsCode": "// The agent is instructed to confirm every field aloud before calling this, but an\n// agent can be talked past its instructions. This is the backstop: a booking with\n// no email address is a booking the customer never sees written down, and the\n// 48h/24h/30m reminders have nowhere to go.\n//\n// The wording matters because it is spoken. Field names are mapped to phrases a\n// person would actually say: \"I still need email\" is not a sentence.\nconst SPOKEN = {\n  name: 'your name',\n  email: 'your email address',\n  start: 'a time for the appointment',\n};\n\nconst j = $json;\nconst missing = ['name', 'email', 'start'].filter((k) => !j[k] || String(j[k]).trim() === '');\n\nconst email = String(j.email || '').trim();\nif (email && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/.test(email)) {\n  // Not \"missing\" but unusable, and the caller needs a different sentence for it.\n  return [{ json: {\n    ok: false,\n    booked: false,\n    speak: `I do not think I caught your email address correctly. Could you spell it out for me one more time?`,\n    missing: ['email'],\n  } }];\n}\n\nif (missing.length) {\n  const phrases = missing.map((k) => SPOKEN[k] ?? k);\n  const list = phrases.length > 1\n    ? `${phrases.slice(0, -1).join(', ')} and ${phrases[phrases.length - 1]}`\n    : phrases[0];\n  return [{ json: {\n    ok: false,\n    booked: false,\n    speak: `Before I can book that I still need ${list}. Could you give me that again?`,\n    missing,\n  } }];\n}\nreturn [{ json: { ...j, ok: true } }];\n"
       },
       "id": "validate",
       "name": "Refuse to book on missing details",
@@ -126,7 +126,7 @@
       "name": "Create the booking",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [660, 420],
+      "position": [820, 420],
       "retryOnFail": true,
       "maxTries": 2,
       "waitBetweenTries": 3000
@@ -139,7 +139,7 @@
       "name": "Say what happened",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [880, 420]
+      "position": [1040, 420]
     },
     {
       "parameters": {
@@ -151,7 +151,7 @@
       "name": "Answer Retell ",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [1100, 420]
+      "position": [1260, 420]
     },
     {
       "parameters": {
@@ -165,6 +165,40 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [-460, -40]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ok-check",
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "gate-book",
+      "name": "Details complete?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [560, 420],
+      "notes": "False goes straight back to the caller with the spoken reason. Without this the run reached the booking request with undefined fields, threw, and answered the agent with an empty body.",
+      "notesInFlow": true
     }
   ],
   "connections": {
@@ -238,7 +272,7 @@
       "main": [
         [
           {
-            "node": "Create the booking",
+            "node": "Details complete?",
             "type": "main",
             "index": 0
           }
@@ -258,6 +292,24 @@
     },
     "Say what happened": {
       "main": [
+        [
+          {
+            "node": "Answer Retell ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Details complete?": {
+      "main": [
+        [
+          {
+            "node": "Create the booking",
+            "type": "main",
+            "index": 0
+          }
+        ],
         [
           {
             "node": "Answer Retell ",
