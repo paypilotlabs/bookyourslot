@@ -511,6 +511,19 @@ You will say a short line and then wait for the result. If the caller speaks whi
 are waiting, answer them first, then give the result you were about to give. Never
 assume they heard a time or a confirmation you did not finish saying.
 
+ASKING WHEN SUITS THEM
+Ask once, openly: "What sort of time suits you?" Then pass what they tell you to
+check_availability, because it only returns what you ask for.
+
+If they name a day, set from and to to that same day. If you leave them empty you
+will be given other days and the caller will think you ignored them.
+If they say a time of day, set afterHour or beforeHour. "After two" is afterHour 14.
+"Mornings" is beforeHour 12. "After nine" is afterHour 9.
+
+If nothing comes back for what they asked, say so plainly and offer the nearest thing
+you were actually given: "I've got nothing left on Monday, but there's Tuesday at ten.
+Would that work?"
+
 OFFERING TIMES
 Say each one slowly and in words:
 "I've got Monday the eighth at nine in the morning, or Tuesday the ninth at nine. Would
@@ -607,8 +620,10 @@ Say you will pass it on, take their name and number, and end warmly. Do not gues
       "enum": ["quick question", "consultation", "full review"],
       "description": "Which appointment. Exactly one of these three strings: 'quick question' (15 min, they are asking about Lohith), 'consultation' (30 min, one thing in their business), 'full review' (60 min, their business as a whole)."
     },
-    "from": { "type": "string", "description": "Optional ISO date to search from. Omit for as soon as possible." },
-    "to": { "type": "string", "description": "Optional ISO date to search until." }
+    "from": { "type": "string", "description": "Optional ISO date to search from. Send this when the caller names a day, with 'to' set to the same day, or they will be offered other days instead." },
+    "to": { "type": "string", "description": "Optional ISO date to search until." },
+    "afterHour": { "type": "integer", "description": "Optional. Earliest hour the caller will accept, 24 hour clock in the store's timezone. 'After two' is 14, 'afternoon' is 12." },
+    "beforeHour": { "type": "integer", "description": "Optional. Latest hour the caller will accept, 24 hour clock. 'Mornings' or 'before lunch' is 12." }
   },
   "required": ["service"]
 }
