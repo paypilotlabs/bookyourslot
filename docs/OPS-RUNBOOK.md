@@ -43,6 +43,9 @@ ssh root@2.25.89.115 'cd /opt/bookyourslot && git pull && git rev-list --count H
 
 **Success looks like:** the last line prints `0`.
 
+Done on 7 September 2026: the checkout was 41 behind and is now at the `#56` merge. It
+will drift again with the next deploy, so re-run this before acting on anything below.
+
 ---
 
 # Part A. Stop being one disk away from losing every booking
@@ -185,9 +188,16 @@ Do not put the remote's credentials in the repository. `rclone config` keeps the
 
 # Part B. After PR #56 merges
 
+Merged and deployed on 7 September 2026 as `sha-5fa3431`. The holiday fix went out with
+it. The voice fix did not, because n8n is not part of the deploy.
+
 ## B1. Re-import the voice workflow
 
 *10 minutes.* **Nothing else in this part matters until you do this.**
+
+**Confirmed still outstanding.** Checked the live workflow against the repo:
+`continueRegularOutput` 0 vs 1, `cannot see the calendar` 0 vs 1, `res.body` 1 vs 2. The
+n8n list agreeing, "Last updated 17 hours ago" against a fix merged the same night.
 
 `automations/bookyourslot-retell-voice.n8n.json` is a checked-in export, **not deployed
 config**. Merging the availability fix does nothing to live calls. Until you import it, a
@@ -220,8 +230,8 @@ sentence forever while the workflow looks perfectly healthy. Tell me if you see 
 
 ## B2. Confirm the holidays page stopped erroring
 
-*2 minutes.* The holiday fix ships with the normal deploy, no action needed, but it is
-worth one look because it was customer visible.
+*2 minutes.* **Deployed.** No action needed, but worth one look because it was customer
+visible.
 
 Open Settings, Out of office, Holidays while logged in.
 
@@ -330,8 +340,19 @@ without the prompt edits is a tool the model never invokes.
 
 ---
 
+## After the runbook: test it
+
+Once Part B is done, work through [VOICE-TEST-PLAN.md](VOICE-TEST-PLAN.md). It covers the
+phone path end to end, the reminders, and the regressions worth re-checking, with a bug
+log to fill in as you go.
+
+Two things that page will ask for and this one does not cover, because they live outside
+the VPS entirely: the Retell agent prompt and its two function URLs, and the calendar
+event name setting on each event type. Both were still unset as of 7 September.
+
 ## Related
 
+- [VOICE-TEST-PLAN.md](VOICE-TEST-PLAN.md), the testing session
 - [BACKLOG.md](BACKLOG.md), the items and why each matters
 - [VOICE-BOOKING-RUNBOOK.md](VOICE-BOOKING-RUNBOOK.md), setting up a new voice client
 - [N8N-REMINDERS.md](N8N-REMINDERS.md), the reminder bands
