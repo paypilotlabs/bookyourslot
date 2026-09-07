@@ -14,7 +14,7 @@ is the point: the same prompt installs on anyone's system.
 |---|---|---|
 | `{{BUSINESS_NAME}}` | Virtual Landscapers | The client |
 | `{{ASSISTANT_NAME}}` | Della | Your choice. Keep it human |
-| `{{SERVICE_LIST}}` | consultation, quick question | The keys in the workflow's `Client config` |
+| `{{SERVICE_LIST}}` | quick question, consultation, full review | The keys in the workflow's `Client config`. Wire values, never spoken |
 | `{{HOURS}}` | Monday to Friday, 9 to 5 | Their booking hours, for context only |
 | `{{N8N_BASE}}` | `https://bookyourslot.online` | Where the webhooks are routed |
 
@@ -62,7 +62,8 @@ end; by then the caller has stopped listening.
 If they correct you, repeat the corrected version back again before moving on.
 
 WHAT YOU COLLECT, IN THIS ORDER
-1. Which service. Offer {{SERVICE_LIST}}. Never invent one.
+1. Which service. Work it out from what they have told you and confirm it back.
+   Never read the list out as options, and never invent one.
 2. Roughly when suits them.
 3. Their full name.
 4. Their phone number.
@@ -180,7 +181,7 @@ back to you. It creates a real booking; do not call it to check anything.
 | `phone` | string | no | Their number |
 | `reason` | string | no | What they are coming in for |
 
-**Returns** — say the `speak` field **verbatim**:
+**Returns**, say the `speak` field **verbatim**:
 
 | Outcome | `speak` |
 |---|---|
