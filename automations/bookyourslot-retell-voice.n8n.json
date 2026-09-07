@@ -33,7 +33,7 @@
           "parameters": [
             {
               "name": "input",
-              "value": "={{ JSON.stringify({ json: { usernameList: [$json.client.username], eventTypeSlug: $json.service.slug, startTime: ($json.from ? (/^\\\\d{4}-\\\\d{2}-\\\\d{2}$/.test($json.from) ? $json.from + 'T00:00:00.000Z' : $json.from) : new Date().toISOString()), endTime: ($json.to ? (/^\\\\d{4}-\\\\d{2}-\\\\d{2}$/.test($json.to) ? $json.to + 'T23:59:59.999Z' : $json.to) : new Date(Date.now() + 14*864e5).toISOString()), timeZone: $json.client.timeZone, isTeamEvent: false } }) }}"
+              "value": "={{ JSON.stringify({ json: { usernameList: [$json.client.username], eventTypeSlug: $json.service.slug, startTime: ($json.from ? ($json.from.includes('T') ? $json.from : $json.from + 'T00:00:00.000Z') : new Date().toISOString()), endTime: ($json.to ? ($json.to.includes('T') ? $json.to : $json.to + 'T23:59:59.999Z') : new Date(Date.now() + 14*864e5).toISOString()), timeZone: $json.client.timeZone, isTeamEvent: false } }) }}"
             }
           ]
         },
