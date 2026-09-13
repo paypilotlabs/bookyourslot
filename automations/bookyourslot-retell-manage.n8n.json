@@ -1,0 +1,742 @@
+{
+  "name": "BookYourSlot voice manage (Retell)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bookyourslot/find",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "wh-find",
+      "name": "Retell asks: which booking is mine?",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "webhookId": "wh-find"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Retell sends {name, call, args} unless \"Payload: args only\" is on. These three\n// functions must keep that OFF, because the caller's number lives in call.from_number\n// and it is half of the identity check. Accept the args-only shape too so a curl test\n// can pass callerPhone explicitly.\nconst body = $json.body ?? $json;\nconst args = body.args ?? body;\nconst email = String(args.email || '').trim().toLowerCase();\nconst callerPhone = String(body.call?.from_number ?? args.callerPhone ?? '').trim();\nreturn [{ json: {\n  email, callerPhone,\n  start: args.start || null,\n  reason: args.reason || null,\n  timeZone: 'America/Detroit',\n} }];"
+      },
+      "id": "id-find",
+      "name": "Identify the caller",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://bookyourslot.online/api/voice/booking-lookup",
+        "options": {
+          "timeout": 15000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true
+            }
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ email: $json.email, callerPhone: $json.callerPhone }) }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "id": "http-find",
+      "name": "Look up the booking",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 0],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_ME",
+          "name": "BookYourSlot voice lookup key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// The lookup answers {found:false} identically for no-such-email, wrong phone and\n// withheld caller ID, on purpose. So this branch cannot tell the caller WHY, and it\n// must not try: the one sentence below is true in every case and leaks nothing.\nconst res = $json;\nconst status = res.statusCode ?? 0;\nconst body = res.body ?? {};\nconst who = $('Identify the caller').first().json;\n\nif (status === 401) {\n  return [{ json: { found: false, ok: false,\n    speak: 'I am not able to look that up right now. Let me take your details and someone will call you back.' } }];\n}\nif (status < 200 || status >= 300 || !body.found || !body.booking) {\n  return [{ json: { found: false, ok: false,\n    speak: 'I cannot pull that up from this number. If you booked from a different phone, the confirmation email has a link to change or cancel it.' } }];\n}\nconst b = body.booking;\nconst spoken = new Date(b.startTime).toLocaleString('en-US', {\n  timeZone: who.timeZone, weekday: 'long', month: 'long', day: 'numeric',\n  hour: 'numeric', minute: '2-digit',\n});\nreturn [{ json: { found: true, ok: true, booking: b, spoken, ...who } }];\n"
+      },
+      "id": "br-find",
+      "name": "Say what we found",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Only the time and the service, never the email or the uid. The caller already\n// proved both factors, so describing the appointment back is safe; echoing the\n// address they just gave you is not, and the uid must never be spoken.\nconst j = $json;\nif (!j.found) return [{ json: { found: false, speak: j.speak } }];\nconst svc = j.booking.service ? ` for the ${j.booking.service}` : '';\nreturn [{ json: {\n  found: true,\n  speak: `I have you down${svc} on ${j.spoken}. Is that the one?`,\n  canCancel: j.booking.canCancel, canReschedule: j.booking.canReschedule,\n} }];"
+      },
+      "id": "fmt-find",
+      "name": "Describe the booking",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [880, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "resp-find",
+      "name": "Answer Retell (find)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1100, 0]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bookyourslot/reschedule",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "wh-resched",
+      "name": "Retell says: move it",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 360],
+      "webhookId": "wh-resched"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Retell sends {name, call, args} unless \"Payload: args only\" is on. These three\n// functions must keep that OFF, because the caller's number lives in call.from_number\n// and it is half of the identity check. Accept the args-only shape too so a curl test\n// can pass callerPhone explicitly.\nconst body = $json.body ?? $json;\nconst args = body.args ?? body;\nconst email = String(args.email || '').trim().toLowerCase();\nconst callerPhone = String(body.call?.from_number ?? args.callerPhone ?? '').trim();\nreturn [{ json: {\n  email, callerPhone,\n  start: args.start || null,\n  reason: args.reason || null,\n  timeZone: 'America/Detroit',\n} }];"
+      },
+      "id": "id-resched",
+      "name": "Identify the caller ",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 360]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://bookyourslot.online/api/voice/booking-lookup",
+        "options": {
+          "timeout": 15000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true
+            }
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ email: $json.email, callerPhone: $json.callerPhone }) }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "id": "http-find-r",
+      "name": "Look up the booking ",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 360],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_ME",
+          "name": "BookYourSlot voice lookup key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// The lookup answers {found:false} identically for no-such-email, wrong phone and\n// withheld caller ID, on purpose. So this branch cannot tell the caller WHY, and it\n// must not try: the one sentence below is true in every case and leaks nothing.\nconst res = $json;\nconst status = res.statusCode ?? 0;\nconst body = res.body ?? {};\nconst who = $('Identify the caller ').first().json;\n\nif (status === 401) {\n  return [{ json: { found: false, ok: false,\n    speak: 'I am not able to look that up right now. Let me take your details and someone will call you back.' } }];\n}\nif (status < 200 || status >= 300 || !body.found || !body.booking) {\n  return [{ json: { found: false, ok: false,\n    speak: 'I cannot pull that up from this number. If you booked from a different phone, the confirmation email has a link to change or cancel it.' } }];\n}\nconst b = body.booking;\nconst spoken = new Date(b.startTime).toLocaleString('en-US', {\n  timeZone: who.timeZone, weekday: 'long', month: 'long', day: 'numeric',\n  hour: 'numeric', minute: '2-digit',\n});\nreturn [{ json: { found: true, ok: true, booking: b, spoken, ...who } }];"
+      },
+      "id": "br-resched",
+      "name": "Say what we found ",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 360]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gate-resched-c",
+              "leftValue": "={{ $json.found }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gate-resched",
+      "name": "Found and allowed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [880, 360],
+      "notes": "False branch goes straight back to the caller. Nothing downstream may run without a matched booking."
+    },
+    {
+      "parameters": {
+        "jsCode": "const j = $json;\nif (!j.booking.canReschedule) {\n  return [{ json: { ok: false, speak: 'That appointment cannot be moved by phone. The confirmation email has the details.' } }];\n}\nif (!j.start) {\n  return [{ json: { ok: false, speak: 'I still need the new time. Which of the times I read out would you like?' } }];\n}\nreturn [{ json: j }];"
+      },
+      "id": "chk-resched",
+      "name": "Refuse if it cannot be moved",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 360]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gate-resched2-c",
+              "leftValue": "={{ $json.ok !== false && !!$json.booking }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gate-resched2",
+      "name": "Ready to move?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1320, 360]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://bookyourslot.online/api/book/event",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true
+            }
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  eventTypeId: $json.booking.eventTypeId, start: $json.start, timeZone: $json.booking.timeZone || $json.timeZone,\n  language: 'en', metadata: {}, rescheduleUid: $json.booking.uid,\n  responses: { name: $json.booking.name, email: $json.email, attendeePhoneNumber: $json.callerPhone,\n    title: ($json.reason || 'Rescheduled by phone'), notes: 'Rescheduled by phone through the voice agent.', guests: [] }\n}) }}"
+      },
+      "id": "http-resched",
+      "name": "Move the booking",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1540, 360],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// rescheduleUid moves the existing booking rather than adding one, so a 2xx with a\n// uid means the old slot is released and the new one held. A 409 or a\n// no_available_users message means someone took the new slot mid-call.\nconst res = $json; const status = res.statusCode ?? 0; const body = res.body ?? {};\nif (status >= 200 && status < 300 && body.uid) {\n  return [{ json: { ok: true, moved: true, speak: 'That is moved. You will get an updated confirmation email shortly.' } }];\n}\nconst msg = String(body.message || '');\nif (status === 409 || /no_available_users|not available|already booked/i.test(msg)) {\n  return [{ json: { ok: false, retryable: true, speak: 'Sorry, that new time was just taken. Would another time work?' } }];\n}\nreturn [{ json: { ok: false, speak: 'I could not move that just now. Your original time is still in the diary, and someone will call you back.' } }];"
+      },
+      "id": "fmt-resched",
+      "name": "Say what happened (move)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1760, 360]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "resp-resched",
+      "name": "Answer Retell (move)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1980, 360]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bookyourslot/cancel",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "wh-cancel",
+      "name": "Retell says: cancel it",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 720],
+      "webhookId": "wh-cancel"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Retell sends {name, call, args} unless \"Payload: args only\" is on. These three\n// functions must keep that OFF, because the caller's number lives in call.from_number\n// and it is half of the identity check. Accept the args-only shape too so a curl test\n// can pass callerPhone explicitly.\nconst body = $json.body ?? $json;\nconst args = body.args ?? body;\nconst email = String(args.email || '').trim().toLowerCase();\nconst callerPhone = String(body.call?.from_number ?? args.callerPhone ?? '').trim();\nreturn [{ json: {\n  email, callerPhone,\n  start: args.start || null,\n  reason: args.reason || null,\n  timeZone: 'America/Detroit',\n} }];"
+      },
+      "id": "id-cancel",
+      "name": "Identify the caller  ",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 720]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://bookyourslot.online/api/voice/booking-lookup",
+        "options": {
+          "timeout": 15000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true
+            }
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ email: $json.email, callerPhone: $json.callerPhone }) }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "id": "http-find-c",
+      "name": "Look up the booking  ",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 720],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_ME",
+          "name": "BookYourSlot voice lookup key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// The lookup answers {found:false} identically for no-such-email, wrong phone and\n// withheld caller ID, on purpose. So this branch cannot tell the caller WHY, and it\n// must not try: the one sentence below is true in every case and leaks nothing.\nconst res = $json;\nconst status = res.statusCode ?? 0;\nconst body = res.body ?? {};\nconst who = $('Identify the caller  ').first().json;\n\nif (status === 401) {\n  return [{ json: { found: false, ok: false,\n    speak: 'I am not able to look that up right now. Let me take your details and someone will call you back.' } }];\n}\nif (status < 200 || status >= 300 || !body.found || !body.booking) {\n  return [{ json: { found: false, ok: false,\n    speak: 'I cannot pull that up from this number. If you booked from a different phone, the confirmation email has a link to change or cancel it.' } }];\n}\nconst b = body.booking;\nconst spoken = new Date(b.startTime).toLocaleString('en-US', {\n  timeZone: who.timeZone, weekday: 'long', month: 'long', day: 'numeric',\n  hour: 'numeric', minute: '2-digit',\n});\nif (b.canCancel === false) {\n  return [{ json: { found: false, ok: false,\n    speak: 'That appointment cannot be cancelled by phone. The confirmation email has the details.' } }];\n}\nreturn [{ json: { found: true, ok: true, booking: b, spoken, ...who } }];"
+      },
+      "id": "br-cancel",
+      "name": "Say what we found  ",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 720]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gate-cancel-c",
+              "leftValue": "={{ $json.found === true && $json.booking.canCancel === true }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gate-cancel",
+      "name": "Found and cancellable?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [880, 720],
+      "notes": "False branch goes straight back to the caller."
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://bookyourslot.online/api/csrf",
+        "options": {
+          "timeout": 15000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "http-csrf",
+      "name": "Get a CSRF token",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1100, 720],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://bookyourslot.online/api/cancel",
+        "options": {
+          "timeout": 15000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true
+            }
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  uid: $('Say what we found  ').first().json.booking.uid,\n  csrfToken: $json.body.csrfToken,\n  cancellationReason: 'Cancelled by phone through the voice agent.',\n  allRemainingBookings: false\n}) }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Cookie",
+              "value": "=calcom.csrf_token={{ $json.body.csrfToken }}"
+            }
+          ]
+        }
+      },
+      "id": "http-cancel",
+      "name": "Cancel the booking",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1320, 720],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// /api/cancel validates the CSRF token against the calcom.csrf_token cookie, and the\n// two carry the same value, so the token from GET /api/csrf is replayed as both the\n// Cookie header and the body field. Proven against production: token without cookie\n// is a 403 \"Invalid CSRF token\"; both together reach the booking.\nconst res = $json; const status = res.statusCode ?? 0; const body = res.body ?? {};\nif (status >= 200 && status < 300 && body.success !== false) {\n  return [{ json: { ok: true, cancelled: true, speak: 'That is cancelled. You will get a confirmation email shortly.' } }];\n}\nif (status === 403) {\n  return [{ json: { ok: false, speak: 'I could not cancel that just now. It is still in the diary, and someone will call you back.' } }];\n}\nreturn [{ json: { ok: false, speak: 'I could not cancel that just now. It is still in the diary, and someone will call you back.' } }];"
+      },
+      "id": "fmt-cancel",
+      "name": "Say what happened (cancel)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1540, 720]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "resp-cancel",
+      "name": "Answer Retell (cancel)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1760, 720]
+    },
+    {
+      "parameters": {
+        "content": "## BookYourSlot voice booking: manage\n\nThree webhooks Retell calls to find, move or cancel the caller's own booking.\n\n**Identity is two factors**, both must match: the email the caller says, and the number they are ringing from. The lookup lives in the app and answers `found:false` identically for every miss, so nothing here can tell a caller why.\n\n**Keep \"Payload: args only\" OFF** on these three Retell functions. The caller's number comes from `call.from_number`, which that setting strips.\n\n**Credential:** Header Auth, name `authorization`, value = `VOICE_LOOKUP_API_KEY` from the box's `.env`. Attach to all three \"Look up the booking\" nodes.\n\nThe uid never leaves this workflow. Each action re-does the lookup rather than trusting a uid passed back through the agent.",
+        "height": 420,
+        "width": 420,
+        "color": 4
+      },
+      "id": "note",
+      "name": "Setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-520, 0]
+    }
+  ],
+  "connections": {
+    "Retell asks: which booking is mine?": {
+      "main": [
+        [
+          {
+            "node": "Identify the caller",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Identify the caller": {
+      "main": [
+        [
+          {
+            "node": "Look up the booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Look up the booking": {
+      "main": [
+        [
+          {
+            "node": "Say what we found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Say what we found": {
+      "main": [
+        [
+          {
+            "node": "Describe the booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Describe the booking": {
+      "main": [
+        [
+          {
+            "node": "Answer Retell (find)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retell says: move it": {
+      "main": [
+        [
+          {
+            "node": "Identify the caller ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Identify the caller ": {
+      "main": [
+        [
+          {
+            "node": "Look up the booking ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Look up the booking ": {
+      "main": [
+        [
+          {
+            "node": "Say what we found ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Say what we found ": {
+      "main": [
+        [
+          {
+            "node": "Found and allowed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Found and allowed?": {
+      "main": [
+        [
+          {
+            "node": "Refuse if it cannot be moved",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Answer Retell (move)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Refuse if it cannot be moved": {
+      "main": [
+        [
+          {
+            "node": "Ready to move?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ready to move?": {
+      "main": [
+        [
+          {
+            "node": "Move the booking",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Answer Retell (move)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Move the booking": {
+      "main": [
+        [
+          {
+            "node": "Say what happened (move)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Say what happened (move)": {
+      "main": [
+        [
+          {
+            "node": "Answer Retell (move)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retell says: cancel it": {
+      "main": [
+        [
+          {
+            "node": "Identify the caller  ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Identify the caller  ": {
+      "main": [
+        [
+          {
+            "node": "Look up the booking  ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Look up the booking  ": {
+      "main": [
+        [
+          {
+            "node": "Say what we found  ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Say what we found  ": {
+      "main": [
+        [
+          {
+            "node": "Found and cancellable?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Found and cancellable?": {
+      "main": [
+        [
+          {
+            "node": "Get a CSRF token",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Answer Retell (cancel)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a CSRF token": {
+      "main": [
+        [
+          {
+            "node": "Cancel the booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cancel the booking": {
+      "main": [
+        [
+          {
+            "node": "Say what happened (cancel)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Say what happened (cancel)": {
+      "main": [
+        [
+          {
+            "node": "Answer Retell (cancel)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true
+  },
+  "tags": [],
+  "meta": {
+    "instanceId": "bys"
+  },
+  "versionId": "1"
+}
