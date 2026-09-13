@@ -228,6 +228,40 @@ curl -s -X POST https://bookyourslot.online/webhook/bookyourslot/availability \
 the response path in the formatting node is wrong, and every caller would hear that
 sentence forever while the workflow looks perfectly healthy. Tell me if you see it.
 
+## B3. Set the voice lookup key
+
+*2 minutes.* Needed before reschedule and cancel by phone can work at all.
+
+The lookup route that lets the agent find a caller's booking is guarded by its own
+secret, separate from `CRON_API_KEY`, because it hands out the ability to cancel a
+meeting and is worth more. It fails closed: unset, it returns 401 to everything and
+looks like it is working.
+
+Generate it on the box and append it to the env file in one step, so the value never
+passes through a terminal history or a chat:
+
+```bash
+ssh root@2.25.89.115 'K=$(openssl rand -hex 32) && printf "VOICE_LOOKUP_API_KEY=%s\n" "$K" >> /opt/bookyourslot/deploy/production/.env && echo "added"'
+```
+
+Then restart the app so it reads the new variable:
+
+```bash
+ssh root@2.25.89.115 'cd /opt/bookyourslot/deploy/production && docker compose up -d bookyourslot'
+```
+
+Prove it is enforced. An unauthenticated call must be refused:
+
+```bash
+curl -s -o /dev/null -w '%{http_code}\n' -X POST https://bookyourslot.online/api/voice/booking-lookup -H 'Content-Type: application/json' -d '{"email":"x@example.com","callerPhone":"+10000000000"}'
+```
+
+**Success looks like:** `401`. If you see `404` the deploy carrying the route has not
+landed yet. If you see `200` stop: the key is being ignored.
+
+The same value goes into the n8n Header Auth credential for the manage workflow. Copy it
+from the env file on the box when you get to that step, never from here.
+
 ## B2. Confirm the holidays page stopped erroring
 
 *2 minutes.* **Deployed.** No action needed, but worth one look because it was customer
