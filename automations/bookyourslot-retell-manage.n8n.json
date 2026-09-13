@@ -52,7 +52,7 @@
       "onError": "continueRegularOutput",
       "credentials": {
         "httpHeaderAuth": {
-          "id": "REPLACE_ME",
+          "id": "bysVoiceLookup01",
           "name": "BookYourSlot voice lookup key"
         }
       }
@@ -140,7 +140,7 @@
       "onError": "continueRegularOutput",
       "credentials": {
         "httpHeaderAuth": {
-          "id": "REPLACE_ME",
+          "id": "bysVoiceLookup01",
           "name": "BookYourSlot voice lookup key"
         }
       }
@@ -325,7 +325,7 @@
       "onError": "continueRegularOutput",
       "credentials": {
         "httpHeaderAuth": {
-          "id": "REPLACE_ME",
+          "id": "bysVoiceLookup01",
           "name": "BookYourSlot voice lookup key"
         }
       }
@@ -738,5 +738,6 @@
   "meta": {
     "instanceId": "bys"
   },
-  "versionId": "1"
+  "versionId": "1",
+  "id": "bysRetellManage1"
 }
