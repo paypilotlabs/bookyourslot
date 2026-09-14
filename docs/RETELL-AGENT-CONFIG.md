@@ -124,6 +124,8 @@ in the table below and both are documented as function-calling reliability lever
 | **Response Wait time** | **~350 ms** | At 0 the agent has no added patience for someone spelling letters |
 | **Pronunciation Dictionary** | add "Lohith" | TTS only. It stops the agent mispronouncing the name of the person whose diary it manages |
 | **Denoising** | keep `noise-cancellation` | Do **not** enable the aggressive mode. It costs $0.005/min and the docs say it "can distort waveforms and reduce accuracy" |
+| **Language** | **Multiselect**: English (US) first, then Spanish (Latin America) | Section G. Order matters: the first one is what the voice falls back to when it cannot tell which language a sentence is in |
+| **Voice** | one that does not grey Spanish out in the language picker | Section G. With an ElevenLabs voice the model must not be `eleven_flash_v2`, which is English only |
 
 **One trap in the Response Wait slider.** The millisecond to 0-1 mapping is documented:
 1 adds no wait, 0.9 adds one second, and each further 0.1 adds 0.5s. So 0.8 is **1.5
@@ -224,7 +226,7 @@ badly.
 
 ### Layer 1: Boosted Keywords
 
-Documented cap 100. Use about 73 to leave headroom. Paste these in:
+Documented cap 100. Use about 81 to leave headroom. Paste these in:
 
 **Domains (22)**
 ```
@@ -255,6 +257,11 @@ Victor, Whiskey, Xray, Yankee, Zulu
 **Identity (5)**
 ```
 Lohith, Lohith Kumar, consultation, quick question, Ekoham
+```
+
+**Spanish (8)**, the connectives a Spanish caller uses when spelling an email
+```
+arroba, punto com, punto net, guion, guion bajo, todo junto, mayúscula, minúscula
 ```
 
 Boosting the NATO words is what makes the NATO preset pay off: the preset makes the agent
@@ -329,6 +336,20 @@ and do not fill the silence.
 You are booking time with a consultant, so callers are often deciding whether he is
 the right person. Your job is to make that easy: understand what they need, get them
 in the diary, and give Lohith enough context to prepare. You are not selling.
+
+LANGUAGE
+This line answers in English and in Spanish. Open in English. If the caller speaks
+Spanish, answer in Spanish from your next sentence and stay in Spanish for the whole
+call: every scripted line in this prompt, every question, and every speak or spoken
+field a function gives you. Do not mix the two in one sentence, and do not switch back
+unless the caller does.
+Wherever this prompt says word for word, it means in the caller's language: word for
+word in English, and in Spanish the same sentence with nothing added and nothing left
+out. Same day, same time, same meaning.
+Two things never change language. The service value you send is always one of the
+three English strings. And when you call book_appointment or reschedule_booking, send
+lang as "es" on a Spanish call and "en" otherwise. That is what puts their
+confirmation email in Spanish, so do not forget it.
 
 WHAT LOHITH DOES
 He helps businesses build the systems and operations they run on: the processes,
@@ -488,7 +509,9 @@ arrives.
 
 FIRST IMPRESSION
 The phone system already answered. Do not say "thanks for calling" twice. Start
-naturally: "Hey, you've reached Lohith Kumar's office, this is Maya. How can I help?"
+naturally: "Hey, you've reached Lohith Kumar's office, this is Maya. How can I help?
+Si prefiere español, dígamelo." That last sentence is the only Spanish an English caller
+ever hears. Do not translate the rest of the greeting.
 
 WHEN THE CALLER ASKS FOR LOHITH DIRECTLY
 Say: "He's not on the phone right now, but I can get you into his diary, or take a
@@ -511,8 +534,12 @@ Most failed calls fail here. Ask for it once, whole:
 Then read it back phonetically, every time, no exceptions:
 "Let me read that back. l for Lima - o for Oscar - h for Hotel - i for India - t for
 Tango - h for Hotel, at gmail dot com. Is that right?"
+In Spanish, the same thing with Spanish letter names and the same words:
+"ele de Lima - o de Oscar - hache de Hotel - i de India - te de Tango - hache de Hotel,
+arroba gmail punto com. ¿Es correcto?"
 
-Say "at" for the at sign. Say "dot com", never "dot see oh em".
+Say "at" for the at sign, "arroba" in Spanish. Say "dot com" or "punto com", never the
+letters one by one.
 
 Take it again the slow way whenever ANY of these is true:
   they corrected you,
@@ -557,8 +584,9 @@ Keep this call short. Every question you do not need is thirty seconds of someon
 8. Say the function's speak field back word for word, then "Anything else before you
    go?" and end.
 
-The reason you send is a SHORT PHRASE, six words or so, in their own words. It becomes
-the title on his calendar and the subject of his email, so a paragraph is wrong. If
+The reason you send is a SHORT PHRASE, six words or so, in their own words. It goes
+into the notes Lohith reads before the call, so a paragraph is wrong. On a Spanish
+call, send the reason in English, keeping their key words, so he can read it. If
 their first sentence was not about a problem, take one line in the same turn as the
 name: "And in a sentence, what would you like to get into?"
 
@@ -595,7 +623,9 @@ Say each one slowly and in words:
 "I've got Monday the eighth at nine in the morning, or Tuesday the ninth at nine. Would
 either of those work?"
 
-Never read a raw timestamp like 2026-09-07T13:00:00Z out loud. If none of the times
+Never read a raw timestamp like 2026-09-07T13:00:00Z out loud, and never work the day
+or the hour out from iso yourself: iso is UTC, and spoken already carries his local
+time. Say the words you were given, in the caller's language. If none of the times
 work, say "let me have another look" and check again for a different week.
 
 BOOKING IT
@@ -658,6 +688,8 @@ NEVER DO THESE
 - Never cancel without the caller saying yes to the specific day and time.
 - Never call check_availability for a mover before find_booking has confirmed which
   booking, and always with the service find_booking named.
+- Never answer a Spanish caller in English after the greeting, and never send a
+  Spanish service value. The three service strings are English on every call.
 
 BEFORE THE CALL ENDS
 Say three things back one more time: the date, the time, and the email.
@@ -679,7 +711,7 @@ Say you will pass it on, take their name and number, and end warmly. Do not gues
 | Timeout | **15000** ms |
 | Max Retries | 0 |
 | Payload: args only | **ON** |
-| Talk While Waiting | **ON**, "Let me look at his diary." |
+| Talk While Waiting | **ON**, type **Prompt**: `One short holding line in the caller's language. In English: Let me look at his diary.` |
 | Talk After Action Completed | **ON** |
 | Play typing sound | off |
 
@@ -718,7 +750,7 @@ rather than claiming nothing is available.
 | Timeout | **20000** ms |
 | Max Retries | **0** |
 | Payload: args only | **ON** |
-| Talk While Waiting | **ON**, "Putting that in his diary now." |
+| Talk While Waiting | **ON**, type **Prompt**: `One short holding line in the caller's language. In English: Putting that in his diary now.` |
 | Talk After Action Completed | **ON** |
 
 **Max Retries must stay 0.** This creates a real booking. A retry double-books, and the
@@ -739,9 +771,10 @@ caller cannot see it happen.
     "name": { "type": "string", "description": "Caller's full name, as confirmed back to them." },
     "email": { "type": "string", "description": "Caller's email, spelled back and confirmed letter by letter." },
     "phone": { "type": "string", "description": "Caller's phone number." },
-    "reason": { "type": "string", "description": "What they want to cover, and their company if given. This is what Lohith reads before the call." }
+    "reason": { "type": "string", "description": "What they want to cover, and their company if given. This is what Lohith reads before the call." },
+    "lang": { "type": "string", "enum": ["en", "es"], "description": "The language the caller is speaking on this call. Picks the language of their confirmation email and reminders." }
   },
-  "required": ["service", "start", "name", "email"]
+  "required": ["service", "start", "name", "email", "lang"]
 }
 ```
 
@@ -761,13 +794,13 @@ phone.
 | Timeout | 15000 ms |
 | Max Retries | **0** |
 | Payload: args only | **OFF** |
-| Talk While Waiting | ON |
+| Talk While Waiting | ON, type **Prompt**, text below each function |
 | Talk After Action Completed | ON |
 
 ### `find_booking`
 
 **URL** `POST https://bookyourslot.online/webhook/bookyourslot/find`
-**Talk While Waiting** `Let me find that.`
+**Talk While Waiting** Prompt: `One short holding line in the caller's language. In English: Let me find that.`
 
 ```
 Find the caller's own upcoming booking. Call this once you have the email the booking
@@ -789,7 +822,7 @@ confirmation email has the link.
 ### `reschedule_booking`
 
 **URL** `POST https://bookyourslot.online/webhook/bookyourslot/reschedule`
-**Talk While Waiting** `Moving that now.`
+**Talk While Waiting** Prompt: `One short holding line in the caller's language. In English: Moving that now.`
 
 ```
 Move the caller's confirmed booking to a new time. Only call this after find_booking
@@ -802,16 +835,17 @@ said yes to it. It moves the existing booking; it never creates a second one.
   "type": "object",
   "properties": {
     "email": { "type": "string", "description": "The same email used for find_booking." },
-    "start": { "type": "string", "description": "The iso value of the new time the caller picked. Never invent one." }
+    "start": { "type": "string", "description": "The iso value of the new time the caller picked. Never invent one." },
+    "lang": { "type": "string", "enum": ["en", "es"], "description": "The language the caller is speaking on this call. Picks the language of the new confirmation email and reminders." }
   },
-  "required": ["email", "start"]
+  "required": ["email", "start", "lang"]
 }
 ```
 
 ### `cancel_booking`
 
 **URL** `POST https://bookyourslot.online/webhook/bookyourslot/cancel`
-**Talk While Waiting** `Cancelling that now.`
+**Talk While Waiting** Prompt: `One short holding line in the caller's language. In English: Cancelling that now.`
 
 ```
 Cancel the caller's confirmed booking. This cannot be undone. Only call this after
@@ -862,6 +896,87 @@ those four.**
 settings and documented defaults. Whether GPT 4.1 actually holds the two-string rule on
 this prompt, and whether backchannel grunts land between spelled letters, can only be
 established by placing calls.
+
+---
+
+## G. Spanish and English on the same line
+
+Retell detects the language; the workflows do not need to know it, with one exception:
+the confirmation email. Everything the caller hears is produced by the LLM, which
+translates the `speak` and `spoken` fields on the fly under the LANGUAGE rule in the
+prompt. Nothing in n8n was translated, on purpose: nine English sentences and a date
+formatter would have become eighteen sentences and two formatters, all to say what the
+LLM says anyway.
+
+The exception is the email. `/api/book/event` takes a `language` field, and the app
+stores it on the attendee row as their locale. That locale drives the confirmation
+email, the three reminders and the cancellation email, so a Spanish caller who was
+booked with `es-419` gets every email in Spanish with no further work. Which is why
+`book_appointment` and `reschedule_booking` now take `lang`, and `cancel_booking` and
+`find_booking` do not: cancelling reads the locale already on the row, finding sends
+nothing. A reschedule creates a new row, so it has to carry the language again.
+
+`es-419` is Latin American Spanish, which is the Spanish spoken by callers in the US.
+The other file, `es`, is Spain. Both exist in the app; keys missing from either fall
+back to English.
+
+### Retell, in this order
+
+1. **Language**: switch the selector to **Multiselect**. Tick **English (US)** first,
+   then **Spanish (Latin America)**. Do not use the old "Multilingual" option: Retell
+   retired it on 31 July 2026 and the API now rejects it.
+2. **Voice**: with Chloe selected, open the language picker. If Spanish is greyed out,
+   the voice cannot speak it; pick a Platform voice, which Retell routes to a
+   multilingual model itself. If you keep an ElevenLabs voice, the voice model must be
+   `eleven_multilingual_v2` or `eleven_flash_v2_5`, never `eleven_flash_v2`.
+3. **Prompt**: paste section E again. The LANGUAGE block, the Spanish readback, the
+   `lang` rule and the greeting tag are all in it.
+4. **Functions**: add the `lang` parameter to `book_appointment` and
+   `reschedule_booking` (sections 5 and 6, already in the JSON there). On all five
+   functions change Talk While Waiting from Static Sentence to **Prompt** with the text
+   given per function, or a Spanish caller hears "Let me look at his diary" in English
+   mid-call.
+5. **Boosted Keywords**: add the Spanish eight from section D.
+6. **Welcome Message**: if it is set to Custom (a fixed sentence), replace it with:
+   ```
+   Hey, you've reached Lohith Kumar's office, this is Maya. How can I help? Si prefiere español, dígamelo.
+   ```
+   If it is Dynamic, leave it; the prompt already carries that line.
+7. **Publish**, then check the phone number is on the new version.
+
+### n8n
+
+Re-import both workflows. Three lines changed: `http-book` and `http-resched` now send
+`language: ($json.lang === 'es' ? 'es-419' : 'en')` instead of `language: 'en'`, and
+the three Identify nodes in the manage workflow pass `lang` through. An old Retell
+version that does not send `lang` still books, in English, because the ternary falls
+to `'en'`.
+
+### Test
+
+One call in Spanish, start to finish: "Hola, quiero una cita con Lohith." Book it, then
+open the confirmation email. The subject should read
+`Confirmado: ... con ... el ...`. If it is in English, `lang` did not reach n8n: check
+the function's parameters in Retell, then the execution's input in n8n.
+
+Then one call in English to prove nothing regressed, and one that switches: open in
+English, answer the first question in Spanish, and confirm the agent follows.
+
+### Voicemail detection
+
+Leave it **off**. It only runs on outbound calls, when the agent is the one dialling
+and reaches an answering machine. This line is inbound, so on every call it is a
+no-op, and Retell's own FAQ says so. If you ever add outbound callbacks (the "someone
+will call you back" promise), turn it on with **Leave a message**, type **Static
+Sentence**:
+
+```
+Hi, this is Maya from Lohith Kumar's office, returning your call about an appointment. Sorry to have missed you. Call us back on this number whenever suits, and I can get you into his diary. Hola, soy Maya, de la oficina de Lohith Kumar. Le devuelvo la llamada sobre su cita. Llámenos a este número cuando le convenga. Gracias.
+```
+
+Static text is read as written, so it has to carry both languages itself; a Prompt
+type message would be generated in the language of the call, but on an outbound call
+there is no caller speech to detect yet.
 
 ---
 

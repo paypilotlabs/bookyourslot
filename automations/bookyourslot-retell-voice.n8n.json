@@ -118,7 +118,7 @@
         "url": "=https://bookyourslot.online/api/book/event",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ eventTypeId: $json.service.eventTypeId, start: $json.start, timeZone: $json.client.timeZone, language: 'en', metadata: {}, responses: {   name: $json.name,   email: $json.email,   attendeePhoneNumber: ($json.phone || ''),   title: ($json.reason || $json.service.slug + ' booked by phone'),   notes: [     'Booked by phone through the voice agent.',     'Service: ' + $json.service.slug + '.',     $json.phone ? 'Caller phone: ' + $json.phone + '.' : '',     $json.reason ? 'Reason given: ' + $json.reason : ''   ].filter(Boolean).join(' '),   guests: [] } }) }}",
+        "jsonBody": "={{ JSON.stringify({ eventTypeId: $json.service.eventTypeId, start: $json.start, timeZone: $json.client.timeZone, language: ($json.lang === 'es' ? 'es-419' : 'en'), metadata: {}, responses: {   name: $json.name,   email: $json.email,   attendeePhoneNumber: ($json.phone || ''),   title: ($json.reason || $json.service.slug + ' booked by phone'),   notes: [     'Booked by phone through the voice agent.',     'Service: ' + $json.service.slug + '.',     $json.phone ? 'Caller phone: ' + $json.phone + '.' : '',     $json.reason ? 'Reason given: ' + $json.reason : ''   ].filter(Boolean).join(' '),   guests: [] } }) }}",
         "options": {
           "timeout": 30000,
           "response": {
@@ -345,5 +345,6 @@
   "meta": {
     "instanceId": ""
   },
-  "versionId": ""
+  "versionId": "",
+  "id": "bysRetellVoice01"
 }

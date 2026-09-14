@@ -17,7 +17,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Retell sends {name, call, args} unless \"Payload: args only\" is on. These three\n// functions must keep that OFF, because the caller's number lives in call.from_number\n// and it is half of the identity check. Accept the args-only shape too so a curl test\n// can pass callerPhone explicitly.\nconst body = $json.body ?? $json;\nconst args = body.args ?? body;\nconst email = String(args.email || '').trim().toLowerCase();\nconst callerPhone = String(body.call?.from_number ?? args.callerPhone ?? '').trim();\nreturn [{ json: {\n  email, callerPhone,\n  start: args.start || null,\n  reason: args.reason || null,\n  timeZone: 'America/Detroit',\n} }];"
+        "jsCode": "// Retell sends {name, call, args} unless \"Payload: args only\" is on. These three\n// functions must keep that OFF, because the caller's number lives in call.from_number\n// and it is half of the identity check. Accept the args-only shape too so a curl test\n// can pass callerPhone explicitly.\nconst body = $json.body ?? $json;\nconst args = body.args ?? body;\nconst email = String(args.email || '').trim().toLowerCase();\nconst callerPhone = String(body.call?.from_number ?? args.callerPhone ?? '').trim();\nreturn [{ json: {\n  email, callerPhone,\n  start: args.start || null,\n  reason: args.reason || null,\n  lang: args.lang || null,\n  timeZone: 'America/Detroit',\n} }];"
       },
       "id": "id-find",
       "name": "Identify the caller",
@@ -105,7 +105,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Retell sends {name, call, args} unless \"Payload: args only\" is on. These three\n// functions must keep that OFF, because the caller's number lives in call.from_number\n// and it is half of the identity check. Accept the args-only shape too so a curl test\n// can pass callerPhone explicitly.\nconst body = $json.body ?? $json;\nconst args = body.args ?? body;\nconst email = String(args.email || '').trim().toLowerCase();\nconst callerPhone = String(body.call?.from_number ?? args.callerPhone ?? '').trim();\nreturn [{ json: {\n  email, callerPhone,\n  start: args.start || null,\n  reason: args.reason || null,\n  timeZone: 'America/Detroit',\n} }];"
+        "jsCode": "// Retell sends {name, call, args} unless \"Payload: args only\" is on. These three\n// functions must keep that OFF, because the caller's number lives in call.from_number\n// and it is half of the identity check. Accept the args-only shape too so a curl test\n// can pass callerPhone explicitly.\nconst body = $json.body ?? $json;\nconst args = body.args ?? body;\nconst email = String(args.email || '').trim().toLowerCase();\nconst callerPhone = String(body.call?.from_number ?? args.callerPhone ?? '').trim();\nreturn [{ json: {\n  email, callerPhone,\n  start: args.start || null,\n  reason: args.reason || null,\n  lang: args.lang || null,\n  timeZone: 'America/Detroit',\n} }];"
       },
       "id": "id-resched",
       "name": "Identify the caller ",
@@ -243,7 +243,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({\n  eventTypeId: $json.booking.eventTypeId, start: $json.start, timeZone: $json.booking.timeZone || $json.timeZone,\n  language: 'en', metadata: {}, rescheduleUid: $json.booking.uid,\n  responses: { name: $json.booking.name, email: $json.email, attendeePhoneNumber: $json.callerPhone,\n    title: ($json.reason || 'Rescheduled by phone'), notes: 'Rescheduled by phone through the voice agent.', guests: [] }\n}) }}"
+        "jsonBody": "={{ JSON.stringify({\n  eventTypeId: $json.booking.eventTypeId, start: $json.start, timeZone: $json.booking.timeZone || $json.timeZone,\n  language: ($json.lang === 'es' ? 'es-419' : 'en'), metadata: {}, rescheduleUid: $json.booking.uid,\n  responses: { name: $json.booking.name, email: $json.email, attendeePhoneNumber: $json.callerPhone,\n    title: ($json.reason || 'Rescheduled by phone'), notes: 'Rescheduled by phone through the voice agent.', guests: [] }\n}) }}"
       },
       "id": "http-resched",
       "name": "Move the booking",
@@ -290,7 +290,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Retell sends {name, call, args} unless \"Payload: args only\" is on. These three\n// functions must keep that OFF, because the caller's number lives in call.from_number\n// and it is half of the identity check. Accept the args-only shape too so a curl test\n// can pass callerPhone explicitly.\nconst body = $json.body ?? $json;\nconst args = body.args ?? body;\nconst email = String(args.email || '').trim().toLowerCase();\nconst callerPhone = String(body.call?.from_number ?? args.callerPhone ?? '').trim();\nreturn [{ json: {\n  email, callerPhone,\n  start: args.start || null,\n  reason: args.reason || null,\n  timeZone: 'America/Detroit',\n} }];"
+        "jsCode": "// Retell sends {name, call, args} unless \"Payload: args only\" is on. These three\n// functions must keep that OFF, because the caller's number lives in call.from_number\n// and it is half of the identity check. Accept the args-only shape too so a curl test\n// can pass callerPhone explicitly.\nconst body = $json.body ?? $json;\nconst args = body.args ?? body;\nconst email = String(args.email || '').trim().toLowerCase();\nconst callerPhone = String(body.call?.from_number ?? args.callerPhone ?? '').trim();\nreturn [{ json: {\n  email, callerPhone,\n  start: args.start || null,\n  reason: args.reason || null,\n  lang: args.lang || null,\n  timeZone: 'America/Detroit',\n} }];"
       },
       "id": "id-cancel",
       "name": "Identify the caller  ",
