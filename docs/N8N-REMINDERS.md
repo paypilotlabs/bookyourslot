@@ -53,7 +53,7 @@ Copy the value. It is not in the workflow file and must not be committed anywher
 
 ### 2. Import the workflow
 
-n8n is reachable on your tailnet at `http://100.91.157.6:5678`. It is not exposed
+n8n is reachable on your tailnet at `http://<tailnet-ip>:5678`. It is not exposed
 publicly, which is correct and should stay that way.
 
 In n8n: **Workflows** then **Import from File**, and choose

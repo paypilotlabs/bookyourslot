@@ -12,14 +12,14 @@ Reference for the items themselves: [BACKLOG.md](BACKLOG.md).
 
 | Thing | Value |
 | --- | --- |
-| SSH | `ssh root@2.25.89.115` |
+| SSH | `ssh root@<server-ip>` |
 | Compose directory | `/opt/bookyourslot/deploy/production` |
 | App container | `production-bookyourslot-1` |
 | Database container | `production-database-1` |
 | Postgres user / database | `bookyourslot` / `bookyourslot` |
 | Env file | `/opt/bookyourslot/deploy/production/.env` |
 | Pre-deploy snapshots | `/opt/bookyourslot/backups/` |
-| n8n editor | `http://100.91.157.6:5678/`, tailnet only, never public |
+| n8n editor | `http://<tailnet-ip>:5678/`, tailnet only, never public |
 
 Two standing rules:
 
@@ -38,7 +38,7 @@ and the backup cron documented in the box's own README. It was measured **33 com
 behind** on 6 September.
 
 ```bash
-ssh root@2.25.89.115 'cd /opt/bookyourslot && git pull && git rev-list --count HEAD..origin/main'
+ssh root@<server-ip> 'cd /opt/bookyourslot && git pull && git rev-list --count HEAD..origin/main'
 ```
 
 **Success looks like:** the last line prints `0`.
@@ -64,7 +64,7 @@ The redirection in the cron job cannot create this. Without it the job fails eve
 and cron's only complaint goes to root's local mail on a box with no mail reader.
 
 ```bash
-ssh root@2.25.89.115 'mkdir -p /root/backups && ls -ld /root/backups'
+ssh root@<server-ip> 'mkdir -p /root/backups && ls -ld /root/backups'
 ```
 
 ## A2. Install the nightly dump
@@ -90,7 +90,7 @@ Three details in that line each cost a working backup once already, so do not si
 Confirm it saved:
 
 ```bash
-ssh root@2.25.89.115 'crontab -l'
+ssh root@<server-ip> 'crontab -l'
 ```
 
 ## A3. Prove the dump works, without waiting for 3am
@@ -98,7 +98,7 @@ ssh root@2.25.89.115 'crontab -l'
 *2 minutes.* Runs the same pipeline by hand.
 
 ```bash
-ssh root@2.25.89.115 'cd /opt/bookyourslot/deploy/production && bash -o pipefail -c "docker compose exec -T database pg_dump --clean --if-exists -U bookyourslot bookyourslot | gzip > /root/backups/manual-test.sql.gz" && ls -lh /root/backups/manual-test.sql.gz'
+ssh root@<server-ip> 'cd /opt/bookyourslot/deploy/production && bash -o pipefail -c "docker compose exec -T database pg_dump --clean --if-exists -U bookyourslot bookyourslot | gzip > /root/backups/manual-test.sql.gz" && ls -lh /root/backups/manual-test.sql.gz'
 ```
 
 **Success looks like:** a file of roughly **220KB**. Verified today at 227,297 bytes.
@@ -109,7 +109,7 @@ means `pipefail` is missing. This is exactly the failure the flag exists to catc
 Clean up:
 
 ```bash
-ssh root@2.25.89.115 'rm /root/backups/manual-test.sql.gz'
+ssh root@<server-ip> 'rm /root/backups/manual-test.sql.gz'
 ```
 
 Then check again tomorrow that `bys-<date>.sql.gz` appeared on its own.
@@ -167,11 +167,11 @@ S3 if you already have an account, or another machine you control via `scp`.
 Once you have chosen, install and configure it:
 
 ```bash
-ssh root@2.25.89.115 'curl -fsSL https://rclone.org/install.sh | bash'
+ssh root@<server-ip> 'curl -fsSL https://rclone.org/install.sh | bash'
 ```
 
 ```bash
-ssh root@2.25.89.115 'rclone config'
+ssh root@<server-ip> 'rclone config'
 ```
 
 Then append one line to the cron job from A2, after the `mv`, so the copy runs only when
@@ -203,7 +203,7 @@ n8n list agreeing, "Last updated 17 hours ago" against a fix merged the same nig
 config**. Merging the availability fix does nothing to live calls. Until you import it, a
 failed slots lookup still returns an empty body and a caller still hears silence.
 
-Open `http://100.91.157.6:5678/` on the tailnet, then:
+Open `http://<tailnet-ip>:5678/` on the tailnet, then:
 
 1. Open the **existing** "BookYourSlot voice booking (Retell)" workflow and import into
    it. A fresh import creates a *second* workflow claiming `bookyourslot/availability`,
@@ -241,13 +241,13 @@ Generate it on the box and append it to the env file in one step, so the value n
 passes through a terminal history or a chat:
 
 ```bash
-ssh root@2.25.89.115 'K=$(openssl rand -hex 32) && printf "VOICE_LOOKUP_API_KEY=%s\n" "$K" >> /opt/bookyourslot/deploy/production/.env && echo "added"'
+ssh root@<server-ip> 'K=$(openssl rand -hex 32) && printf "VOICE_LOOKUP_API_KEY=%s\n" "$K" >> /opt/bookyourslot/deploy/production/.env && echo "added"'
 ```
 
 Then restart the app so it reads the new variable:
 
 ```bash
-ssh root@2.25.89.115 'cd /opt/bookyourslot/deploy/production && docker compose up -d bookyourslot'
+ssh root@<server-ip> 'cd /opt/bookyourslot/deploy/production && docker compose up -d bookyourslot'
 ```
 
 Prove it is enforced. An unauthenticated call must be refused:
@@ -295,7 +295,7 @@ To check by hand in the meantime, note the container log is short lived and a re
 clears it, so a zero here right after a deploy means nothing:
 
 ```bash
-ssh root@2.25.89.115 'docker logs production-bookyourslot-1 --since 24h 2>&1 | grep -c "attendeeReminder"'
+ssh root@<server-ip> 'docker logs production-bookyourslot-1 --since 24h 2>&1 | grep -c "attendeeReminder"'
 ```
 
 ## C2. Rotate the Postgres password
@@ -348,7 +348,7 @@ CI is currently **advisory**: a red PR can be merged and `main` can be pushed to
 Verified still blocked today:
 
 ```bash
-gh api repos/squid-beast/bookyourslot/branches/main/protection
+gh api repos/paypilotlabs/bookyourslot/branches/main/protection
 ```
 
 Returns 403, "Upgrade to GitHub Pro or make this repository public to enable this

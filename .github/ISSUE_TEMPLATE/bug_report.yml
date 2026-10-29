@@ -1,0 +1,42 @@
+name: Bug report
+description: Something in BookYourSlot doesn't work as described.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Please don't include real customer names, emails, phone numbers or API keys.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      placeholder: "3.0.0, or the commit SHA"
+    validations:
+      required: true
+  - type: dropdown
+    id: setup
+    attributes:
+      label: How are you running it?
+      options:
+        - Docker Compose (deploy/production)
+        - Local development (yarn dev)
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+      description: Remove anything private first.

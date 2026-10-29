@@ -1,93 +1,55 @@
-# BookYourSlot
+<div align="center">
 
-**Appointment booking for small businesses**, self-hosted on your own domain at
-[bookyourslot.online](https://bookyourslot.online).
+<img src="apps/web/public/bys-wordmark-navy.svg" alt="BookYourSlot" height="40">
 
-Version **3.0.0**. Built on [Cal.com](https://github.com/calcom/cal.com)'s
-open-source community edition, then deliberately cut down: 79 integrations
-removed, team and enterprise machinery stripped, and signups placed behind admin
-approval. What is left is the part a dentist, salon, clinic, or consultant
-actually uses.
+**Open-source appointment booking for small businesses.** A self-hosted, deliberately smaller edition of Cal.com, built for salons, clinics, consultants and local trades.
 
-This is a private commercial product, not an open signup service. New accounts
-stay pending until an admin approves them.
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![CI](https://github.com/paypilotlabs/bookyourslot/actions/workflows/ci.yml/badge.svg)](https://github.com/paypilotlabs/bookyourslot/actions/workflows/ci.yml)
+[![Sponsor](https://img.shields.io/badge/sponsor-PayPilotLabs-ea4aaa?logo=githubsponsors)](https://github.com/sponsors/paypilotlabs)
 
-## What works today
+[Self-hosting](deploy/production/README.md) · [Integrations](docs/APP-STORE.md) · [n8n automations](docs/N8N.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md)
 
-- **Booking pages.** Every account gets a public page. Guests pick a time and
-  book themselves, no account required.
-- **Availability and time zones.** Working hours, date overrides, buffers,
-  minimum notice, and automatic timezone conversion for the guest.
-- **Self-serve reschedule and cancel.** Guests manage their own booking from the
-  confirmation email, and the calendar stays correct without you touching it.
-- **Google Calendar sync.** Verified end to end on 31 Aug 2026: a booking creates a
-  real calendar event with a Google Meet link, a reschedule moves that same event
-  rather than duplicating it, and the owner's existing busy times remove slots from
-  the public page. Apple Calendar and CalDAV ship but have not been exercised — do
-  not claim them until they are.
-  Say "bookings land in your Google Calendar". Do not say "two-way sync".
-  A **newly signed-up** account gets this too, verified 5 Sep 2026 on a real account
-  that connected Google and came out with a Meet location on its event type. That
-  had been broken: onboarding never installed Google Meet, because the
-  `installGoogleVideo` flag was read in three places and set in none, so new
-  accounts were created with `locations=[]` and produced no join link at all.
-- **Email notifications.** Confirmations, reschedules, and cancellations go out
-  automatically over SMTP.
-- **Webhooks.** `BOOKING_CREATED`, `BOOKING_RESCHEDULED`, `BOOKING_CANCELLED`
-  and more, sent to any URL. This is the supported path for **n8n** automations,
-  see [docs/N8N.md](docs/N8N.md).
-- **Embeds.** Drop the booking flow into your own site as an inline widget,
-  popup, or React component.
-- **Admin approval gate.** Self-serve signups are created pending. An admin
-  approves them from Settings, Admin, Users, which sends the new business their
-  verification email.
-- **In-person and phone appointments.** Six location types need no app install:
-  the attendee's own address (they type it, it lands in the calendar event and
-  opens Maps on a phone), the organizer's address, a custom location, the
-  attendee's phone, the organizer's phone, and any pasted link. When a service
-  offers more than one, the guest picks at booking time and is asked for whatever
-  that choice needs. This is what makes the product work for a salon, a clinic or
-  a mobile trade rather than video calls only.
-- **Attendee reminders at 48h, 24h and 30m.** Three bands, each with its own
-  dedupe marker, so a booking made a week out collects three and one made three
-  hours out collects two. Email only, and **an external scheduler has to call the
-  route** or nothing is sent, see [docs/N8N-REMINDERS.md](docs/N8N-REMINDERS.md).
-- **Admin-only app store.** Clients do not browse integrations; the operator
-  assigns them. Clients keep their installed apps view and the calendar category,
-  which they need because only they can consent to Google.
-- **Booking questions.** Thirteen answer types per service, each optionally
-  required. Answers reach the host's email, the calendar entry and the webhook.
-- **Requires confirmation, seats, and recurring bookings.** Approve each booking
-  by hand from a signed link in your email, sell group classes with seats per
-  slot, or schedule a repeating series.
+<img src="apps/web/public/landing/booking.png" alt="A BookYourSlot booking page: event details on the left, a month calendar in the middle and available times on the right" width="720">
 
-## Not in this edition
+</div>
 
-Removed on purpose. Do not sell these, and do not expect the routes to exist.
+## Why BookYourSlot
+
+Cal.com is excellent and large. Most small businesses use a fraction of it and still pay for, or maintain, the rest. BookYourSlot keeps the part a dentist, salon or consultant uses every day and removes the rest: 79 integrations, teams, enterprise SSO and billing are gone. What's left is smaller to run and easier to understand.
+
+New accounts wait for an admin to approve them, so one operator can run a single instance for several businesses.
+
+## What works
+
+- **Booking pages.** Every account gets a public page. Guests pick a time and book without an account.
+- **Availability and time zones.** Working hours, date overrides, buffers, minimum notice, and automatic time zone conversion for the guest.
+- **Reschedule and cancel.** Guests manage their own booking from the confirmation email.
+- **Google Calendar and Meet.** A booking creates a calendar event with a Meet link, a reschedule moves that same event, and existing busy times block slots. Apple Calendar and CalDAV are included but less tested.
+- **Email notifications** for confirmations, reschedules and cancellations over SMTP.
+- **Reminders at 48h, 24h and 30m** by email. An external scheduler (for example n8n) has to call the reminder route; see [docs/N8N-REMINDERS.md](docs/N8N-REMINDERS.md).
+- **Webhooks** (`BOOKING_CREATED`, `BOOKING_RESCHEDULED`, `BOOKING_CANCELLED` and more), the supported path for automations. See [docs/N8N.md](docs/N8N.md).
+- **Embeds.** Inline widget, popup or React component for your own site.
+- **In-person and phone appointments.** Attendee address, organizer address, custom location, either party's phone, or any link.
+- **Booking questions.** Thirteen answer types per service, optionally required.
+- **Requires confirmation, seats and recurring bookings.**
+- **Admin approval and an admin-only app store.** Businesses can't install integrations themselves; the operator assigns them. Calendar connections stay self-serve because Google requires the account holder's consent.
+
+## What's not included
 
 | Area | Status |
 | --- | --- |
-| Teams and round-robin | **Partly present, not usable.** `Team` and `Membership` survive in the schema, the round-robin engine (`getLuckyUser.ts`) and per-host priority and weight are intact, and an admin can provision a team through a tRPC mutation. There is no UI: `/teams` returns 404, `CreateEventTypeDialog` refuses a team event type, and the host assignment tab renders nothing. **No client can reach any of it.** Do not sell round-robin. |
-| Collective booking | **Works.** `/alice+bob/30min` books everyone named into one appointment. It intersects their availability, so it is the opposite of round-robin and must never be pitched as "whoever is free". |
-| Workflows engine | Removed. `packages/features/ee/workflows/` is absent and `Workflow`/`WorkflowReminder` are not in the schema. |
-| Attendee reminders | **Present.** Three bands at 48h, 24h and 30m before the start, each with its own dedupe marker, in `apps/web/app/api/cron/attendeeReminder/`. Email only. Nothing in the app schedules them: an external caller such as n8n must hit the route, see [docs/N8N-REMINDERS.md](docs/N8N-REMINDERS.md). If that stops, reminders stop silently. |
-| SMS and WhatsApp sending | Removed. `packages/sms/sms-manager.ts` checks a rate limit and returns without sending. The "WhatsApp", "Telegram" and "Signal" apps are `linkType: "static"` location links: they let a host paste a `wa.me` / `t.me` link as the meeting place and send nothing. Never describe them as reminders. |
-| Billing, plans, subscriptions | Removed. There is no in-app payment for the product itself. |
-| SSO, SAML, SCIM, organizations | Removed. `ORGANIZATIONS_ENABLED` must stay empty. |
-| Admin impersonation | Removed. |
-| Standalone REST API (`apps/api/v2`) | Present in the repo, **not deployed**. The container runs the web app only. Automate through webhooks. |
-| Insights and advanced analytics | Not part of this edition. |
-| Outlook / Microsoft 365 | Removed. Calendar sync and Microsoft sign-in are both gone; Google, Apple and CalDAV remain. |
+| Teams and round-robin | Not available. The schema and engine are still in the code, but there is no UI and `/teams` returns 404. |
+| Collective booking | Works: `/alice+bob/30min` books everyone into one appointment at a time they are all free. |
+| Workflows engine | Removed. Reminders use the cron route above instead. |
+| SMS and WhatsApp messages | Not sent. The WhatsApp, Telegram and Signal apps are location links only. |
+| Payments | Not supported. A price on an event type produces bookings that never confirm. |
+| Billing, SSO, SAML, SCIM, organizations, impersonation | Removed. |
+| REST API (`apps/api/v2`) | In the repo, not in the Docker build. Use webhooks. |
+| Outlook / Microsoft 365 | Removed. |
+| Cal Video | Needs `DAILY_API_KEY`; without it, use Google Meet. |
 
-Integrations went from 105 to **26 in the tree**, of which **19 render** in the
-store: the rest have no enabled row or no metadata in the registry. See
-[docs/APP-STORE.md](docs/APP-STORE.md) for what each surviving app does and what
-it needs.
-
-The store itself is **admin-only**. A client sees their installed apps and a line
-telling them where to ask for more; every browse and install route 404s for them.
-The one exception is the calendar category, because Google requires the account
-holder to click consent and a calendar connection cannot be made on their behalf.
+Integrations went from 105 to 26 in the tree, 19 of which appear in the store. [docs/APP-STORE.md](docs/APP-STORE.md) lists each one and what it needs.
 
 ## Integrations and the keys they need
 
@@ -114,41 +76,35 @@ disabled and invisible in the store until they validate.
 
 ## Local development
 
-Node 20 and Yarn 4.12 or newer.
+Node 20 and Yarn 4.12 or newer:
 
 ```bash
 yarn
-cp .env.example .env
+cp .env.example .env      # set DATABASE_URL, NEXTAUTH_SECRET, CALENDSO_ENCRYPTION_KEY
 yarn workspace @calcom/prisma db-migrate
-yarn dev
+yarn dev                  # http://localhost:3000
 ```
 
-Fill `DATABASE_URL`, `NEXTAUTH_SECRET`, and `CALENDSO_ENCRYPTION_KEY` in `.env`
-before the migrate step. The app runs on http://localhost:3000.
+Before pushing:
 
 ```bash
-yarn type-check:ci --force   # must stay green before pushing
-TZ=UTC yarn test             # unit tests
-yarn biome check --write .   # lint and format
+yarn type-check:ci --force
+TZ=UTC yarn test
+yarn biome check --write .
 ```
 
-Engineering standards this repo follows live in [CLAUDE.md](CLAUDE.md) and
-[agents/](agents/).
+Engineering standards are in [CLAUDE.md](CLAUDE.md) and [agents/](agents/).
 
-## Production
+## Self-hosting
 
-A single VPS running Docker Compose behind an existing Traefik, with the image
-built by GitHub Actions and pulled from GHCR. Merging to `main` deploys
-automatically.
+The reference deployment is one VPS running Docker Compose behind Traefik, with the image built by GitHub Actions and pulled from GHCR.
 
-- [deploy/production/README.md](deploy/production/README.md) for the runbook:
-  DNS, first boot, SMTP, OAuth, updates, rollback
-- [docs/DEPLOYMENT-AUTOMATION.md](docs/DEPLOYMENT-AUTOMATION.md) for the CI/CD
-  pipeline and its security model
-- [deploy/production/CHECKLIST.md](deploy/production/CHECKLIST.md) for the
-  launch checklist
+- [deploy/production/README.md](deploy/production/README.md): DNS, first boot, SMTP, OAuth, updates, rollback
+- [docs/DEPLOYMENT-AUTOMATION.md](docs/DEPLOYMENT-AUTOMATION.md): the CI/CD pipeline and its security model
+- [deploy/production/CHECKLIST.md](deploy/production/CHECKLIST.md): launch checklist
+- [docs/OPS-RUNBOOK.md](docs/OPS-RUNBOOK.md): backups, cron and day-to-day operations
 
-Four things that will cost you data or a customer if ignored:
+Four things that will cost you data if ignored:
 
 - **Never rotate `CALENDSO_ENCRYPTION_KEY` after go-live.** Every stored
   calendar credential is encrypted with it and becomes unreadable. Keep a copy
@@ -177,32 +133,29 @@ WHERE type = 'google_calendar' AND (uid = '' OR uid IS NULL);
 
 Anything above the known historical count means a real customer was affected.
 
-## Admin tasks
+### Admin tasks
 
 | Task | Where |
 | --- | --- |
-| Approve a pending business | Settings, Admin, Users. The pending count shows as a badge in the sidebar. |
-| Enable or configure an app | Settings, Admin, Apps |
-| Feature flags | Settings, Admin, Features |
+| Approve a pending business | Settings → Admin → Users (pending count shows in the sidebar) |
+| Enable or configure an app | Settings → Admin → Apps |
+| Feature flags | Settings → Admin → Features |
 
-## Documentation
+## More documentation
 
-- [docs/N8N.md](docs/N8N.md) for wiring bookings into n8n
-- [docs/APP-STORE.md](docs/APP-STORE.md) for every integration, what it does and
-  what it needs
-- [docs/TESTING.md](docs/TESTING.md) for testing locally and on the VPS
-- [docs/GITHUB.md](docs/GITHUB.md) for branching, PR flow, and secrets policy
-- [docs/BACKLOG.md](docs/BACKLOG.md) for the engineering backlog: what would make
-  this more reliable, safer or faster, and what is already handled
-- [SECURITY.md](SECURITY.md) for reporting a vulnerability
+- [docs/TESTING.md](docs/TESTING.md): testing locally and on a server
+- [docs/GITHUB.md](docs/GITHUB.md): branching, pull requests and secrets policy
+- [docs/BACKLOG.md](docs/BACKLOG.md): known gaps and planned reliability work
+- [docs/FEATURE-LEDGER.md](docs/FEATURE-LEDGER.md): what was kept and removed from Cal.com
 
-## Contact
+## Contributing and support
 
-Questions, feedback, security reports: **hello@bookyourslot.online**
+Issues and pull requests are welcome; read [CONTRIBUTING.md](CONTRIBUTING.md). Report security problems privately, see [SECURITY.md](SECURITY.md).
+
+Want BookYourSlot run for you instead of hosting it yourself? [PayPilotLabs](https://paypilotlabs.com) offers managed hosting and setup.
+
+If BookYourSlot is useful to you, [sponsoring PayPilotLabs](https://github.com/sponsors/paypilotlabs) keeps it maintained.
 
 ## License and attribution
 
-MIT, see [LICENSE](LICENSE). BookYourSlot is built and maintained by
-**Lohith Kumar Nerukonda** ([about](https://bookyourslot.online/about)) on top of
-[Cal.com](https://github.com/calcom/cal.com)'s open-source community edition.
-Thanks to the Cal.com team and contributors.
+MIT, see [LICENSE](LICENSE). Built and maintained by Lohith Kumar Nerukonda at [PayPilotLabs](https://github.com/paypilotlabs), on top of [Cal.com](https://github.com/calcom/cal.com)'s open-source edition. Thanks to the Cal.com team and contributors.

@@ -13,7 +13,7 @@ This runbook sequences two deep documents and does not restate them:
 
 | Thing | Where |
 |---|---|
-| n8n editor | `http://100.91.157.6:5678/`, tailnet only, not public |
+| n8n editor | `http://<tailnet-ip>:5678/`, tailnet only, not public |
 | The app, as the client's user | `https://bookyourslot.online` |
 | Retell dashboard | your Retell account |
 | `CRON_API_KEY` | `/opt/bookyourslot/deploy/production/.env` on the VPS, only needed for reminders |

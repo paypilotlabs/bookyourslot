@@ -37,7 +37,7 @@ permissions: {}
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }} # squid-beast/bookyourslot
+  IMAGE_NAME: ${{ github.repository }} # paypilotlabs/bookyourslot
 
 jobs:
   build:

@@ -11,7 +11,7 @@
 # .env by the deploy so restarts and reboots keep the pinned build.
 services:
   bookyourslot:
-    image: ghcr.io/squid-beast/bookyourslot:${IMAGE_TAG:-latest}
+    image: ghcr.io/paypilotlabs/bookyourslot:${IMAGE_TAG:-latest}
     # Always fetch the pinned tag before starting so a re-tagged image can't go
     # stale on the host. The base file's build: section is ignored on `up` once
     # the image is present locally (remote-deploy.sh pulls it first).
