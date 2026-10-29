@@ -977,7 +977,7 @@ export const BLOG_POSTS: BlogPost[] = [
         </ol>
         <p>
           The full version of this, including the payload shape and a ready-made signature check, is in the{" "}
-          <a href="https://github.com/squid-beast/bookyourslot/blob/main/docs/N8N.md">
+          <a href="https://github.com/paypilotlabs/bookyourslot/blob/main/docs/N8N.md">
             n8n guide in our docs
           </a>
           .

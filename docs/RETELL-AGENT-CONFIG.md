@@ -31,7 +31,7 @@ booked thirty.
 
 **Fix it now:** turn **Payload: args only ON** for both functions. That works immediately.
 
-The permanent fix is [PR #58](https://github.com/squid-beast/bookyourslot/pull/58), which
+The permanent fix is [PR #58](https://github.com/paypilotlabs/bookyourslot/pull/58), which
 makes the workflow accept both shapes. Once it is merged and re-imported the toggle stops
 mattering, but do not wait for that.
 

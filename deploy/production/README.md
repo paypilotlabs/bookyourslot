@@ -16,7 +16,7 @@ There are two ways the image gets onto the server:
 
 ```mermaid
 flowchart LR
-    G[GitHub Actions<br/>squid-beast/bookyourslot] -- push image --> R[GHCR]
+    G[GitHub Actions<br/>paypilotlabs/bookyourslot] -- push image --> R[GHCR]
     R -- docker compose pull --> V
 
     subgraph V[VPS - 8 GB, Docker Compose]
@@ -62,7 +62,7 @@ echo '/swapfile none swap sw 0 0' >> /etc/fstab
 ## 3. Clone + configure
 
 ```bash
-git clone https://github.com/squid-beast/bookyourslot.git /opt/bookyourslot
+git clone https://github.com/paypilotlabs/bookyourslot.git /opt/bookyourslot
 cd /opt/bookyourslot/deploy/production
 cp .env.production.example .env
 nano .env    # fill every <PLACEHOLDER> — secrets, DB password, SMTP password
@@ -199,7 +199,7 @@ services:
   database:
     ports:
       # Postgres reachable over the tailnet only, never the public internet.
-      - "100.91.157.6:5432:5432"
+      - "<tailnet-ip>:5432:5432"
 ```
 
 The file is gitignored, so pulls stay clean. `remote-deploy.sh` adds it to the

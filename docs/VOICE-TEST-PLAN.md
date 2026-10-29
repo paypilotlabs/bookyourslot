@@ -43,7 +43,7 @@ outside the repo entirely.
 Your n8n screenshot agrees: "Last updated 17 hours ago", and the fix merged two hours
 ago. So a failed slots lookup still returns silence to a caller.
 
-At `http://100.91.157.6:5678/`:
+At `http://<tailnet-ip>:5678/`:
 
 - [ ] Open the **existing** "BookYourSlot voice booking (Retell)" workflow. Import
       `automations/bookyourslot-retell-voice.n8n.json` **into it**, not as a new workflow.
@@ -234,7 +234,7 @@ attendeeReminder[48h]: sent=0 skipped=1 failed=0
 - [ ] Confirm it arrives **once**, not on every subsequent run.
 
 ```bash
-ssh root@2.25.89.115 'docker logs production-bookyourslot-1 2>&1 | grep attendeeReminder | tail -5'
+ssh root@<server-ip> 'docker logs production-bookyourslot-1 2>&1 | grep attendeeReminder | tail -5'
 ```
 
 - [ ] `sent=1` on the run that sent it, `skipped=1` on the next one.

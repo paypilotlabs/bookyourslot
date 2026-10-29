@@ -1,7 +1,7 @@
 # GitHub policies
 
 How this repository is run: what goes in, how it gets reviewed, and how it
-reaches production. Repo: `github.com/squid-beast/bookyourslot`.
+reaches production. Repo: `github.com/paypilotlabs/bookyourslot`.
 
 ## Repository settings to apply once
 

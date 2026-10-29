@@ -86,7 +86,7 @@ of this security model, and why you can add a required reviewer on the
 
 ## 3. Prerequisites
 
-- Repo on GitHub: `github.com/squid-beast/bookyourslot`, CI green.
+- Repo on GitHub: `github.com/paypilotlabs/bookyourslot`, CI green.
 - VPS reachable over SSH, repo cloned at `/opt/bookyourslot`, Docker + compose
   plugin installed, the stack already brought up once by hand per
   [deploy/production/README.md](../deploy/production/README.md).
@@ -141,7 +141,7 @@ Then, on the VPS - typed at a prompt rather than passed on the command line, so
 it stays out of shell history:
 
 ```bash
-read -rs GHCR_TOKEN && printf '%s' "$GHCR_TOKEN" | sudo -u deploy -H docker login ghcr.io -u squid-beast --password-stdin && unset GHCR_TOKEN
+read -rs GHCR_TOKEN && printf '%s' "$GHCR_TOKEN" | sudo -u deploy -H docker login ghcr.io -u <github-user> --password-stdin && unset GHCR_TOKEN
 ```
 
 The `-H` matters: the credential is written to the invoking user's
@@ -151,7 +151,7 @@ The `-H` matters: the credential is written to the invoking user's
 Verify it took, without pulling any layers:
 
 ```bash
-sudo -u deploy -H docker manifest inspect ghcr.io/squid-beast/bookyourslot:latest >/dev/null && echo "GHCR auth OK"
+sudo -u deploy -H docker manifest inspect ghcr.io/paypilotlabs/bookyourslot:latest >/dev/null && echo "GHCR auth OK"
 ```
 
 Keep the GHCR package **private** (Package settings → change visibility).
@@ -206,7 +206,7 @@ Until you do this, your existing build-on-server flow
 ## 5. The first deploy
 
 1. Merge any small PR to `main` (or run **Actions → Deploy → Run workflow**).
-2. Watch **Actions**: `build` pushes `ghcr.io/squid-beast/bookyourslot:sha-…`,
+2. Watch **Actions**: `build` pushes `ghcr.io/paypilotlabs/bookyourslot:sha-…`,
    then `deploy` SSHes in and cuts over.
 3. `remote-deploy.sh` snapshots the DB, pulls, `up -d`, waits for the new
    container to answer on `localhost:3000`, persists the verified tag, prunes,
@@ -412,7 +412,7 @@ What makes this more than a deploy button:
 | `deploy` job: `Host key verification failed` | `DEPLOY_KNOWN_HOSTS` missing/stale | Re-run `ssh-keyscan` (4.4), update the secret |
 | `deploy` job: `Permission denied (publickey)` | Wrong key, or user isn't `deploy` | Recheck `DEPLOY_SSH_KEY` / `DEPLOY_USER`; re-run 4.2 |
 | Server: `invalid tag` / `unknown action` | Tag didn't match the allowlist | Expected safety behavior; use `sha-…` or `latest` |
-| `docker compose pull`: `denied` / `unauthorized` | VPS not logged in to GHCR, or the token expired | Redo 4.3 with a fresh **classic** `read:packages` token. Confirm with `sudo -u deploy -H docker manifest inspect ghcr.io/squid-beast/bookyourslot:latest` |
+| `docker compose pull`: `denied` / `unauthorized` | VPS not logged in to GHCR, or the token expired | Redo 4.3 with a fresh **classic** `read:packages` token. Confirm with `sudo -u deploy -H docker manifest inspect ghcr.io/paypilotlabs/bookyourslot:latest` |
 | Build OOM | `MAX_OLD_SPACE_SIZE` too low for the runner | Raise the build-arg, or use a larger runner |
 | Health check fails → auto-rollback | New image genuinely broken, or slow boot | Read `docker compose logs bookyourslot`; raise `HEALTH_TIMEOUT` if it's just slow |
 | Deploy succeeded but site shows old build | Browser/Traefik cache, or `/api/logo` s-maxage | Hard refresh; the image itself is current |
